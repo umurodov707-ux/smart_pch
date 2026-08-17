@@ -66,9 +66,64 @@ router.post('/acts', (req, res) => {
     });
 });
 
+// --- Storage (Warehouse) Routes ---
+
+// Get all items in storage
+router.get('/storage', (req, res) => {
+    db.all('SELECT * FROM storage_items ORDER BY name ASC', [], (err, rows) => {
+        if (err) return res.status(500).json({ message: err.message });
+        res.json(rows);
+    });
+});
+
+// Update/Add storage items (Bulk save from Accounting table)
+router.post('/storage/bulk', (req, res) => {
+    const { items } = req.body;
+    if (!items || !Array.isArray(items)) return res.status(400).json({ message: 'Items array required' });
+
+    db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        const stmt = db.prepare(`
+            INSERT INTO storage_items (schyot, name, uom, price, quantity) 
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(name) DO UPDATE SET 
+            schyot=excluded.schyot, uom=excluded.uom, price=excluded.price, quantity=excluded.quantity
+        `);
+
+        items.forEach(item => {
+            stmt.run([item.schyot, item.name, item.uom, item.price, item.quantity]);
+        });
+
+        stmt.finalize();
+        db.run('COMMIT', (err) => {
+            if (err) return res.status(500).json({ message: err.message });
+            res.json({ success: true, message: 'Storage updated successfully' });
+        });
+    });
+});
+
+// Get pending acts count or list
+router.get('/acts/pending', (req, res) => {
+    const { dept_id } = req.query;
+    let query = 'SELECT * FROM material_acts WHERE status = "pending"';
+    let params = [];
+
+    if (dept_id) {
+        query += ' AND dept_id = ?';
+        params.push(dept_id);
+    }
+
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ message: err.message });
+        res.json(rows);
+    });
+});
+
 // Approve M-29 act (Accounting)
 router.post('/acts/:id/approve', (req, res) => {
     const { id } = req.params;
+    const { approved_by } = req.body;
 
     db.serialize(() => {
         db.run('BEGIN TRANSACTION');
@@ -88,7 +143,9 @@ router.post('/acts/:id/approve', (req, res) => {
             updateStmt.finalize();
 
             // 3. Update act status
-            db.run('UPDATE material_acts SET status = "approved" WHERE id = ?', [id], (err) => {
+            const approvedDate = new Date().toISOString();
+            db.run('UPDATE material_acts SET status = "approved", approved_date = ?, approved_by = ? WHERE id = ?', 
+                [approvedDate, approved_by || 'Accounting', id], (err) => {
                 if (err) {
                     db.run('ROLLBACK');
                     return res.status(500).json({ message: err.message });
@@ -101,6 +158,49 @@ router.post('/acts/:id/approve', (req, res) => {
             });
         });
     });
+});
+
+// Reject M-29 act
+router.post('/acts/:id/reject', (req, res) => {
+    const { id } = req.params;
+    db.run('UPDATE material_acts SET status = "rejected" WHERE id = ?', [id], (err) => {
+        if (err) return res.status(500).json({ message: err.message });
+        res.json({ success: true });
+    });
+});
+
+// --- Archive Routes ---
+
+// Get accounting archives
+router.get('/archives', (req, res) => {
+    const { dept_id } = req.query;
+    let query = 'SELECT * FROM accounting_archives';
+    let params = [];
+
+    if (dept_id && dept_id !== 'all') {
+        query += ' WHERE bolinma_id = ?';
+        params.push(dept_id);
+    }
+
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ message: err.message });
+        res.json(rows);
+    });
+});
+
+// Create accounting archive (Bulk sync)
+router.post('/archives', (req, res) => {
+    const { bolinma_id, filename, period, summary, data } = req.body;
+    
+    db.run(
+        `INSERT INTO accounting_archives (bolinma_id, filename, period, summary, data) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [bolinma_id, filename, period, summary, typeof data === 'string' ? data : JSON.stringify(data)],
+        function(err) {
+            if (err) return res.status(500).json({ message: err.message });
+            res.json({ id: this.lastID, success: true });
+        }
+    );
 });
 
 module.exports = router;

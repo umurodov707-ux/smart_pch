@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART PCH - Pletlar Hisobi Mockup</title>
+    <!-- Assuming this is placed in public/ dir to access existing assets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --bg-obsidian: #1e293b;
+            --primary-gold: #94a3b8;
+            --accent-gold: #ffd700;
+            --neon-gold: #f59e0b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-bg: rgba(30, 41, 59, 0.75);
+            --glass-border: rgba(212, 175, 55, 0.35);
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #b4941f 100%);
+        }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .window-container {
+            width: 1000px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+
+        .window-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #f8fafc;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions button {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-dim);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .header-actions button:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .window-top-bar {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #000;
+            font-weight: 800;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-container {
+            padding: 20px 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        th {
+            color: var(--primary-gold);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        td {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.03);
+            cursor: pointer;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-good {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .status-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .status-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .led-green { background: #10b981; box-shadow: 0 0 8px #10b981; }
+        .led-amber { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+        .led-red { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+        .temp-high { color: #ef4444; font-weight: 800; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+    </style>
+</head>
+<body>
+
+    <div class="window-container">
+        <div class="window-header">
+            <h2 class="title">
+                <i class="fas fa-ruler-combined" style="color: #38bdf8;"></i>
+                <span style="background: var(--gold-gradient); -webkit-background-clip: text; color: transparent;">UCHASTKADAGI PLETLAR HISOBI</span>
+            </h2>
+            <div class="header-actions">
+                <button><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="window-top-bar">
+            <div>
+                <h3 style="margin:0; font-size: 1.1rem;">1-bo'linma: Ishlab chiqarish</h3>
+                <p style="margin: 5px 0 0; font-size: 0.8rem; color: var(--text-dim);">Jami pletlar soni: 3 ta | Umumiy uzunlik: 2400m</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-outline"><i class="fas fa-file-excel" style="color: #10b981;"></i> Eksport</button>
+                <button class="btn-gold"><i class="fas fa-plus"></i> Yangi Plet Qo'shish</button>
+            </div>
+        </div>
+        
+        <!-- Switch Measurement Panel -->
+        <div class="switch-measurement" style="margin-top:20px; padding:20px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius:12px;">
+          <h3 class="title" style="margin:0 0 10px 0; font-size:1.3rem; background: var(--gold-gradient); -webkit-background-clip: text; color: transparent;">Измерения стрелки</h3>
+          <label for="path-select" style="color:var(--text-main);">Путь №:</label>
+          <select id="path-select" class="select" style="margin-right:15px;">
+            <option value="">— Выберите путь —</option>
+            <option value="Asosiy">Asosiy</option>
+            <option value="Qabul qilish -Jo'nash">Qabul qilish -Jo'nash</option>
+            <option value="Boshqa">Boshqa</option>
+          </select>
+
+          <label for="mark-select" style="color:var(--text-main);">Марка:</label>
+          <select id="mark-select" class="select" disabled>
+            <option value="">— Выберите марку —</option>
+          </select>
+
+          <form id="switch-form" class="form" style="margin-top:15px;">
+            <div class="field" style="margin-bottom:10px;">
+              <label style="color:var(--text-main);">Ширина колеи (mm)</label>
+              <input type="number" name="gauge" step="0.1" data-standard="gauge" class="input" style="width:120px;"/>
+            </div>
+            <div class="field" style="margin-bottom:10px;">
+              <label style="color:var(--text-main);">Разница высот рельсов (mm)</label>
+              <input type="number" name="railLevelDiff" step="0.1" data-standard="railLevel" class="input" style="width:120px;"/>
+            </div>
+            <div class="field" style="margin-bottom:10px;">
+              <label style="color:var(--text-main);">K (mm)</label>
+              <input type="number" name="K" step="0.1" data-standard="K" class="input" style="width:120px;"/>
+            </div>
+            <div class="field" style="margin-bottom:10px;">
+              <label style="color:var(--text-main);">J1 (mm)</label>
+              <input type="number" name="J1" step="0.1" data-standard="J1" class="input" style="width:120px;"/>
+            </div>
+            <div class="field" style="margin-bottom:10px;">
+              <label style="color:var(--text-main);">J2 (mm)</label>
+              <input type="number" name="J2" step="0.1" data-standard="J2" class="input" style="width:120px;"/>
+            </div>
+            <div id="ordinate-fields" style="margin-bottom:10px;">
+              <!-- ordinals will be generated by JS -->
+            </div>
+            <button type="submit
+        <div class="table-container">
+          <table id="standards-table" style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th>Путь №</th>
+                <th>Марка</th>
+                <th>Ширина колеи (mm)</th>
+                <th>Разница высот рельсов (mm)</th>
+                <th>K (mm)</th>
+                <th>J1 (mm)</th>
+                <th>J2 (mm)</th>
+                <th>Ордината 0 м (mm)</th>
+                <th>Ордината 2 м (mm)</th>
+                <th>Ордината 4 м (mm)</th>
+                <th>Ордината 6 м (mm)</th>
+                <th>Ордината 8 м (mm)</th>
+                <th>Ордината 10 м (mm)</th>
+                <th>Ордината 12 м (mm)</th>
+                <th>Ордината 14 м (mm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- rows will be generated by JavaScript -->
+            </tbody>
+          </table>
+          <script>
+            // Load standards JSON and populate the table
+            fetch('/pu29_switch_standards.json')
+              .then(r => r.json())
+              .then(data => {
+                const tbody = document.querySelector('#standards-table tbody');
+                Object.entries(data).forEach(([path, marks]) => {
+                  Object.entries(marks).forEach(([mark, std]) => {
+                    const tr = document.createElement('tr');
+                    const cells = [];
+                    cells.push(path);
+                    cells.push(mark);
+                    cells.push(`${std.gauge.nominal} ± ${std.gauge.tolerance}`);
+                    cells.push(`${std.railLevel.maxDiff} (max)`);
+                    cells.push(`${std.crossTie.K.nominal} ± ${std.crossTie.K.tolerance.plus}/${std.crossTie.K.tolerance.minus}`);
+                    cells.push(`${std.crossTie.J1.nominal} ± ${std.crossTie.J1.tolerance.plus}/${std.crossTie.J1.tolerance.minus}`);
+                    cells.push(`${std.crossTie.J2.nominal} ± ${std.crossTie.J2.tolerance.plus}/${std.crossTie.J2.tolerance.minus}`);
+                    std.transitionCurve.forEach(pt => {
+                      cells.push(`${pt.y} ± ${pt.tol}`);
+                    });
+                    cells.forEach(text => {
+                      const td = document.createElement('td');
+                      td.textContent = text;
+                      tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                  });
+                });
+              })
+              .catch(err => console.error('Failed to load standards:', err));
+          </script>
+        </div>ass="fas fa-pen"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

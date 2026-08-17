@@ -1,0 +1,333 @@
+/* Main Layout Container */
+.main-system {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 70px;
+}
+
+/* Navbar Layout */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    height: 80px;
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border-bottom: 1.5px solid var(--glass-border) !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    /* Allow wrapping if needed */
+    justify-content: flex-end;
+    max-width: 60%;
+    /* Ensure it doesn't push the logo out of screen */
+}
+
+/* Hide some text or scale down icons for small screens to prevent overlap */
+@media (max-width: 1200px) {
+
+    #system-clock,
+    #userName {
+        display: none !important;
+    }
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo img {
+    height: 45px;
+    filter: drop-shadow(0 0 12px var(--accent-gold));
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.sub-title {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+/* Sidebar Layout */
+.sidebar {
+    width: 280px;
+    height: calc(100vh - 80px);
+    position: fixed;
+    top: 80px;
+    left: 0;
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border-right: 1.5px solid var(--glass-border) !important;
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.3);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+    transform: translateX(0);
+}
+
+/* Smooth opacity and transform animations for sidebar elements */
+.sidebar-header h3,
+.sidebar-header #sidebar-masofa-badge,
+.sidebar-menu li span {
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.15s, 
+                visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.15s, 
+                transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    white-space: nowrap; /* prevent text wrapping during collapse */
+}
+
+.sidebar.collapsed .sidebar-header h3,
+.sidebar.collapsed .sidebar-header #sidebar-masofa-badge,
+.sidebar.collapsed .sidebar-menu li span {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.sidebar.collapsed .sidebar-header {
+    padding: 25px 0 !important;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Premium miniature icon inside the collapsed sidebar header */
+.sidebar.collapsed .sidebar-header::after {
+    content: "\f238"; /* FontAwesome train icon */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 1.6rem;
+    color: var(--accent-gold);
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+    display: block;
+    margin-top: 5px;
+    animation: pulseIcon 2s infinite ease-in-out;
+}
+
+@keyframes pulseIcon {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.08); opacity: 1; text-shadow: 0 0 25px rgba(212, 175, 55, 0.85); }
+}
+
+.sidebar.collapsed .sidebar-menu li {
+    padding: 12px 0 !important;
+    justify-content: center !important;
+    margin: 8px 15px !important;
+    gap: 0 !important;
+    border: 1px solid transparent !important;
+}
+
+.sidebar.collapsed .sidebar-menu li i {
+    font-size: 1.3rem !important;
+    margin: 0 !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.sidebar.collapsed .sidebar-menu li.active {
+    border-left: none !important;
+    border: 1.5px solid rgba(212, 175, 55, 0.6) !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0.05)) !important;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.25) !important;
+}
+
+.sidebar.collapsed .sidebar-menu li:hover {
+    transform: scale(1.08) !important; /* Scale up slightly, NO horizontal translation */
+    background: rgba(212, 175, 55, 0.12) !important;
+    border-color: rgba(212, 175, 55, 0.4) !important;
+}
+
+.sidebar-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding: 25px 20px !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-gold);
+    font-weight: 800;
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    min-height: 80px;
+    transition: var(--transition-premium);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 10px 0;
+}
+
+.sidebar-menu li {
+    border-radius: 12px;
+    margin: 10px 18px;
+    padding: 15px 24px;
+    transition: var(--transition-premium);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: var(--text-primary);
+    border: 1px solid transparent;
+    font-weight: 600;
+}
+
+.sidebar-menu li:hover {
+    background: rgba(212, 175, 55, 0.1) !important;
+    color: var(--accent-gold);
+    transform: translateX(10px) scale(1.02);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.sidebar-menu li.active {
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.05)) !important;
+    border-left: 5px solid var(--accent) !important;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    color: var(--accent-gold);
+}
+
+/* Main Content Area */
+.content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 3rem;
+    background: transparent;
+    min-height: calc(100vh - 80px);
+    transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.collapsed ~ .content {
+    margin-left: 80px;
+}
+
+.sidebar.collapsed + .sidebar-floating-toggle {
+    left: 65px;
+}
+
+/* Sidebar Floating Toggle Button */
+.sidebar-floating-toggle {
+    position: fixed;
+    top: 105px; /* Positioned below the 80px navbar, centered in the sidebar header */
+    left: 265px; /* Overlaps the 280px border */
+    width: 30px;
+    height: 30px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(212, 175, 55, 0.5); /* Gold border */
+    border-radius: 50%;
+    color: #ffd700; /* Gold icon color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-color 0.3s, 
+                color 0.3s, 
+                transform 0.3s, 
+                box-shadow 0.3s;
+    z-index: 1002;
+}
+
+.sidebar-floating-toggle:hover {
+    background: linear-gradient(135deg, #ffd700, #b4941f);
+    color: #000000 !important;
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    border-color: #ffd700;
+}
+
+.sidebar-floating-toggle i {
+    font-size: 0.85rem;
+    transition: transform 0.4s ease;
+    color: inherit !important;
+    text-shadow: none !important;
+}
+
+/* Rotate icon on toggle */
+.rotate-icon {
+    transform: rotate(180deg);
+}
+
+.sidebar-header i {
+    transition: transform 0.4s ease;
+}
+
+/* Background Decorations */
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.railway-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    opacity: 0.08;
+    background-size: contain;
+    animation: logoFloat 20s infinite ease-in-out;
+}
+
+.moving-train {
+    position: absolute;
+    bottom: 10%;
+    width: 120px;
+    height: 60px;
+    background: linear-gradient(90deg, #334155, #475569);
+    border-radius: 10px;
+    animation: trainMove 25s linear infinite;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.rail-tracks {
+    position: absolute;
+    bottom: 8%;
+    width: 100%;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, transparent, transparent 20px, #ffd700 20px, #ffd700 40px);
+    animation: trackMove 1s linear infinite;
+}

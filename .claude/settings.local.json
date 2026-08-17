@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check server/routes/auth.js)",
+      "Bash(node --check public/js/script.js)",
+      "Bash(node --check public/js/admin-panel.js)",
+      "Bash(node --check public/js/auth.js)",
+      "Read(//tmp/**)",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 7007 -ErrorAction SilentlyContinue\")",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const u=JSON.parse\\(d\\);console.log\\(u.map\\(x=>x.username+':'+x.role\\).join\\('\\\\n'\\)\\)}\\)\")",
+      "Bash(cd \"C:\\\\Users\\\\user\\\\Desktop\\\\smartpch\" && wc -l public/js/pu74.js public/js/pu74_new.js public/js/pu74_dashboard.js public/js/pu74_norms.js server/routes/pu74.js server/routes/pu74_monthly.js fix_pu74.js 2>&1)",
+      "Read(//c/Users/user/Desktop/smartpch/**)",
+      "Bash(node --check public/js/pu74_dashboard.js)",
+      "Bash(node --check public/js/pu74.js)",
+      "Bash(node \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-user-Desktop-smartpch-----\\\\7f651c9c-1f45-49e8-8ec5-b37ee4c0b3c0\\\\scratchpad\\\\pu74_smoke_test.js\")",
+      "Bash(cp \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-user-Desktop-smartpch-----\\\\7f651c9c-1f45-49e8-8ec5-b37ee4c0b3c0\\\\scratchpad\\\\pu74_smoke_test.js\" ./pu74_smoke_test_tmp.js)",
+      "Bash(node pu74_smoke_test_tmp.js)",
+      "Bash(node --check public/js/pu74_norms.js)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

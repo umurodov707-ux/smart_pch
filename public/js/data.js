@@ -77,16 +77,20 @@ window.INITIAL_DATA = {
     ],
 
     departments: [
-        { id: 'dashboard', name: 'Bosh sahifa', icon: 'fas fa-tachometer-alt' },
-        { id: 'bolinma1', name: '1-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma2', name: '2-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma3', name: '3-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma4', name: '4-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma5', name: '5-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma6', name: '6-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma7', name: '7-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma8', name: '8-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma9', name: '9-bo\'linma', icon: 'fas fa-hard-hat' },
-        { id: 'bolinma10', name: '10-bo\'linma', icon: 'fas fa-hard-hat' },
+        { id: 'dashboard', name: 'Bosh sahifa', icon: 'fas fa-tachometer-alt', type: 'global' },
+
+        // Bo'linmalar
+        { id: 'bolinma1', name: '1-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma2', name: '2-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma3', name: '3-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma4', name: '4-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma5', name: '5-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma6', name: '6-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma7', name: '7-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma8', name: '8-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma9', name: '9-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+        { id: 'bolinma10', name: '10-bo\'linma', icon: 'fas fa-shield-alt', type: 'bolinma' },
+
+
     ]
 };

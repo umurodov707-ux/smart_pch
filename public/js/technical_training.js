@@ -6,17 +6,28 @@ let techTrainingCurrentRecord = null;
 let techTrainingSignatureStep = 'instructor'; // 'instructor' or 'attendee'
 let currentSigningAttendeeId = null;
 
-// Load records from localStorage
-function loadTechTrainingRecords() {
-    const stored = localStorage.getItem('tech_training_records');
-    if (stored) {
-        techTrainingRecords = JSON.parse(stored);
+// Load records from Server
+async function loadTechTrainingRecords() {
+    try {
+        const bolinmaId = window.currentTechTrainingBolinmaId || 'all';
+        const data = await SmartUtils.fetchAPI(`/safety/training?bolinma_id=${bolinmaId}`);
+        if (data) {
+            techTrainingRecords = data.map(r => ({
+                ...r,
+                attendees: typeof r.attendees === 'string' ? JSON.parse(r.attendees) : r.attendees
+            }));
+        }
+    } catch (e) {
+        console.error("Failed to load records from server:", e);
+        const stored = localStorage.getItem('tech_training_records');
+        if (stored) techTrainingRecords = JSON.parse(stored);
     }
     return techTrainingRecords;
 }
 
-// Save records to localStorage
-function saveTechTrainingRecords() {
+// Save records to Server (Internal use only, actual saving happens in signature callback)
+async function saveTechTrainingRecords() {
+    // This is now handled by POST /training
     localStorage.setItem('tech_training_records', JSON.stringify(techTrainingRecords));
 }
 
@@ -58,15 +69,18 @@ function getTechTrainingWorkers(bolinmaId) {
 }
 
 // Open Technical Training Window
-function openTechTrainingWindow(bolinmaId) {
-    loadTechTrainingRecords();
+async function openTechTrainingWindow(bolinmaId) {
     window.currentTechTrainingBolinmaId = bolinmaId;
+    await loadTechTrainingRecords();
+    
+    // ... rest of modal creation ...
 
     const existing = document.getElementById('tech-training-modal');
     if (existing) existing.remove();
 
     const modal = document.createElement('div');
     modal.id = 'tech-training-modal';
+    modal.className = 'active';
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background: rgba(0,0,0,0.95); z-index: 10030; display: flex;
@@ -146,11 +160,13 @@ function switchTechTrainingTab(tab) {
     }
 }
 
-function renderTechTrainingTable() {
+async function renderTechTrainingTable() {
     const content = document.getElementById('tech-training-content');
     if (!content) return;
+    
+    content.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...</div>';
 
-    const records = loadTechTrainingRecords();
+    const records = await loadTechTrainingRecords();
 
     // Filters
     const filterDate = document.getElementById('tech-filter-date')?.value || '';
@@ -172,8 +188,8 @@ function renderTechTrainingTable() {
                 <input type="date" id="tech-filter-date" onchange="renderTechTrainingTable()" style="padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white;">
                 <input type="text" id="tech-filter-name" placeholder="Mavzu bo'yicha qidiruv..." onkeyup="renderTechTrainingTable()" style="padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; min-width: 250px;">
             </div>
-            <button onclick="alert('PDF eksport tez orada qo\\'shiladi')" style="background: linear-gradient(45deg, #c0392b, #e74c3c); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                <i class="fas fa-file-pdf"></i> PDF
+            <button onclick="exportTechTrainingPDF()" style="background: linear-gradient(45deg, #c0392b, #e74c3c); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                <i class="fas fa-file-pdf"></i> PDF EXPORT
             </button>
         </div>
 
@@ -297,11 +313,11 @@ function createTechTrainingSession() {
     // Get selected attendees
     const checkboxes = document.querySelectorAll('.tech-worker-cb:checked');
     if (checkboxes.length === 0) {
-        alert("Iltimos, kamida bitta qatnashchini tanlang!");
+        showToast("Iltimos, kamida bitta qatnashchini tanlang!", "warning");
         return;
     }
     if (!topic) {
-        alert("Mavzuni kiriting!");
+        showToast("Mavzuni kiriting!", "warning");
         return;
     }
 
@@ -437,37 +453,65 @@ function clearTechTrainingSignature() {
     if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function saveTechTrainingSignature() {
+async function saveTechTrainingSignature() {
     const canvas = document.getElementById('tech-sig-canvas');
     // Check blank
     const blank = document.createElement('canvas');
     blank.width = canvas.width; blank.height = canvas.height;
     if (canvas.toDataURL() === blank.toDataURL()) {
-        alert("Imzo qo'ying!");
+        showToast("Imzo qo'ying!", "warning");
         return;
     }
     const signature = canvas.toDataURL();
 
     if (techTrainingSignatureStep === 'instructor') {
         techTrainingCurrentRecord.instructorSignature = signature;
-        // Save initially
-        techTrainingRecords.push(techTrainingCurrentRecord);
-        saveTechTrainingRecords();
-        document.getElementById('tech-sig-modal').remove();
-        // Go to View
-        switchTechTrainingTab('table');
-        viewTechTrainingDetails(techTrainingCurrentRecord.id);
+        
+        try {
+            const payload = {
+                bolinma_id: techTrainingCurrentRecord.bolinmaId,
+                topic: techTrainingCurrentRecord.topic,
+                date: techTrainingCurrentRecord.date,
+                hours: techTrainingCurrentRecord.hours,
+                instructor_name: techTrainingCurrentRecord.instructorName,
+                instructor_signature: techTrainingCurrentRecord.instructorSignature,
+                attendees: techTrainingCurrentRecord.attendees
+            };
+            await SmartUtils.fetchAPI('/safety/training', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            
+            // Success
+            await loadTechTrainingRecords();
+            document.getElementById('tech-sig-modal').remove();
+            switchTechTrainingTab('table');
+        } catch (e) {
+            console.error(e);
+            showToast("Serverga saqlashda xatolik yuz berdi!", "error");
+        }
     } else {
         // Attendee signing
         const attendee = techTrainingCurrentRecord.attendees.find(a => a.id === currentSigningAttendeeId);
         if (attendee) {
             attendee.signature = signature;
-            // Update in records
-            const idx = techTrainingRecords.findIndex(r => r.id === techTrainingCurrentRecord.id);
-            if (idx !== -1) techTrainingRecords[idx] = techTrainingCurrentRecord;
-            saveTechTrainingRecords();
-            document.getElementById('tech-sig-modal').remove();
-            viewTechTrainingDetails(techTrainingCurrentRecord.id); // Refresh detail view
+            
+            try {
+                // Update on server
+                await SmartUtils.fetchAPI(`/safety/training/${techTrainingCurrentRecord.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        attendees: techTrainingCurrentRecord.attendees
+                    })
+                });
+                
+                await loadTechTrainingRecords();
+                document.getElementById('tech-sig-modal').remove();
+                viewTechTrainingDetails(techTrainingCurrentRecord.id); 
+            } catch (e) {
+                console.error(e);
+                showToast("Serverga saqlashda xatolik yuz berdi!", "error");
+            }
         }
     }
 }
@@ -585,6 +629,33 @@ function renderTechTrainingStats() {
     `;
 }
 
+// Export to PDF
+function exportTechTrainingPDF() {
+    if (typeof html2pdf === 'undefined') {
+        showToast('PDF moduli yuklanmagan. Iltimos sahifani yangilang.', 'error');
+        return;
+    }
+
+    if (window.SmartUtils) window.SmartUtils.showToast("Texnik O'quv PDF tayyorlanmoqda, kuting...", "info");
+
+    const element = document.getElementById('tech-training-content');
+
+    const opt = {
+        margin: 10,
+        filename: `Texnik_Oquv_Mashgulotlari_${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        if (window.SmartUtils) window.SmartUtils.showToast("PDF muvaffaqiyatli saqlandi!", "success");
+    }).catch(err => {
+        console.error("PDF Export Error:", err);
+        showToast("PDF yaratishda xatolik yuz berdi!", "error");
+    });
+}
+
 // Global exports
 window.openTechTrainingWindow = openTechTrainingWindow;
 window.closeTechTrainingWindow = closeTechTrainingWindow;
@@ -598,4 +669,6 @@ window.openTechTrainingSignatureModal = openTechTrainingSignatureModal;
 window.clearTechTrainingSignature = clearTechTrainingSignature;
 window.saveTechTrainingSignature = saveTechTrainingSignature;
 window.renderTechTrainingStats = renderTechTrainingStats;
+window.exportTechTrainingPDF = exportTechTrainingPDF;
+
 console.log('✅ Technical Training Module Loaded');

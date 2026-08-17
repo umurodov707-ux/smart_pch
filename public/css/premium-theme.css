@@ -1,0 +1,319 @@
+/* === PREMIUM METALLIC GREY & GOLD DESIGN === */
+:root {
+    /* Futuristic Palette - Metallic Grey & Premium Gold */
+    --bg-deep: #020617;
+    --bg-obsidian: #1e293b;
+    /* Metallic Slate 800 */
+    --primary-gold: #94a3b8;
+    /* Metallic Grey / Steel */
+    --accent-gold: #ffd700;
+    /* Pure Gold */
+    --neon-gold: #f59e0b;
+    /* Amber Glow */
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+
+    /* Metallic Glassmorphism */
+    --glass-bg: rgba(30, 41, 59, 0.75);
+    --glass-border: rgba(212, 175, 55, 0.35);
+    --glass-blur: blur(20px);
+    --glass-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+
+    /* Gradients & Glows */
+    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #b4941f 100%);
+    --metallic-gradient: linear-gradient(135deg, #475569 0%, #94a3b8 50%, #475569 100%);
+    --glow-gold: 0 0 25px rgba(212, 175, 55, 0.4);
+    --premium-transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+body {
+    background-color: var(--bg-deep);
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    font-family: 'Inter', 'Exo 2', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* WOW Typography */
+h1,
+h2,
+h3,
+.main-title,
+.hero-title,
+.login-title,
+.premium-text {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800 !important;
+    letter-spacing: 1px;
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+}
+
+/* Sidebar & Navbar - Obsidian Glass Style */
+.sidebar,
+.navbar {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border-bottom: 1.5px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+.sidebar {
+    border-right: 1.5px solid var(--glass-border) !important;
+    border-bottom: none !important;
+}
+
+/* Neon Gold Icons for core structure only */
+.sidebar i,
+.navbar i,
+.sidebar .fas,
+.navbar .fas {
+    color: var(--accent-gold);
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+    transition: var(--premium-transition);
+}
+
+/* Menu Visibility & Hover */
+.sidebar-menu li {
+    color: var(--text-dim) !important;
+    font-weight: 600 !important;
+    margin: 8px 15px !important;
+    border-radius: 12px !important;
+    transition: var(--premium-transition) !important;
+}
+
+.sidebar-menu li:hover {
+    background: rgba(212, 175, 55, 0.1) !important;
+    color: var(--accent-gold) !important;
+    transform: translateX(8px);
+}
+
+.sidebar-menu li.active {
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), transparent) !important;
+    color: var(--accent-gold) !important;
+    border-left: 4px solid var(--accent-gold) !important;
+    box-shadow: inset 10px 0 20px rgba(212, 175, 55, 0.05);
+}
+
+/* WOW Buttons */
+.btn-primary,
+.login-btn,
+.action-btn {
+    background: var(--gold-gradient) !important;
+    color: #000 !important;
+    /* High contrast on gold */
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 1px solid var(--accent-gold) !important;
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4) !important;
+    border-radius: 12px !important;
+    transition: var(--premium-transition) !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.6) !important;
+    filter: brightness(1.1);
+}
+
+/* Premium Panels & Containers */
+.content-card,
+.stat-card,
+.department-window,
+.login-box {
+    background: rgba(30, 41, 59, 0.5) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+.stat-card h2,
+.stat-card .value {
+    color: var(--accent-gold) !important;
+    font-size: 2.5rem;
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-gold);
+    border-radius: 10px;
+}
+
+/* Forms & Inputs — Global qoramtir tema */
+input,
+select,
+textarea {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+}
+
+input:focus {
+    border-color: var(--accent-gold) !important;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* ===== M-29 DALOLATNOMA FIX ===== */
+/* Global qoramtir temadan M-29 hujjat inputlarini himoyalash */
+/* Yuqori ustuvorlik (specificity) bilan yozish — barcha !important larni yengib o'tadi */
+div#m29-printable-area input[type="text"],
+div#m29-printable-area input[type="number"],
+div#m29-printable-area input:not([type]),
+div#m29-printable-area select,
+div#m29-printable-area textarea {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: black !important;
+    -webkit-text-fill-color: black !important;
+    border: none !important;
+    border-bottom: 1px solid black !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-family: 'Times New Roman', serif !important;
+    font-size: inherit !important;
+    padding: 2px 5px !important;
+    cursor: text !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+div#m29-printable-area input[type="text"]:focus,
+div#m29-printable-area input[type="number"]:focus,
+div#m29-printable-area input:not([type]):focus {
+    border: none !important;
+    border-bottom: 2px solid #2563eb !important;
+    box-shadow: none !important;
+    background: rgba(37, 99, 235, 0.05) !important;
+}
+
+div#m29-printable-area input::placeholder {
+    color: #aaa !important;
+    -webkit-text-fill-color: #aaa !important;
+    font-style: italic !important;
+}
+
+.sub-title {
+    color: var(--text-dim) !important;
+}
+
+/* Fix for headers gradient breaking icons */
+h1 i,
+h2 i,
+h3 i,
+.main-title i,
+.hero-title i,
+.login-title i,
+.premium-text i {
+    -webkit-text-fill-color: currentColor !important;
+    background-clip: padding-box !important;
+}
+
+/* GLOBAL ICON FIX - Prevents icons from disappearing due to gradient/font inheritance */
+i.fas,
+i.far,
+i.fab,
+.fas,
+.far,
+.fab {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
+    -webkit-text-fill-color: currentColor !important;
+    background-clip: padding-box !important;
+    font-style: normal !important;
+}
+
+.fas {
+    font-weight: 900 !important;
+}
+
+.far {
+    font-weight: 400 !important;
+}
+
+/* ===== TABEL COMPLEX ===== */
+.tabel-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    z-index: 10010;
+    display: none;
+    flex-direction: column;
+}
+.tabel-modal.active {
+    display: flex;
+}
+.tabel-container {
+    background: #fff;
+    color: #000;
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+}
+.tabel-complex {
+    border-collapse: collapse;
+    width: max-content;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11px;
+    text-align: center;
+    background: #fff;
+}
+.tabel-complex th, .tabel-complex td {
+    border: 1px solid #000;
+    padding: 2px;
+    color: #000;
+}
+.tabel-complex th {
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+.tabel-complex .vertical-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    height: 180px;
+    font-size: 10px;
+    padding: 5px;
+}
+.tabel-complex .weekend {
+    background-color: #ffcccc;
+    color: #d32f2f;
+}
+.tabel-complex .employee-name {
+    font-weight: bold;
+    text-align: left;
+    padding-left: 10px;
+    background-color: #f1f5f9;
+    font-size: 13px;
+}
+.tabel-complex input {
+    width: 20px;
+    border: none;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11px;
+    background: transparent;
+    color: #000;
+}
+.tabel-complex input:focus {
+    outline: 1px solid #2563eb;
+    background: #eff6ff;
+}

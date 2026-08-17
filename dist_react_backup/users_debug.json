@@ -1,0 +1,135 @@
+[
+  {
+    "id": 1,
+    "username": "xodimlar",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"xodimlar\"]"
+  },
+  {
+    "id": 2,
+    "username": "bugalteriya",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"bugalteriya\"]"
+  },
+  {
+    "id": 3,
+    "username": "admin",
+    "role": "admin",
+    "bolinmalar": "[\"bolinma1\",\"bolinma2\",\"bolinma3\",\"bolinma4\",\"bolinma5\",\"bolinma6\",\"bolinma7\",\"bolinma8\",\"bolinma9\",\"bolinma10\"]",
+    "departments": "[\"ishlab-chiqarish\",\"xodimlar\",\"bugalteriya\",\"iqtisod\",\"mexanika\",\"mehnat-muhofazasi\",\"dispetcher\",\"metrologiya\"]"
+  },
+  {
+    "id": 4,
+    "username": "mexanika",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"mexanika\"]"
+  },
+  {
+    "id": 5,
+    "username": "ishlab",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"ishlab-chiqarish\"]"
+  },
+  {
+    "id": 6,
+    "username": "dispetcher",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"dispetcher\"]"
+  },
+  {
+    "id": 7,
+    "username": "metrologiya",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"metrologiya\"]"
+  },
+  {
+    "id": 8,
+    "username": "bolinma2",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma2\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 9,
+    "username": "bolinma3",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma3\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 10,
+    "username": "bolinma4",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma4\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 11,
+    "username": "iqtisod",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"iqtisod\"]"
+  },
+  {
+    "id": 12,
+    "username": "bolinma6",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma6\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 13,
+    "username": "bolinma7",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma7\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 14,
+    "username": "bolinma8",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma8\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 15,
+    "username": "bolinma9",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma9\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 16,
+    "username": "bolinma10",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma10\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 17,
+    "username": "mehnat",
+    "role": "department",
+    "bolinmalar": "[]",
+    "departments": "[\"mehnat-muhofazasi\"]"
+  },
+  {
+    "id": 18,
+    "username": "bolinma1",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma1\"]",
+    "departments": "[]"
+  },
+  {
+    "id": 19,
+    "username": "bolinma5",
+    "role": "bolinma",
+    "bolinmalar": "[\"bolinma5\"]",
+    "departments": "[]"
+  }
+]
