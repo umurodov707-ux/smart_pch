@@ -7,27 +7,49 @@ let materialIdCounter = 10;
 
 // --- Data Management Functions ---
 
-function getStoredMaterials() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+async function getStoredMaterials() {
+    try {
+        const stored = await SmartUtils.fetchAPI('/materials/storage');
+        if (stored && stored.length > 0) {
+            // Map backend storage_items to frontend material format if needed
+            return stored.map(s => ({
+                id: s.id,
+                schyot: s.schyot,
+                name: s.name,
+                uom: s.uom,
+                price: s.price,
+                quantity: s.quantity,
+                // These might need historical calculation or simple display
+                begQty: s.quantity, // Simplification for now
+                begSum: s.quantity * s.price,
+                inQty: 0, inSum: 0,
+                outQty: 0, outSum: 0,
+                endQty: s.quantity, endSum: s.quantity * s.price
+            }));
+        }
+    } catch (e) {
+        console.error('Failed to fetch materials:', e);
+    }
 
-    // Default Data
-    return [
-        { id: 1, schyot: "1000", name: "Dizel Yoqilg'isi", uom: "litr", price: 12000, begQty: 50, begSum: 600000, inQty: 100, inSum: 1200000, outQty: 20, outSum: 240000, endQty: 130, endSum: 1560000 },
-        { id: 2, schyot: "1010", name: "Benzin A-92", uom: "litr", price: 11500, begQty: 30, begSum: 345000, inQty: 50, inSum: 575000, outQty: 25, outSum: 287500, endQty: 55, endSum: 632500 },
-        { id: 3, schyot: "1020", name: "Moy M-8G2", uom: "litr", price: 45000, begQty: 10, begSum: 450000, inQty: 5, inSum: 225000, outQty: 3, outSum: 135000, endQty: 12, endSum: 540000 },
-        { id: 4, schyot: "2000", name: "Shpatelka", uom: "dona", price: 25000, begQty: 15, begSum: 375000, inQty: 10, inSum: 250000, outQty: 5, outSum: 125000, endQty: 20, endSum: 500000 },
-        { id: 5, schyot: "2010", name: "Brusha (katta)", uom: "dona", price: 15000, begQty: 8, begSum: 120000, inQty: 5, inSum: 75000, outQty: 2, outSum: 30000, endQty: 11, endSum: 165000 },
-        { id: 6, schyot: "2020", name: "Brusha (kichik)", uom: "dona", price: 8000, begQty: 12, begSum: 96000, inQty: 8, inSum: 64000, outQty: 6, outSum: 48000, endQty: 14, endSum: 112000 },
-        { id: 7, schyot: "2030", name: "Ruletka 5m", uom: "dona", price: 35000, begQty: 3, begSum: 105000, inQty: 2, inSum: 70000, outQty: 1, outSum: 35000, endQty: 4, endSum: 140000 },
-        { id: 8, schyot: "2040", name: "Picha", uom: "dona", price: 12000, begQty: 20, begSum: 240000, inQty: 15, inSum: 180000, outQty: 10, outSum: 120000, endQty: 25, endSum: 300000 },
-        { id: 9, schyot: "2050", name: "Gilza (patron)", uom: "dona", price: 18000, begQty: 50, begSum: 900000, inQty: 30, inSum: 540000, outQty: 20, outSum: 360000, endQty: 60, endSum: 1080000 },
-        { id: 10, schyot: "2060", name: "Lenta o'lchash", uom: "metr", price: 5000, begQty: 100, begSum: 500000, inQty: 50, inSum: 250000, outQty: 30, outSum: 150000, endQty: 120, endSum: 600000 }
-    ];
+    return [];
 }
 
-function saveStoredMaterials(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+async function saveStoredMaterials(data) {
+    try {
+        const items = data.map(m => ({
+            schyot: m.schyot,
+            name: m.name,
+            uom: m.uom,
+            price: m.price,
+            quantity: m.endQty // Final balance
+        }));
+        return await SmartUtils.fetchAPI('/materials/storage/bulk', {
+            method: 'POST',
+            body: JSON.stringify({ items })
+        });
+    } catch (e) {
+        console.error('Failed to save materials:', e);
+    }
 }
 
 // Called from M-29 to deduct stock
@@ -135,7 +157,7 @@ function openAccountingJournal(type, bolinmaId) {
     }
 }
 
-function loadAccountingTable(fileName, title, bolinmaId) {
+async function loadAccountingTable(fileName, title, bolinmaId) {
     let viewer = document.getElementById('accounting-excel-viewer');
     if (viewer) viewer.remove();
 
@@ -143,16 +165,58 @@ function loadAccountingTable(fileName, title, bolinmaId) {
     viewer.id = 'accounting-excel-viewer';
     viewer.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #1a1a2e; z-index: 10001; display: flex; flex-direction: column;
+        background: #1a1a2e; z-index: 10020; display: flex; flex-direction: column;
     `;
 
-    // Load Data from Storage
-    const materials = getStoredMaterials();
+    // Rolni aniqlash
+    const _curUser = (typeof currentUser !== 'undefined') ? currentUser : (window.Auth ? window.Auth.currentUser : null);
+    const _userRole = _curUser ? _curUser.role : 'guest';
+    const canEdit = (_userRole === 'department' || _userRole === 'admin' || _userRole === 'accounting');
+
+    // Load Data from API
+    viewer.innerHTML = '<div style="flex:1; display:flex; justify-content:center; align-items:center; color:white;"><i class="fas fa-spinner fa-spin" style="font-size:3rem;"></i></div>';
+    document.body.appendChild(viewer);
+
+    const materials = await getStoredMaterials();
     if (materials.length > 0) {
         materialIdCounter = Math.max(...materials.map(m => m.id)) + 1;
     }
 
-    let tableRows = materials.map(m => createRowHTML(m)).join('');
+    let tableRows = materials.length > 0 ? materials.map(m => createRowHTML(m)).join('') : '';
+
+    // Toolbar tugmalari — rolga qarab
+    let toolbarBtns = '';
+    const canApprove = (_userRole === 'admin' || _userRole === 'accounting');
+    if (canEdit) {
+        // Department/Admin — to'liq boshqaruv
+        toolbarBtns = `
+                ${canApprove ? `
+                <button id="approval-btn" onclick="openApprovalList()" style="display:none; background: #f39c12; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; animation: pulse 2s infinite;">
+                    <i class="fas fa-check-double"></i> Tasdiqlash
+                </button>
+                ` : ''}
+                <label for="import-excel-input" style="background: linear-gradient(135deg, #e67e22, #d35400); border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-file-excel"></i> 1C dan Import
+                </label>
+                <input type="file" id="import-excel-input" accept=".xlsx,.xls,.csv" onchange="importMaterialsFromExcel(this)" style="display: none;">
+                <button onclick="addMaterialRow()" style="background: #3498db; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    <i class="fas fa-plus"></i> Qo'shish
+                </button>
+                <button onclick="deleteMaterialRow()" style="background: #e74c3c; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    <i class="fas fa-trash"></i> O'chirish
+                </button>
+                <button onclick="saveMaterialTable()" style="background: #27ae60; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    <i class="fas fa-save"></i> Saqlash
+                </button>`;
+    }
+    // Birja tugmasi — hammaga ko'rinadi
+    toolbarBtns += `
+                <button onclick="if(window.openMarketplaceWindow) window.openMarketplaceWindow('${bolinmaId || 'bolinma1'}')" style="background: linear-gradient(135deg, #16a085, #1abc9c); border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    <i class="fas fa-handshake"></i> Birja
+                </button>
+                <button onclick="closeAccountingViewer()" style="background: #95a5a6; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    <i class="fas fa-times"></i> Yopish
+                </button>`;
 
     viewer.innerHTML = `
         <div style="
@@ -165,37 +229,35 @@ function loadAccountingTable(fileName, title, bolinmaId) {
                     <i class="fas fa-table" style="font-size: 1.3rem;"></i> ${title}
                 </div>
                 <span style="font-size: 0.8rem; opacity: 0.9; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 4px;">
-                    ${fileName}
+                    ${fileName}${!canEdit ? ' (faqat ko\'rish)' : ''}
                 </span>
             </div>
             
             <div style="display: flex; gap: 10px; align-items: center;">
-                <button id="approval-btn" onclick="openApprovalList()" style="display:none; background: #f39c12; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; animation: pulse 2s infinite;">
-                    <i class="fas fa-check-double"></i> Tasdiqlash
-                </button>
-                <button onclick="addMaterialRow()" style="background: #3498db; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    <i class="fas fa-plus"></i> Qo'shish
-                </button>
-                <button onclick="deleteMaterialRow()" style="background: #e74c3c; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    <i class="fas fa-trash"></i> O'chirish
-                </button>
-                <button onclick="saveMaterialTable()" style="background: #27ae60; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    <i class="fas fa-save"></i> Saqlash
-                </button>
-                <button onclick="if(window.openMarketplaceWindow) window.openMarketplaceWindow('${bolinmaId || 'bolinma1'}')" style="background: linear-gradient(135deg, #16a085, #1abc9c); border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-                    <i class="fas fa-handshake"></i> Birja
-                </button>
-                <button onclick="closeAccountingViewer()" style="background: #95a5a6; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    <i class="fas fa-times"></i> Yopish
-                </button>
+                ${toolbarBtns}
             </div>
         </div>
         
-        <div style="flex: 1; overflow: auto; padding: 20px;">
-            <table id="material-table" style="width: 100%; border-collapse: collapse; background: #1e1e32; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden;">
+        <div style="flex: 1; overflow-y: auto; overflow-x: auto; padding: 0; width: 100%; box-sizing: border-box; background: #1a1a2e; display: flex; flex-direction: column;">
+            <table id="material-table" style="width: 100%; min-width: 100%; border-collapse: collapse; background: #1e1e32; box-shadow: 0 4px 20px rgba(0,0,0,0.3); table-layout: fixed; margin: 0;">
+                <colgroup>
+                    <col style="width: 45px;"> <!-- № -->
+                    <col style="width: 80px;"> <!-- Schyot -->
+                    <col style="width: auto;"> <!-- Material Nomi -->
+                    <col style="width: 75px;"> <!-- O'lchov -->
+                    <col style="width: 95px;"> <!-- Narxi -->
+                    <col style="width: 80px;"> <!-- Bosh. Qoldiq Soni -->
+                    <col style="width: 120px;"> <!-- Bosh. Qoldiq Summasi -->
+                    <col style="width: 75px;"> <!-- Kirim Soni -->
+                    <col style="width: 110px;"> <!-- Kirim Summasi -->
+                    <col style="width: 75px;"> <!-- Chiqim Soni -->
+                    <col style="width: 110px;"> <!-- Chiqim Summasi -->
+                    <col style="width: 75px;"> <!-- Yakuniy Qoldiq Soni -->
+                    <col style="width: 120px;"> <!-- Yakuniy Qoldiq Summasi -->
+                </colgroup>
                 <thead>
                     <tr style="background: #1a1a2e;">
-                        <th colspan="13" style="padding: 15px; color: #ffffff; text-align: center; font-size: 18px; border: 2px solid #9b59b6;">
+                        <th colspan="13" style="padding: 15px; color: #ffffff; text-align: center; font-size: 20px; border-bottom: 2px solid #9b59b6; background: rgba(155, 89, 182, 0.1);">
                             MATERIALLAR HISOBOTI (MATERIAL REPORT)
                         </th>
                     </tr>
@@ -230,10 +292,24 @@ function loadAccountingTable(fileName, title, bolinmaId) {
 
     document.body.appendChild(viewer);
 
+    // Bo'linma uchun barcha inputlarni readonly qilish
+    if (!canEdit) {
+        const allInputs = viewer.querySelectorAll('#material-table-body input');
+        allInputs.forEach(inp => {
+            inp.readOnly = true;
+            inp.disabled = true;
+            inp.style.opacity = '0.7';
+            inp.style.cursor = 'not-allowed';
+            inp.style.border = '1px solid #3d3d5c';
+        });
+    }
+
     // Pending ACT larni tekshirish (DOM ga qo'shilgandan keyin)
-    setTimeout(() => {
-        if (window.checkPendingActs) window.checkPendingActs(bolinmaId);
-    }, 500);
+    if (canEdit) {
+        setTimeout(() => {
+            if (window.checkPendingActs) window.checkPendingActs(bolinmaId);
+        }, 500);
+    }
 }
 
 function createRowHTML(material) {
@@ -241,27 +317,27 @@ function createRowHTML(material) {
         <tr id="row-${material.id}" style="background: #2d2d44;" data-id="${material.id}">
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">${material.id}</td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="text" id="schyot-${material.id}" style="width: 60px; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.schyot}" onchange="recalculateRow(${material.id})">
+                <input type="text" id="schyot-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.schyot}" onchange="recalculateRow(${material.id})">
             </td>
             <td style="padding: 10px; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="text" id="name-${material.id}" style="width: 180px; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.name}">
+                <input type="text" id="name-${material.id}" style="width: 100%; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.name}">
             </td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="text" id="uom-${material.id}" style="width: 60px; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.uom}">
+                <input type="text" id="uom-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.uom}">
             </td>
             <td style="padding: 10px; text-align: right; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="number" id="price-${material.id}" style="width: 100px; text-align: right; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.price}" onchange="recalculateRow(${material.id})">
+                <input type="number" id="price-${material.id}" style="width: 100%; text-align: right; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.price}" onchange="recalculateRow(${material.id})">
             </td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="number" id="begQty-${material.id}" style="width: 70px; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.begQty}" onchange="recalculateRow(${material.id})">
+                <input type="number" id="begQty-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.begQty}" onchange="recalculateRow(${material.id})">
             </td>
             <td style="padding: 10px; text-align: right; color: #ffffff; border: 1px solid #4a4a6a;" id="begSum-${material.id}">${(material.begSum || 0).toLocaleString()}</td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="number" id="inQty-${material.id}" style="width: 70px; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.inQty}" onchange="recalculateRow(${material.id})">
+                <input type="number" id="inQty-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.inQty}" onchange="recalculateRow(${material.id})">
             </td>
             <td style="padding: 10px; text-align: right; color: #ffffff; border: 1px solid #4a4a6a;" id="inSum-${material.id}">${(material.inSum || 0).toLocaleString()}</td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="number" id="outQty-${material.id}" style="width: 70px; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px;" value="${material.outQty}" onchange="recalculateRow(${material.id})">
+                <input type="number" id="outQty-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.outQty}" onchange="recalculateRow(${material.id})">
             </td>
             <td style="padding: 10px; text-align: right; color: #ffffff; border: 1px solid #4a4a6a;" id="outSum-${material.id}">${(material.outSum || 0).toLocaleString()}</td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a; font-weight: bold; background: #3d3d5c;" id="endQty-${material.id}">${material.endQty}</td>
@@ -327,7 +403,7 @@ function renumberRows() {
     });
 }
 
-function saveMaterialTable() {
+async function saveMaterialTable() {
     const table = document.getElementById('material-table');
     const rows = table.querySelectorAll('tbody tr');
 
@@ -357,9 +433,13 @@ function saveMaterialTable() {
         });
     });
 
-    // Save to Storage
-    saveStoredMaterials(data);
-    alert("Jadval va ma'lumotlar saqlandi!");
+    // Save to API
+    const result = await saveStoredMaterials(data);
+    if (result && result.success) {
+        showToast("Ma'lumotlar serverda muvaffaqiyatli saqlandi!", 'success');
+    } else {
+        showToast("Saqlashda xatolik yuz berdi", 'error');
+    }
 
     // Optional: Also Export Excel
     if (typeof XLSX !== 'undefined') {
@@ -393,20 +473,28 @@ window.recalculateRow = recalculateRow;
 // Shared API
 // --- Archive / History Functions ---
 
-function logTransaction(type, documentData) {
-    const ARCHIVE_KEY = 'accounting_archive_data';
-    let archive = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
-
-    const newEntry = {
-        id: 'DOC-' + Date.now(),
-        date: new Date().toISOString(),
-        type: type, // 'Incoming' or 'M-29'
-        data: documentData,
-        summary: generateSummary(type, documentData)
+async function logTransaction(type, documentData) {
+    const payload = {
+        bolinma_id: (window.currentUser && window.currentUser.bolinmalar[0]) || 'bolinma1',
+        filename: type === 'Incoming' ? 'Trebovanie.pdf' : 'M29_Act.pdf',
+        period: new Date().toISOString().slice(0, 7),
+        summary: generateSummary(type, documentData),
+        data: documentData
     };
 
-    archive.push(newEntry);
-    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+    try {
+        await SmartUtils.fetchAPI('/materials/archives', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+    } catch (e) {
+        console.error('Failed to log transaction to server:', e);
+        // Fallback to local for offline resilience
+        const ARCHIVE_KEY = 'accounting_archive_data';
+        let archive = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
+        archive.push({ ...payload, id: 'DOC-local-' + Date.now(), date: new Date().toISOString(), type: type });
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+    }
 }
 
 function generateSummary(type, data) {
@@ -470,60 +558,128 @@ function closeArchiveWindow() {
     document.getElementById('archive-modal')?.remove();
 }
 
-function renderArchiveList() {
+async function renderArchiveList() {
     const tbody = document.getElementById('archive-table-body');
-    if (!tbody) return;  // Modal yo'q bo'lsa chiqib ketamiz
+    if (!tbody) return;
 
     const filterEl = document.getElementById('archive-filter-month');
     const filter = filterEl ? filterEl.value : '';
-    const archive = JSON.parse(localStorage.getItem('accounting_archive_data') || '[]');
+    
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...</td></tr>';
 
-    tbody.innerHTML = '';
+    try {
+        const bolinmaId = (window.currentUser && window.currentUser.bolinmalar[0]) || 'bolinma1';
+        const archive = await SmartUtils.fetchAPI(`/materials/archives?dept_id=${bolinmaId}`);
+        
+        if (!archive || archive.length === 0) {
+             tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #aaa;">Hujjatlar topilmadi</td></tr>';
+             return;
+        }
 
-    // Sort by date desc
-    archive.sort((a, b) => new Date(b.date) - new Date(a.date));
+        tbody.innerHTML = '';
+        // Sort by date desc
+        archive.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    archive.forEach(item => {
-        const itemMonth = item.date.slice(0, 7);
-        if (filter && itemMonth !== filter) return;
+        archive.forEach(item => {
+            const itemMonth = (item.period || item.created_at).slice(0, 7);
+            if (filter && itemMonth !== filter) return;
 
-        const dateStr = new Date(item.date).toLocaleString('uz-UZ');
-        const typeBadge = item.type === 'Incoming'
-            ? '<span style="background: #27ae60; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">Kirim (Trebovanie)</span>'
-            : '<span style="background: #e67e22; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">Chiqim (M-29)</span>';
+            const dateStr = new Date(item.created_at).toLocaleString('uz-UZ');
+            const typeBadge = item.filename.includes('Trebovanie')
+                ? '<span style="background: #27ae60; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">Kirim (Trebovanie)</span>'
+                : '<span style="background: #e67e22; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">Chiqim (M-29)</span>';
 
-        const row = document.createElement('tr');
-        row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
-        row.innerHTML = `
-            <td style="padding: 10px;">${dateStr}</td>
-            <td style="padding: 10px;">${typeBadge}</td>
-            <td style="padding: 10px;">${item.summary}</td>
-            <td style="padding: 10px;">
-                <button onclick="viewArchiveItem('${item.id}')" style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-                    <i class="fas fa-eye"></i> Ko'rish
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-
-    if (tbody.children.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #aaa;">Hujjatlar topilmadi</td></tr>';
+            const row = document.createElement('tr');
+            row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+            row.innerHTML = `
+                <td style="padding: 10px;">${dateStr}</td>
+                <td style="padding: 10px;">${typeBadge}</td>
+                <td style="padding: 10px;">${item.summary}</td>
+                <td style="padding: 10px;">
+                    <button onclick="viewArchiveItem('${item.id}')" style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-eye"></i> Ko'rish
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #ff5555;">Ma\'lumotlarni yuklashda xatolik: ' + e.message + '</td></tr>';
     }
 }
 
-function viewArchiveItem(id) {
-    const archive = JSON.parse(localStorage.getItem('accounting_archive_data') || '[]');
-    const item = archive.find(i => i.id === id);
+async function viewArchiveItem(id) {
+    let item = null;
+    try {
+        const archive = await SmartUtils.fetchAPI(`/materials/archives`); // Usually we'd fetch by ID but for now get list and find
+        item = archive.find(i => i.id == id);
+        if (item && typeof item.data === 'string') item.data = JSON.parse(item.data);
+    } catch (e) { console.error(e); }
+
     if (!item) return;
 
-    if (item.type === 'Incoming' && window.openIncomingWindow) {
-        // We reuse the Incoming Window but populate it with saved data
-        // For now, let's just show a simple alert or reuse the modal logic carefully
-        // TODO: Implement Read-Only Mode for Incoming Window
-        alert("Hujjatni ko'rish funksiyasi: \n" + JSON.stringify(item.data, null, 2));
+    if (item.type === 'Incoming' || item.type === 'M-29') {
+        const modalId = 'archive-view-modal';
+        let modal = document.getElementById(modalId);
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.9); z-index: 10050; display: flex;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        `;
+
+        // Format data beautifully
+        let detailsHtml = '<div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 15px; font-family: monospace; font-size: 14px; overflow-x: auto;">';
+
+        if (item.data && item.data.items && Array.isArray(item.data.items)) {
+            detailsHtml += '<table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 10px;">';
+            detailsHtml += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th>Nomi</th><th>Miqdor</th></tr>';
+            item.data.items.forEach(mat => {
+                detailsHtml += `<tr><td>${mat.name || mat.itemName || '-'}</td><td>${mat.qty || mat.quantity || '-'} ${mat.uom || ''}</td></tr>`;
+            });
+            detailsHtml += '</table>';
+        } else {
+            detailsHtml += `<pre style="color: #a8b2d1; margin: 0;">${JSON.stringify(item.data, null, 2)}</pre>`;
+        }
+        detailsHtml += '</div>';
+
+        modal.innerHTML = `
+            <div style="background: linear-gradient(135deg, #2c3e50, #34495e); width: 90%; max-width: 650px; border-radius: 15px; padding: 30px; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;">
+                    <h3 style="margin: 0; color: #3498db;"><i class="fas fa-file-invoice"></i> Hujjat Ma'lumotlari</h3>
+                    <button onclick="document.getElementById('${modalId}').remove()" style="background: none; border: none; color: #e74c3c; font-size: 24px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='none'">&times;</button>
+                </div>
+                
+                <div style="font-size: 1.1em; margin-bottom: 10px;">
+                    <span style="color: #bdc3c7;">Sana:</span> <strong>${new Date(item.date).toLocaleString('uz-UZ')}</strong>
+                </div>
+                <div style="font-size: 1.1em; margin-bottom: 10px;">
+                    <span style="color: #bdc3c7;">Turi:</span> <strong style="color: ${item.type === 'Incoming' ? '#2ecc71' : '#e67e22'};">${item.type}</strong>
+                </div>
+                <div style="font-size: 1.1em; margin-bottom: 15px;">
+                    <span style="color: #bdc3c7;">Mazmuni:</span> <strong>${item.summary}</strong>
+                </div>
+                
+                <div style="color: #bdc3c7; font-weight: bold; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    Biriktirilgan materiallar:
+                </div>
+                ${detailsHtml}
+                
+                <div style="text-align: right; margin-top: 25px;">
+                    <button onclick="document.getElementById('${modalId}').remove()" style="background: #3498db; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        Yopish
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
     } else {
-        alert("Bu hujjat turini ko'rish hozircha imkonsiz.");
+        if (window.SmartUtils) window.SmartUtils.showToast("Bu hujjat turini o'qish imkonsiz", "warning");
+        else alert("Bu hujjat turini ko'rish hozircha imkonsiz.");
     }
 }
 
@@ -531,15 +687,18 @@ function viewArchiveItem(id) {
 
 // --- Accounting Approval Workflow (Pending Acts) ---
 
-function getPendingActs(bolinmaId) {
-    const acts = JSON.parse(localStorage.getItem('materialActs')) || [];
-    if (!bolinmaId) return acts.filter(a => a.status === 'pending');
-    // Basic filter by ID or loose match if string provided
-    return acts.filter(a => (a.deptId === bolinmaId || !bolinmaId) && a.status === 'pending');
+async function getPendingActs(bolinmaId) {
+    try {
+        const params = bolinmaId ? `?dept_id=${bolinmaId}` : '';
+        return await SmartUtils.fetchAPI(`/materials/acts/pending${params}`) || [];
+    } catch (e) {
+        console.error('Failed to fetch pending acts:', e);
+        return [];
+    }
 }
 
-function checkPendingActs(bolinmaId) {
-    const pending = getPendingActs(bolinmaId);
+async function checkPendingActs(bolinmaId) {
+    const pending = await getPendingActs(bolinmaId);
     const btn = document.getElementById('approval-btn');
     if (!btn) return;
 
@@ -553,8 +712,8 @@ function checkPendingActs(bolinmaId) {
     }
 }
 
-function openApprovalList() {
-    const acts = getPendingActs();
+async function openApprovalList() {
+    const acts = await getPendingActs();
 
     // Remove existing modal if any
     const existingModal = document.getElementById('approval-modal');
@@ -622,96 +781,184 @@ function closeApprovalWindow() {
     document.getElementById('approval-modal')?.remove();
 }
 
-function viewActForApproval(actId, deptId) {
+async function viewActForApproval(actId, deptId) {
     if (window.viewMaterialAct) {
-        window.viewMaterialAct(actId, deptId);
+        await window.viewMaterialAct(actId, deptId);
     } else {
         alert("Ko'rish funksiyasi mavjud emas.");
     }
 }
 
-function approveAct(actId) {
+async function approveAct(actId) {
     if (!confirm("Haqiqatan ham ushbu hujjatni tasdiqlaysizmi? \nOmbordan materiallar chiqim qilinadi.")) return;
 
-    const allActs = JSON.parse(localStorage.getItem('materialActs')) || [];
-    const actIndex = allActs.findIndex(a => a.id == actId);
+    try {
+        const user = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.username : 'Accounting';
+        const result = await SmartUtils.fetchAPI(`/materials/acts/${actId}/approve`, {
+            method: 'POST',
+            body: JSON.stringify({ approved_by: user })
+        });
 
-    if (actIndex === -1) {
-        alert("Hujjat topilmadi!");
-        return;
-    }
-
-    const act = allActs[actIndex];
-    const items = act.items || [];
-
-    // Deduct Stock
-    let deductedCount = 0;
-
-    // Fallback parsing if items specific format is missing but string present (legacy support)
-    if (items.length === 0 && act.materials) {
-        // If needed, we could parse act.materials string, but sticking to logic.
-    }
-
-    items.forEach(item => {
-        if (deductMaterialStock(item.name, item.qty)) {
-            deductedCount++;
+        if (result && result.success) {
+            showToast(`✅ Hujjat tasdiqlandi! Materiallar ombordan chiqim qilindi.`, 'success');
+            closeApprovalWindow();
+            // Refresh table if open
+            if (document.getElementById('material-table')) {
+                loadAccountingTable('current', 'Material Hisoboti', window.currentBolinma);
+            }
         }
-    });
-
-    // Update Status
-    act.status = 'approved';
-    act.approvedDate = new Date().toISOString();
-    allActs[actIndex] = act;
-    localStorage.setItem('materialActs', JSON.stringify(allActs));
-
-    // Log Transaction for Archive
-    logTransaction('M-29', {
-        id: act.id,
-        summary: `M-29 Tasdiqlandi: ${act.matSummary}`,
-        items: items
-    });
-
-    alert(`Hujjat tasdiqlandi! ${deductedCount} xil material ombordan chiqim qilindi.`);
-
-    // Refresh UI
-    closeApprovalWindow();
-    openApprovalList();
-
-    // Refresh parent table if visible
-    if (document.getElementById('accounting-excel-viewer')) {
-        closeAccountingViewer();
-        openAccountingJournal('MaterialReport', act.deptId);
+    } catch (e) {
+        showToast("Tasdiqlashda xatolik: " + e.message, 'error');
     }
 }
 
-function rejectAct(actId) {
+async function rejectAct(actId) {
     if (!confirm("Haqiqatan ham ushbu hujjatni rad etmoqchimisiz?")) return;
 
-    const allActs = JSON.parse(localStorage.getItem('materialActs')) || [];
-    const actIndex = allActs.findIndex(a => a.id == actId);
-
-    if (actIndex === -1) {
-        alert("Hujjat topilmadi!");
-        return;
-    }
-
-    const act = allActs[actIndex];
-    act.status = 'rejected';
-    act.rejectedDate = new Date().toISOString();
-
-    allActs[actIndex] = act;
-    localStorage.setItem('materialActs', JSON.stringify(allActs));
-
-    alert("Hujjat rad etildi.");
-    closeApprovalWindow();
-    openApprovalList();
-
-    // Refresh parent table if visible
-    if (document.getElementById('accounting-excel-viewer')) {
-        closeAccountingViewer();
-        openAccountingJournal('MaterialReport', act.deptId);
+    try {
+        await SmartUtils.fetchAPI(`/materials/acts/${actId}/reject`, { method: 'POST' });
+        showToast("Hujjat rad etildi", 'info');
+        closeApprovalWindow();
+        if (document.getElementById('material-table')) {
+            loadAccountingTable('current', 'Material Hisoboti', window.currentBolinma);
+        }
+    } catch (e) {
+        showToast("Xatolik: " + e.message, 'error');
     }
 }
+
+// ===== EXCEL IMPORT FUNKSIYASI (1C dan materiallarni yuklash) =====
+function importMaterialsFromExcel(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (typeof XLSX === 'undefined') {
+        // XLSX kutubxonasini yuklash
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js';
+        script.onload = () => processExcelImport(file);
+        document.head.appendChild(script);
+    } else {
+        processExcelImport(file);
+    }
+    // Inputni tozalash
+    input.value = '';
+}
+
+function processExcelImport(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            if (rows.length < 2) {
+                alert('Excel fayl bo\'sh yoki noto\'g\'ri format!');
+                return;
+            }
+
+            // Sarlavhani aniqlash
+            const header = rows[0].map(h => (h || '').toString().toLowerCase().trim());
+
+            // Ustunlarni aniqlash (1C formatini qo'llab-quvvatlash)
+            const colMap = {
+                schyot: findCol(header, ['schyot', 'счёт', 'счет', 'код', 'code', 'hisob']),
+                name: findCol(header, ['nomi', 'nomenklatura', 'номенклатура', 'наименование', 'material', 'name', 'nom']),
+                uom: findCol(header, ['o\'lchov', 'olchov', 'birlik', 'единица', 'ед.', 'uom', 'unit']),
+                price: findCol(header, ['narx', 'narxi', 'цена', 'price', 'summa']),
+                qty: findCol(header, ['soni', 'miqdor', 'количество', 'qty', 'qoldiq', 'остаток']),
+            };
+
+            if (colMap.name === -1) {
+                alert('Excel faylda "Material nomi" ustuni topilmadi!\n\nQabul qilinadigan ustun nomlari: Nomi, Nomenklatura, Material, Name');
+                return;
+            }
+
+            // Mavjud materiallarni olish
+            let materials = getStoredMaterials();
+            let addedCount = 0;
+            let updatedCount = 0;
+
+            // Ma'lumotlarni import qilish (1-qatordan boshlash, 0-qator sarlavha)
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length === 0) continue;
+
+                const name = (colMap.name !== -1 ? (row[colMap.name] || '') : '').toString().trim();
+                if (!name) continue;
+
+                const schyot = colMap.schyot !== -1 ? (row[colMap.schyot] || '0000').toString() : '0000';
+                const uom = colMap.uom !== -1 ? (row[colMap.uom] || 'dona').toString() : 'dona';
+                const price = colMap.price !== -1 ? parseFloat(row[colMap.price]) || 0 : 0;
+                const qty = colMap.qty !== -1 ? parseFloat(row[colMap.qty]) || 0 : 0;
+
+                // Mavjud materialni tekshirish
+                const existingIdx = materials.findIndex(m => m.name.toLowerCase() === name.toLowerCase());
+
+                if (existingIdx !== -1) {
+                    // Yangilash
+                    const mat = materials[existingIdx];
+                    mat.schyot = schyot;
+                    mat.uom = uom;
+                    if (price > 0) mat.price = price;
+                    if (qty > 0) {
+                        mat.begQty = qty;
+                        mat.begSum = qty * (mat.price || price);
+                        mat.endQty = qty + (parseFloat(mat.inQty) || 0) - (parseFloat(mat.outQty) || 0);
+                        mat.endSum = mat.endQty * (mat.price || price);
+                    }
+                    updatedCount++;
+                } else {
+                    // Yangi material qo'shish
+                    const newId = materials.length > 0 ? Math.max(...materials.map(m => m.id)) + 1 : 1;
+                    materials.push({
+                        id: newId,
+                        schyot: schyot,
+                        name: name,
+                        uom: uom,
+                        price: price,
+                        begQty: qty, begSum: qty * price,
+                        inQty: 0, inSum: 0,
+                        outQty: 0, outSum: 0,
+                        endQty: qty, endSum: qty * price
+                    });
+                    addedCount++;
+                }
+            }
+
+            // Saqlash
+            saveStoredMaterials(materials);
+
+            // Jadvalni yangilash
+            const tbody = document.getElementById('material-table-body');
+            if (tbody) {
+                materialIdCounter = Math.max(...materials.map(m => m.id)) + 1;
+                tbody.innerHTML = materials.map(m => createRowHTML(m)).join('');
+            }
+
+            alert(`Excel import muvaffaqiyatli!\n\n✅ ${addedCount} ta yangi material qo'shildi\n🔄 ${updatedCount} ta material yangilandi\n📊 Jami: ${materials.length} ta material`);
+
+        } catch (err) {
+            console.error('Excel import error:', err);
+            alert('Excel faylni o\'qishda xatolik: ' + err.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Ustun nomini topish yordamchi funksiya
+function findCol(header, variants) {
+    for (let i = 0; i < header.length; i++) {
+        for (const v of variants) {
+            if (header[i].includes(v)) return i;
+        }
+    }
+    return -1;
+}
+
 
 // Global API - Approval
 window.checkPendingActs = checkPendingActs;
@@ -732,10 +979,34 @@ window.openArchiveWindow = openArchiveWindow;
 window.closeArchiveWindow = closeArchiveWindow;
 window.viewArchiveItem = viewArchiveItem;
 
+// Excel Import API
+window.importMaterialsFromExcel = importMaterialsFromExcel;
+window.processExcelImport = processExcelImport;
+
 // Accounting Journal API
 window.openAccountingJournal = openAccountingJournal;
 window.loadAccountingTable = loadAccountingTable;
 window.closeAccountingViewer = typeof closeAccountingViewer === 'function' ? closeAccountingViewer : function () {
     const viewer = document.getElementById('accounting-excel-viewer');
     if (viewer) viewer.remove();
+};
+
+// Function to provide statistics for the accounting dashboard home widgets
+window.getAccountingStats = function() {
+    const materials = getStoredMaterials();
+    const totalBalance = materials.reduce((sum, m) => sum + (parseFloat(m.endSum) || 0), 0);
+    const m29Count = JSON.parse(localStorage.getItem('m29_reports') || '[]').length;
+    
+    return {
+        stock: {
+            balance: totalBalance,
+            items: materials.length,
+            currency: "so'm"
+        },
+        m29: {
+            pending: Math.max(0, 5 - m29Count), // Example logic
+            total: m29Count + 2,
+            percent: m29Count > 0 ? 75 : 0
+        }
+    };
 };

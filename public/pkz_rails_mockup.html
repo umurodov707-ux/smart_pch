@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PKZ Relslar Hisobi — Mockup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(160deg, #050e1f 0%, #0d2137 50%, #071525 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .modal {
+            background: linear-gradient(160deg, rgba(15,23,42,0.98) 0%, rgba(13,33,55,0.98) 100%);
+            border: 1px solid rgba(255,215,0,0.15);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+            display: flex; flex-direction: column;
+        }
+
+        /* HEADER */
+        .modal-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid rgba(255,215,0,0.12);
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(90deg, rgba(212,175,55,0.08) 0%, rgba(245,158,11,0.04) 100%);
+            position: sticky; top: 0; z-index: 10;
+            backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
+        }
+        .modal-header-left { display: flex; align-items: center; gap: 14px; }
+        .modal-icon {
+            width: 50px; height: 50px; border-radius: 14px;
+            background: linear-gradient(135deg, #d4af37, #f59e0b);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: #000;
+            box-shadow: 0 8px 20px rgba(212,175,55,0.3);
+        }
+        .modal-title h2 {
+            font-size: 1.3rem; font-weight: 900; letter-spacing: 1px;
+            background: linear-gradient(90deg, #d4af37, #f59e0b, #ffd700);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .modal-title p { font-size: 0.78rem; color: #64748b; font-weight: 500; margin-top: 2px; }
+        .close-btn {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6); font-size: 1.1rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .close-btn:hover { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+        .modal-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 22px; }
+
+        /* KPI CARDS */
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .kpi-card {
+            padding: 18px 20px; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.07);
+            background: rgba(255,255,255,0.03);
+            position: relative; overflow: hidden; transition: 0.3s;
+        }
+        .kpi-card:hover { transform: translateY(-2px); }
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        }
+        .kpi-card.total::before { background: linear-gradient(90deg, transparent, #38bdf8, transparent); }
+        .kpi-card.ok::before { background: linear-gradient(90deg, transparent, #10b981, transparent); }
+        .kpi-card.warn::before { background: linear-gradient(90deg, transparent, #f59e0b, transparent); }
+        .kpi-card.bad::before { background: linear-gradient(90deg, transparent, #ef4444, transparent); }
+        .kpi-label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .kpi-value { font-size: 2rem; font-weight: 900; }
+        .kpi-card.total .kpi-value { color: #38bdf8; }
+        .kpi-card.ok .kpi-value { color: #10b981; }
+        .kpi-card.warn .kpi-value { color: #f59e0b; }
+        .kpi-card.bad .kpi-value { color: #ef4444; }
+        .kpi-sub { font-size: 0.72rem; color: #475569; margin-top: 4px; }
+
+        /* FORM SECTION */
+        .form-section {
+            background: rgba(30,41,59,0.5);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px; padding: 20px;
+        }
+        .form-section-title {
+            font-size: 0.85rem; font-weight: 700; color: #38bdf8;
+            display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+        }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-label { font-size: 0.72rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input {
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; color: white; font-size: 0.88rem; font-family: 'Inter', sans-serif;
+            outline: none; transition: 0.2s;
+        }
+        .form-input:focus { border-color: rgba(56,189,248,0.5); box-shadow: 0 0 0 3px rgba(56,189,248,0.1); }
+        .form-input option { background: #1e293b; }
+        .form-actions { display: flex; gap: 10px; margin-top: 14px; }
+        .btn {
+            padding: 10px 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 700;
+            border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: 0.3s; white-space: nowrap;
+        }
+        .btn-add { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .btn-add:hover { box-shadow: 0 6px 20px rgba(16,185,129,0.35); transform: translateY(-1px); }
+        .btn-clear { background: rgba(255,255,255,0.07); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-export { background: linear-gradient(135deg, #1d6f42, #15803d); color: white; }
+        .btn-print { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.2); }
+
+        /* TABLE SECTION */
+        .table-section { display: flex; flex-direction: column; gap: 14px; }
+        .table-controls { display: flex; justify-content: space-between; align-items: center; }
+        .table-controls-left { display: flex; gap: 10px; }
+        .search-box {
+            padding: 9px 14px 9px 38px; background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+            color: white; font-size: 0.85rem; outline: none; width: 200px;
+            position: relative;
+        }
+        .search-wrap { position: relative; }
+        .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 0.8rem; }
+
+        .table-wrapper { overflow-x: auto; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        thead tr {
+            background: linear-gradient(90deg, rgba(15,23,42,0.9), rgba(30,41,59,0.9));
+            border-bottom: 2px solid rgba(56,189,248,0.2);
+        }
+        th {
+            padding: 13px 14px; text-align: left;
+            font-size: 0.68rem; font-weight: 800; letter-spacing: 1.2px;
+            color: #475569; text-transform: uppercase;
+        }
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s;
+        }
+        tbody tr:hover { background: rgba(56,189,248,0.04); }
+        tbody tr:last-child { border-bottom: none; }
+        td { padding: 12px 14px; font-size: 0.85rem; }
+        td.num { color: #475569; text-align: center; font-size: 0.78rem; }
+        td.km { color: #38bdf8; font-weight: 700; font-family: monospace; }
+        td.dark { color: #94a3b8; }
+        td.rail-type { color: #f59e0b; font-weight: 700; }
+        td.len { color: #fff; font-weight: 600; }
+        td.qty { color: #fff; font-weight: 800; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 800; white-space: nowrap;
+        }
+        .badge-new { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
+        .badge-ok { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+        .badge-warn { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .badge-bad { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+        .action-btns { display: flex; gap: 6px; }
+        .icon-btn {
+            width: 30px; height: 30px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; cursor: pointer; transition: 0.2s;
+        }
+        .icon-btn.edit { color: #38bdf8; background: rgba(56,189,248,0.1); }
+        .icon-btn.edit:hover { background: rgba(56,189,248,0.25); }
+        .icon-btn.del { color: #ef4444; background: rgba(239,68,68,0.1); }
+        .icon-btn.del:hover { background: rgba(239,68,68,0.25); }
+
+        .table-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 14px;
+        }
+        .table-footer-text { font-size: 0.78rem; color: #475569; }
+        .table-footer-text span { color: #38bdf8; font-weight: 700; }
+        .pagination { display: flex; gap: 6px; }
+        .page-btn {
+            width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04); color: #94a3b8;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.78rem; font-weight: 700;
+        }
+        .page-btn.active { background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; }
+
+        /* Mockup label */
+        .mockup-banner {
+            position: fixed; top: 12px; right: 12px;
+            background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4);
+            color: #f59e0b; padding: 6px 14px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+<div class="mockup-banner"><i class="fas fa-eye"></i> MOCKUP — PKZ RELSLAR HISOBI</div>
+
+<div class="modal-overlay">
+<div class="modal">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+        <div class="modal-header-left">
+            <div class="modal-icon">
+                <i class="fas fa-train-track" style="font-size:1.3rem"></i>
+                <!-- fallback icon -->
+                <i class="fas fa-ruler-horizontal" style="display:none"></i>
+            </div>
+            <div class="modal-title">
+                <h2><i class="fas fa-database"></i> PKZ RELSLAR HISOBI</h2>
+                <p>Piket Zahirasi — Zaxira Relslarni Hisobi | 1-Bo'linma</p>
+            </div>
+        </div>
+        <button class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+
+        <!-- KPI CARDS -->
+        <div class="kpi-row">
+            <div class="kpi-card total">
+                <div class="kpi-label"><i class="fas fa-layer-group"></i> Jami Relslar</div>
+                <div class="kpi-value">248</div>
+                <div class="kpi-sub">Barcha yozuvlar</div>
+            </div>
+            <div class="kpi-card ok">
+                <div class="kpi-label"><i class="fas fa-check-circle"></i> Yaroqli</div>
+                <div class="kpi-value">195</div>
+                <div class="kpi-sub">Foydalanishga tayyor</div>
+            </div>
+            <div class="kpi-card warn">
+                <div class="kpi-label"><i class="fas fa-clock"></i> Yangi</div>
+                <div class="kpi-value">32</div>
+                <div class="kpi-sub">O'rnatilmagan</div>
+            </div>
+            <div class="kpi-card bad">
+                <div class="kpi-label"><i class="fas fa-exclamation-triangle"></i> Brak</div>
+                <div class="kpi-value">21</div>
+                <div class="kpi-sub">Hisobdan chiqarish kerak</div>
+            </div>
+        </div>
+
+        <!-- ADD FORM -->
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="fas fa-plus-circle"></i> Yangi Rels Qo'shish
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">KM</label>
+                    <input type="number" class="form-input" placeholder="4035" value="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">PK</label>
+                    <input type="number" class="form-input" placeholder="5" value="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Yon</label>
+                    <select class="form-input">
+                        <option>-- Tanlang --</option>
+                        <option>Chap</option>
+                        <option>O'ng</option>
+                        <option>O'rtada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rels turi</label>
+                    <select class="form-input">
+                        <option>R-65</option>
+                        <option>R-50</option>
+                        <option>R-43</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Uzunlik (m)</label>
+                    <input type="number" class="form-input" placeholder="12.5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Miqdor (dona)</label>
+                    <input type="number" class="form-input" placeholder="4">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Holati</label>
+                    <select class="form-input">
+                        <option>Yangi</option>
+                        <option>Yaroqli</option>
+                        <option>Brak</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 2">
+                    <label class="form-label">Izoh</label>
+                    <input type="text" class="form-input" placeholder="Qo'shimcha ma'lumot...">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-add"><i class="fas fa-plus"></i> Qo'shish</button>
+                <button class="btn btn-clear"><i class="fas fa-eraser"></i> Tozalash</button>
+            </div>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <div class="table-section">
+            <div class="table-controls">
+                <div class="table-controls-left">
+                    <div class="search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-box" placeholder="Qidirish... KM, rels turi">
+                    </div>
+                    <select class="form-input" style="width:140px; padding: 9px 12px;">
+                        <option>Barcha holat</option>
+                        <option>Yangi</option>
+                        <option>Yaroqli</option>
+                        <option>Brak</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-export"><i class="fas fa-file-excel"></i> Excel</button>
+                    <button class="btn btn-print"><i class="fas fa-print"></i> Chop etish</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px">#</th>
+                            <th>KM / PK</th>
+                            <th>Yon</th>
+                            <th>Rels turi</th>
+                            <th>Uzunlik (m)</th>
+                            <th>Miqdor</th>
+                            <th>Holati</th>
+                            <th>Izoh</th>
+                            <th style="width:90px">Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="num">1</td>
+                            <td class="km">4022 km / PK 3</td>
+                            <td class="dark">Chap</td>
+                            <td class="rail-type">R-65</td>
+                            <td class="len">12.5</td>
+                            <td class="qty">6</td>
+                            <td><span class="badge badge-ok"><i class="fas fa-check"></i> Yaroqli</span></td>
+                            <td class="dark" style="font-size:0.78rem">2024-yil zahirasi</td>
+                            <td>
+                                <div class="action-btns">
+                                    <div class="icon-btn edit"><i class="fas fa-edit"></i></div>
+                                    <div class="icon-btn del"><i class="fas fa-trash"></i></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="num">2</td>
+                            <td class="km">4035 km / PK 7</td>
+                            <td class="dark">O'ng</td>
+                            <td class="rail-type">R-65</td>
+                            <td class="len">25.0</td>
+                            <td class="qty">4</td>
+                            <td><span class="badge badge-new"><i class="fas fa-star"></i> Yangi</span></td>
+                            <td class="dark" style="font-size:0.78rem">Joriy oy qabuli</td>
+                            <td>
+                                <div class="action-btns">
+                                    <div class="icon-btn edit"><i class="fas fa-edit"></i></div>
+                                    <div class="icon-btn del"><i class="fas fa-trash"></i></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="num">3</td>
+                            <td class="km">4048 km / PK 2</td>
+                            <td class="dark">O'rtada</td>
+                            <td class="rail-type">R-50</td>
+                            <td class="len">12.5</td>
+                            <td class="qty">8</td>
+                            <td><span class="badge badge-ok"><i class="fas fa-check"></i> Yaroqli</span></td>
+                            <td class="dark" style="font-size:0.78rem">—</td>
+                            <td>
+                                <div class="action-btns">
+                                    <div class="icon-btn edit"><i class="fas fa-edit"></i></div>
+                                    <div class="icon-btn del"><i class="fas fa-trash"></i></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="num">4</td>
+                            <td class="km">4060 km / PK 5</td>
+                            <td class="dark">Chap</td>
+                            <td class="rail-type">R-65</td>
+                            <td class="len">12.5</td>
+                            <td class="qty">2</td>
+                            <td><span class="badge badge-bad"><i class="fas fa-times"></i> Brak</span></td>
+                            <td class="dark" style="font-size:0.78rem">Singan, hisobdan chiqarish</td>
+                            <td>
+                                <div class="action-btns">
+                                    <div class="icon-btn edit"><i class="fas fa-edit"></i></div>
+                                    <div class="icon-btn del"><i class="fas fa-trash"></i></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="num">5</td>
+                            <td class="km">4075 km / PK 1</td>
+                            <td class="dark">O'ng</td>
+                            <td class="rail-type">R-65</td>
+                            <td class="len">25.0</td>
+                            <td class="qty">10</td>
+                            <td><span class="badge badge-warn"><i class="fas fa-clock"></i> Yangi</span></td>
+                            <td class="dark" style="font-size:0.78rem">Zaxira depot</td>
+                            <td>
+                                <div class="action-btns">
+                                    <div class="icon-btn edit"><i class="fas fa-edit"></i></div>
+                                    <div class="icon-btn del"><i class="fas fa-trash"></i></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <div class="table-footer-text">Jami <span>248 ta</span> yozuv | Ko'rsatilmoqda: <span>1–5</span></div>
+                <div class="pagination">
+                    <div class="page-btn active">1</div>
+                    <div class="page-btn">2</div>
+                    <div class="page-btn">3</div>
+                    <div class="page-btn">…</div>
+                    <div class="page-btn">50</div>
+                    <div class="page-btn"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /modal-body -->
+</div><!-- /modal -->
+</div><!-- /overlay -->
+</body>
+</html>

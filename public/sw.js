@@ -1,21 +1,47 @@
-const CACHE_NAME = 'smart-pch-v4';
+const CACHE_NAME = 'smart-pch-v20260730.network.first.v5';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
+    // CSS fayllari
     '/css/style.css',
+    '/css/base.css',
+    '/css/layout.css',
+    '/css/components.css',
+    '/css/dashboard.css',
+    '/css/windows.css',
+    '/css/responsive.css',
     '/css/ai-assistant.css',
     '/css/timesheet.css',
     '/css/pu74.css',
     '/css/mexanika.css',
     '/css/landing.css',
+    '/css/polished.css',
+    '/css/pu29.css',
+    '/css/premium-theme.css',
+    // JS fayllari
     '/js/config.js',
+    '/js/offline-manager.js',
+    '/js/mobile-pwa.js',
+    '/js/core/migration.js',
+    '/js/core/lazy-loader.js',
+    '/js/modules/ai-chat.js',
+    '/js/modules/kanban-board.js',
+    '/js/modules/maintenance.js',
+    '/js/modules/excel-editor.js',
+    '/js/core/api_client.js',
     '/js/masofaConfig.js',
     '/js/data.js',
     '/js/auth.js',
     '/js/utils.js',
+    '/js/ui-manager.js',
+    '/js/search-engine.js',
     '/js/script.js',
+    '/js/admin-panel.js',
     '/js/timesheet.js',
     '/js/attendance.js',
+    '/js/dispatcher.js',
+    '/js/map-logic.js',
+    '/js/weather.js',
     '/js/hr.js',
     '/js/safety.js',
     '/js/tnu19.js',
@@ -26,7 +52,11 @@ const ASSETS_TO_CACHE = [
     '/js/metrology.js',
     '/js/defectoscope.js',
     '/js/pu74.js',
+    '/js/pu28.js',
+    '/js/pu29.js',
     '/js/pu80.js',
+    '/js/track-defect.js',
+    '/js/rahbar-visa.js',
     '/js/technical_maintenance.js',
     '/js/technical_training.js',
     '/js/fileApproval.js',
@@ -35,6 +65,17 @@ const ASSETS_TO_CACHE = [
     '/js/ai-assistant.js',
     '/js/pchMap.js',
     '/js/landing.js',
+    '/js/izostik.js',
+    '/js/production_dashboard.js',
+    '/js/workflow.js',
+    '/js/presentation/modals/warnings.js',
+    '/js/presentation/modals/defects.js',
+    '/js/presentation/modals/overlays.js',
+    '/js/e-imzo-client.js',
+    '/js/lib/e-imzo.js',
+    '/js/face-service.js',
+    '/js/lib/face-api.min.js',
+    // Resurslar
     '/img/logo.png',
     '/manifest.json'
 ];
@@ -45,58 +86,72 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[SW] Kesh ochildi va resurslar saqlanmoqda...');
-                return cache.addAll(ASSETS_TO_CACHE);
+                return Promise.allSettled(
+                    ASSETS_TO_CACHE.map(url =>
+                        cache.add(url).catch(err => {
+                            console.warn(`[SW] Keshga qo'shib bo'lmadi: ${url}`, err.message);
+                        })
+                    )
+                );
             })
-            .then(() => self.skipWaiting()) // Yangi SW ni darhol faollashtirish
+            .then(() => self.skipWaiting())
     );
 });
 
-// Fetch Event — Network First strategiya (API uchun), Cache First (static uchun)
+// Fetch Event — NETWORK FIRST strategiyasi (Sahifalarni doimo serverdan olish)
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // API so'rovlari — har doim network dan olish
+    // 1. API so'rovlari — Faqat tarmoqdan
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(
-            fetch(event.request)
-                .catch(() => {
-                    return new Response(
-                        JSON.stringify({ message: 'Internet aloqasi yo\'q. Offline rejim.' }),
-                        { headers: { 'Content-Type': 'application/json' }, status: 503 }
-                    );
-                })
+            fetch(event.request).catch(() => {
+                return new Response(
+                    JSON.stringify({ error: true, message: 'Internet aloqasi yo\'q.', isOffline: true }),
+                    { headers: { 'Content-Type': 'application/json' }, status: 503 }
+                );
+            })
         );
         return;
     }
 
-    // Statik fayllar — Cache First, keyin Network
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    // Keshda mavjud — qaytarish, va orqa fonda yangilash
-                    fetch(event.request).then(freshResponse => {
-                        if (freshResponse && freshResponse.status === 200) {
-                            caches.open(CACHE_NAME).then(cache => {
-                                cache.put(event.request, freshResponse);
-                            });
-                        }
-                    }).catch(() => { });
-                    return response;
-                }
-                // Keshda yo'q — networkdan olish
-                return fetch(event.request).then(response => {
-                    if (!response || response.status !== 200) {
-                        return response;
+    // 2. Socket.io so'rovlari
+    if (url.pathname.startsWith('/socket.io')) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
+    // 3. HTML Sahifalar va Asosiy Route — NETWORK FIRST (Doimo serverdan yangisini olish)
+    if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(networkResponse => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const responseToCache = networkResponse.clone();
+                        caches.open(CACHE_NAME).then(cache => {
+                            cache.put(event.request, responseToCache);
+                        });
                     }
-                    // Javobni keshga ham saqlash
-                    const responseClone = response.clone();
+                    return networkResponse;
+                })
+                .catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
+    // 4. Boshqa statik aktivlar — Network first with cache fallback
+    event.respondWith(
+        fetch(event.request)
+            .then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseClone);
+                        cache.put(event.request, responseToCache);
                     });
-                    return response;
-                });
+                }
+                return networkResponse;
             })
+            .catch(() => caches.match(event.request))
     );
 });
 
@@ -112,13 +167,27 @@ self.addEventListener('activate', event => {
                         return caches.delete(cacheName);
                     })
             );
-        }).then(() => self.clients.claim()) // Barcha ochiq sahifalarni boshqarish
+        }).then(() => self.clients.claim())
     );
 });
 
-// Offline bildirishnoma
+// Xabar tinglash
 self.addEventListener('message', event => {
     if (event.data === 'skipWaiting') {
         self.skipWaiting();
+    }
+});
+
+// PWA Background Sync (Internet tiklanganda chaqiriladi)
+self.addEventListener('sync', event => {
+    if (event.tag === 'sync-offline-data') {
+        console.log('[SW] Background Sync iwga tushdi - offline-data');
+        // Haqiqiy Sync logikasi UI dagi OfflineManager ga ishonib qoldirildi,
+        // Lekin mijoz (client)larga signal yuborishimiz mumkin
+        event.waitUntil(
+            self.clients.matchAll().then(clients => {
+                clients.forEach(client => client.postMessage({ type: 'FORCE_SYNC_NOW' }));
+            })
+        );
     }
 });

@@ -1,14 +1,14 @@
-// Internal Marketplace Logic
-// "Materiallar Birjasi" - Allows departments to exchange surplus materials.
-
-const MARKETPLACE_KEY = 'marketplace_items';
-
-function getMarketplaceItems() {
-    return JSON.parse(localStorage.getItem(MARKETPLACE_KEY) || '[]');
+async function getMarketplaceItems(filters = {}) {
+    const query = new URLSearchParams(filters).toString();
+    return await SmartUtils.fetchAPI(`/marketplace?${query}`) || [];
 }
 
-function saveMarketplaceItems(items) {
-    localStorage.setItem(MARKETPLACE_KEY, JSON.stringify(items));
+async function saveMarketplaceItem(item) {
+    return await SmartUtils.fetchAPI('/marketplace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+    });
 }
 
 function openMarketplaceWindow(bolinmaId) {
@@ -97,27 +97,26 @@ function switchMarketplaceTab(tab) {
     loadMarketplaceItems();
 }
 
-function loadMarketplaceItems() {
+async function loadMarketplaceItems() {
     const grid = document.getElementById('marketplace-grid');
     if (!grid) return;
 
-    grid.innerHTML = '';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px;"><i class="fas fa-spinner fa-spin" style="font-size: 30px; color: #1abc9c;"></i></div>';
 
-    const items = getMarketplaceItems();
     const tab = window.currentMarketplaceTab;
     const myBolinma = window.currentMarketplaceBolinma;
 
-    let filteredItems = [];
-
-    if (tab === 'my-posts') {
-        filteredItems = items.filter(i => i.bolinmaId === myBolinma);
-    } else if (tab === 'surplus') {
-        filteredItems = items.filter(i => i.type === 'surplus' && i.status === 'active');
-    } else if (tab === 'needed') {
-        filteredItems = items.filter(i => i.type === 'needed' && i.status === 'active');
+    let filters = { status: 'active' };
+    if (tab === 'surplus' || tab === 'needed') {
+        filters.type = tab;
+    } else if (tab === 'my-posts') {
+        filters.bolinma_id = myBolinma;
     }
 
-    if (filteredItems.length === 0) {
+    const items = await getMarketplaceItems(filters);
+    grid.innerHTML = '';
+
+    if (items.length === 0) {
         grid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; color: #95a5a6; margin-top: 50px;">
                 <i class="fas fa-inbox" style="font-size: 60px; margin-bottom: 20px; opacity: 0.5;"></i>
@@ -127,8 +126,8 @@ function loadMarketplaceItems() {
         return;
     }
 
-    filteredItems.forEach(item => {
-        const isMine = item.bolinmaId === myBolinma;
+    items.forEach(item => {
+        const isMine = item.bolinma_id === myBolinma;
         const color = item.type === 'surplus' ? '#1abc9c' : '#3498db';
         const icon = item.type === 'surplus' ? 'fa-arrow-up' : 'fa-arrow-down';
         const badgeText = item.type === 'surplus' ? 'ORTIQCHA' : 'KERAK';
@@ -147,10 +146,10 @@ function loadMarketplaceItems() {
                 <span style="background: ${color}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">
                     <i class="fas ${icon}"></i> ${badgeText}
                 </span>
-                <span style="color: #bdc3c7; font-size: 0.8rem;">${new Date(item.date).toLocaleDateString()}</span>
+                <span style="color: #bdc3c7; font-size: 0.8rem;">${new Date(item.created_at || item.date).toLocaleDateString()}</span>
             </div>
             
-            <h3 style="margin: 0 0 10px 0; color: #2c3e50;">${item.materialName}</h3>
+            <h3 style="margin: 0 0 10px 0; color: #2c3e50;">${item.material_name || item.materialName}</h3>
             
             <div style="display: flex; align-items: baseline; gap: 5px; margin-bottom: 15px;">
                 <span style="font-size: 1.5rem; font-weight: bold; color: ${color};">${item.qty}</span>
@@ -163,7 +162,7 @@ function loadMarketplaceItems() {
                         <i class="fas fa-building"></i>
                     </div>
                     <div>
-                        <div style="font-weight: bold; font-size: 0.9rem; color: #34495e;">${item.bolinmaId.toUpperCase()}</div>
+                        <div style="font-weight: bold; font-size: 0.9rem; color: #34495e;">${(item.bolinma_id || item.bolinmaId || '').toUpperCase()}</div>
                         <div style="font-size: 0.8rem; color: #95a5a6;">${item.contact || 'Aloqa: Umumiy'}</div>
                     </div>
                 </div>
@@ -253,7 +252,7 @@ function openPostItemModal(bolinmaId) {
     document.body.appendChild(modal);
 }
 
-function submitPost(bolinmaId) {
+async function submitPost(bolinmaId) {
     const type = document.querySelector('input[name="postType"]:checked').value;
     const name = document.getElementById('post-material-name').value;
     const qty = document.getElementById('post-qty').value;
@@ -261,38 +260,38 @@ function submitPost(bolinmaId) {
     const contact = document.getElementById('post-contact').value;
 
     if (!name || !qty) {
-        alert("Iltimos, barcha maydonlarni to'ldiring!");
+        showToast("Iltimos, barcha maydonlarni to'ldiring!", 'warning');
         return;
     }
 
     const newItem = {
-        id: Date.now().toString(),
         type,
-        materialName: name,
-        qty,
+        material_name: name,
+        qty: parseFloat(qty),
         uom,
         contact,
-        bolinmaId,
-        date: new Date().toISOString(),
-        status: 'active'
+        bolinma_id: bolinmaId,
+        date: new Date().toISOString()
     };
 
-    const items = getMarketplaceItems();
-    items.push(newItem);
-    saveMarketplaceItems(items);
-
-    document.getElementById('post-item-modal').remove();
-    loadMarketplaceItems();
-    alert("E'lon muvaffaqiyatli joylashtirildi!");
+    const result = await saveMarketplaceItem(newItem);
+    if (result && result.success) {
+        document.getElementById('post-item-modal').remove();
+        loadMarketplaceItems();
+        showToast("E'lon muvaffaqiyatli joylashtirildi!", 'success');
+    }
 }
 
-function deleteMarketplaceItem(id) {
+async function deleteMarketplaceItem(id) {
     if (!confirm("E'lonni o'chirmoqchimisiz?")) return;
 
-    let items = getMarketplaceItems();
-    items = items.filter(i => i.id !== id);
-    saveMarketplaceItems(items);
-    loadMarketplaceItems();
+    try {
+        await SmartUtils.fetchAPI(`/marketplace/${id}`, { method: 'DELETE' });
+        loadMarketplaceItems();
+        showToast("E'lon o'chirildi", 'info');
+    } catch (e) {
+        showToast("O'chirishda xatolik: " + e.message, 'error');
+    }
 }
 
 function contactForExchange(id) {

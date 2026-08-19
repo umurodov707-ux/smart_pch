@@ -13,10 +13,33 @@ if (!fs.existsSync(BACKUP_DIR)) {
     fs.mkdirSync(BACKUP_DIR, { recursive: true });
 }
 
+const sqlite3 = require('sqlite3').verbose();
+
+function checkDatabaseIntegrity(dbPath) {
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
+            if (err) {
+                return resolve({ ok: false, error: err.message });
+            }
+            db.get("PRAGMA integrity_check", (err, row) => {
+                db.close();
+                if (err) {
+                    return resolve({ ok: false, error: err.message });
+                }
+                if (row && row.integrity_check === 'ok') {
+                    resolve({ ok: true });
+                } else {
+                    resolve({ ok: false, error: row ? row.integrity_check : 'Unknown integrity error' });
+                }
+            });
+        });
+    });
+}
+
 /**
  * Ma'lumotlar bazasini zaxiralash
  */
-function createBackup() {
+async function createBackup() {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupName = `smart_pch_backup_${timestamp}.db`;
     const backupPath = path.join(BACKUP_DIR, backupName);
@@ -25,6 +48,17 @@ function createBackup() {
         if (!fs.existsSync(DB_PATH)) {
             console.warn('[Backup] DB fayl topilmadi:', DB_PATH);
             return null;
+        }
+
+        // Baza butunligini tekshirish (SQLite integrity check)
+        const dbType = process.env.DB_TYPE || 'sqlite';
+        if (dbType === 'sqlite') {
+            const check = await checkDatabaseIntegrity(DB_PATH);
+            if (!check.ok) {
+                console.error(`[Backup] ❌ Baza butunligi buzilgan! Nusxalash bekor qilindi. Xato: ${check.error}`);
+                return null;
+            }
+            console.log('[Backup] 🔍 Baza butunligi tekshirildi: OK');
         }
 
         fs.copyFileSync(DB_PATH, backupPath);

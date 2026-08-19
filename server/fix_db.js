@@ -5,10 +5,13 @@ const bcrypt = require('bcryptjs');
 const dbPath = path.join(__dirname, 'smart_pch.db');
 const db = new sqlite3.Database(dbPath);
 
+require('dotenv').config();
+const defaultPassword = process.env.INITIAL_USER_PASSWORD || 'smart_password_123';
+
 const users = [
     {
         username: 'mexanika',
-        password: 'mexanika123',
+        password: defaultPassword,
         role: 'department',
         full_name: 'Mexanika Bo\'limi',
         departments: JSON.stringify(['mexanika']),
@@ -16,7 +19,7 @@ const users = [
     },
     {
         username: 'bugalteriya',
-        password: 'bugalteriya123',
+        password: defaultPassword,
         role: 'department',
         full_name: 'Bugalteriya Bo\'limi',
         departments: JSON.stringify(['bugalteriya']),
@@ -24,13 +27,14 @@ const users = [
     },
     {
         username: 'ishlab',
-        password: 'ishlab123',
+        password: defaultPassword,
         role: 'department',
         full_name: 'Ishlab Chiqarish Bo\'limi',
         departments: JSON.stringify(['ishlab-chiqarish']),
         bolinmalar: JSON.stringify([])
     }
 ];
+
 
 db.serialize(() => {
     users.forEach(u => {

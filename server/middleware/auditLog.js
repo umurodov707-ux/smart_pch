@@ -52,6 +52,12 @@ function sanitizeBody(body) {
     sensitiveFields.forEach(field => {
         if (sanitized[field]) sanitized[field] = '***HIDDEN***';
     });
+
+    // Truncate large arrays (e.g., bulk imports) to prevent DB hang
+    if (sanitized.employees && Array.isArray(sanitized.employees)) {
+        sanitized.employees = `[Array of ${sanitized.employees.length} items truncated for performance]`;
+    }
+
     return sanitized;
 }
 

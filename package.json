@@ -1,46 +1,55 @@
 {
-  "name": "smart-pch-unified",
-  "version": "2.0.0",
-  "description": "Smart PCH Dispatcher System - Unified Web & Desktop",
-  "main": "main.js",
+  "name": "smart-pch-web",
+  "version": "2.2.0",
+  "description": "Smart PCH Dispatcher System - Web Version",
+  "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "electron": "electron .",
-    "build": "electron-builder build --win --x64",
-    "pack": "electron-builder build --dir"
+    "frontend:dev": "vite",
+    "frontend:build": "vite build",
+    "frontend:preview": "vite preview",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop smart-pch-server",
+    "pm2:logs": "pm2 logs smart-pch-server",
+    "test:smoke": "node server/scripts/smoke-test.js",
+    "test:auth": "node server/scripts/test-auth.js",
+    "test": "node server/scripts/smoke-test.js && node server/scripts/test-auth.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.3.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^1.21.0",
+    "morgan": "^1.10.1",
+    "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.7.0",
+    "pg": "^8.13.1",
+    "pm2": "^6.0.14",
+    "puppeteer": "^24.39.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.0",
+    "recharts": "^2.15.4",
     "socket.io": "^4.7.2",
-    "sqlite3": "^5.1.6"
-  },
-  "build": {
-    "appId": "com.smart.pch.desktop",
-    "productName": "Smart PCH Dispatcher",
-    "files": [
-      "**/*"
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "target": "nsis",
-      "icon": "public/img/logo.png"
-    }
+    "socket.io-client": "^4.8.3",
+    "sqlite3": "^5.1.6",
+    "xlsx": "^0.18.5"
   },
   "keywords": [],
   "author": "O'zbekiston Temir Yo'llari",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^34.0.0",
-    "electron-builder": "^24.13.3",
-    "electron-packager": "^17.1.2",
-    "nodemon": "^3.0.1"
+    "@tailwindcss/postcss": "^4.3.1",
+    "@vitejs/plugin-react": "^6.0.3",
+    "autoprefixer": "^10.5.0",
+    "nodemon": "^3.0.1",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1",
+    "vite": "^8.0.16"
   }
 }

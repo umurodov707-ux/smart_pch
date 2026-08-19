@@ -1,212 +1,464 @@
-/* PU-74 Journal Styles */
-:root {
-    --journal-bg: #fdfbf7;
-    --journal-line: #d1d9e6;
-    --journal-text: #2c3e50;
-    --journal-header-bg: #e8ecf1;
-    --journal-accent: #3498db;
-    --journal-border: #bdc3c7;
+/* =====================================================
+   PU-74 VIRTUAL JURNAL — Smart & Premium Design
+   ===================================================== */
+
+#pu74-excel-viewer {
+    font-family: 'Inter', 'Times New Roman', serif !important;
 }
 
-.pu74-container {
-    padding: 20px;
-    background-color: #f4f6f9;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* ===== TOPBAR: Reimagined with Gold Gradient ===== */
+#pu74-topbar {
+    background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%) !important;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.4) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.pu74-header-card {
-    background: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+#pu74-topbar .pu74-toolbar-btn {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-.pu74-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #2c3e50;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* ===== SHEET TABS: Glassmorphism ===== */
+#pu74-sheet-tabs {
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    scrollbar-width: thin;
 }
 
-.pu74-toolbar {
-    display: flex;
-    gap: 10px;
-}
-
-.pu74-btn {
-    padding: 8px 16px;
+.pu74-tab-btn {
+    padding: 0 24px;
+    height: 100%;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    border-right: 1px solid rgba(212, 175, 55, 0.05);
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.85rem;
     font-weight: 600;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.pu74-btn-primary {
-    background-color: var(--journal-accent);
-    color: white;
-}
-
-.pu74-btn-primary:hover {
-    background-color: #2980b9;
-}
-
-.pu74-btn-secondary {
-    background-color: #ecf0f1;
-    color: #2c3e50;
-}
-
-.pu74-btn-secondary:hover {
-    background-color: #bdc3c7;
-}
-
-/* Journal Paper Effect */
-.pu74-paper {
-    background-color: var(--journal-bg);
-    border: 1px solid #dcdcdc;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    flex-grow: 1;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    transition: color 0.25s ease, background 0.25s ease;
+}
+
+.pu74-tab-btn::after {
+    content: '';
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(90deg, #d4af37, #ffd700);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pu74-tab-btn:hover {
+    background: rgba(212, 175, 55, 0.06);
+    color: #ffd700;
+}
+
+.pu74-tab-btn.active {
+    background: rgba(212, 175, 55, 0.1);
+    color: #ffd700;
+    font-weight: 800;
+}
+
+.pu74-tab-btn.active::after {
+    transform: scaleX(1);
+}
+
+#pu74-sheet-tabs::-webkit-scrollbar {
+    height: 3px;
+}
+
+#pu74-sheet-tabs::-webkit-scrollbar-thumb {
+    background: var(--gold-gradient, #d4af37);
+    border-radius: 10px;
+}
+
+/* ===== JURNAL CONTENT: Luxury Texture ===== */
+#pu74-journal-content {
+    background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%) !important;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px) !important;
+    background-size: 20px 20px !important;
+}
+
+/* ===== A4 SAHIFA: Refined Shadow & Border ===== */
+.pu74-paper-page {
+    background: white;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 20px;
+    max-width: 98% !important;
+    width: 100%;
+    margin-bottom: 50px;
     position: relative;
 }
 
-/* Notebook Binding Effect */
-.pu74-paper::before {
-    content: '';
-    position: absolute;
-    left: 10px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    border-left: 1px dashed #ccc;
-    z-index: 10;
+/* Bet almashtirilganda silliq kirish animatsiyasi */
+.pu74-page-enter {
+    animation: pu74PageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.pu74-table-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 20px 40px;
-    /* Space for binding */
+@keyframes pu74PageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-.pu74-table {
+/* ===== TABLE: Professional Typography & Modern Design ===== */
+.pu74-journal-table {
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
-    border-collapse: collapse;
-    background: transparent;
+    font-family: 'Inter', 'Roboto', 'Times New Roman', serif;
+    color: #1e293b;
+    font-size: 11.5px;
+    table-layout: auto;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.pu74-table th {
-    background-color: var(--journal-header-bg);
-    color: #2c3e50;
+.pu74-paper-page:not(.pu74-cover-page) .pu74-journal-table tr {
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pu74-paper-page:not(.pu74-cover-page) .pu74-journal-table tr:hover td:not(.pu74-formula-cell):not([data-r="0"]):not([data-r="1"]):not([data-r="2"]):not([data-r="3"]):not([data-r="4"]):not([data-r="5"]):not([data-r="6"]) {
+    background-color: #f1f5f9;
+}
+
+.pu74-journal-table td {
+    border: 1px solid #e2e8f0;
+    padding: 8px 12px;
+    min-width: 22px;
+    vertical-align: middle;
+    line-height: 1.5;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    hyphens: auto;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+/* Header Rows Styling (Rows 1 to 7) */
+.pu74-paper-page:not(.pu74-cover-page) .pu74-journal-table tr:nth-child(-n+7) td {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     font-weight: 700;
-    padding: 12px 8px;
+    color: #0f172a;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.2px;
     text-align: center;
-    border: 1px solid var(--journal-border);
+    border-bottom: 2px solid #cbd5e1;
     position: sticky;
     top: 0;
-    z-index: 5;
+    z-index: 10;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.pu74-table td {
-    padding: 10px 8px;
-    border: 1px solid var(--journal-border);
-    color: var(--journal-text);
-    font-size: 14px;
-    vertical-align: middle;
-}
-
-/* Handwriting font effect for data could be cool, but keeping legible for now */
-.pu74-data-cell {
-    text-align: center;
-}
-
-.pu74-input-cell {
-    width: 100%;
-    border: none;
-    background: transparent;
-    text-align: center;
-    font-family: inherit;
-    font-size: inherit;
-    outline: none;
-}
-
-.pu74-input-cell:focus {
-    background-color: rgba(52, 152, 219, 0.1);
-    border-bottom: 2px solid var(--journal-accent);
-}
-
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
+/* Specific styling for the very top header row */
+.pu74-paper-page:not(.pu74-cover-page) .pu74-journal-table tr:nth-child(1) td {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f8fafc;
+    border-color: #475569;
     font-size: 11px;
-    font-weight: bold;
+    box-shadow: inset 0 2px 0 rgba(212, 175, 55, 0.6);
+}
+
+/* Date headers styling */
+.pu74-date-header {
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.pu74-date-header:hover {
+    background: #e0e7ff !important;
+    color: #4338ca !important;
+    transform: scale(1.1);
+    z-index: 50;
+    box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3) !important;
+}
+
+/* First Column Styling (Names/Details) */
+.pu74-paper-page:not(.pu74-cover-page) .pu74-journal-table td:first-child {
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Alternating Row Colors for Body */
+.pu74-paper-page:not(.pu74-cover-page) .pu74-journal-table tr:nth-child(even):nth-child(n+8) td {
+    background-color: #f8fafc;
+}
+
+/* Interactive Cell Focus */
+.pu74-journal-table td:focus {
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: -2px;
+    background: #eff6ff !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+    z-index: 20;
+    border-radius: 4px;
+}
+
+.pu74-journal-table td.editing {
+    background: #fffbeb !important;
+    box-shadow: inset 0 0 0 2px #fbbf24 !important;
+    color: #000;
+}
+
+.pu74-empty-cell {
+    border-color: transparent !important;
+    background: transparent !important;
+}
+
+.pu74-text-cell {
+    border-color: transparent !important;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.pu74-formula-cell {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    color: #1d4ed8 !important;
+    font-weight: 700;
+    text-align: center;
+}
+
+.pu74-formula-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-width: 0 8px 8px 0;
+    border-style: solid;
+    border-color: transparent #3b82f6 transparent transparent;
+    opacity: 0.8;
+}
+
+.pu74-recalc-flash {
+    animation: pu74PremiumFlash 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pu74PremiumFlash {
+    0% { background-color: #10b981; color: white; transform: scale(1.02); box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); z-index: 30; border-radius: 4px; }
+    100% { background-color: #dbeafe; color: #1d4ed8; transform: scale(1); box-shadow: none; z-index: 1; border-radius: 0; }
+}
+
+.pu74-cross-formula {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
+    color: #6d28d9 !important;
+}
+
+.pu74-cover-page .pu74-journal-table td {
+    border: none !important;
+}
+
+/* ===== IMZO: Elegant Signatures ===== */
+.pu74-signature-area {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+    padding: 30px 0;
+    border-top: 2px solid #f1f5f9;
+}
+
+.pu74-signature-box {
+    text-align: center;
+    position: relative;
+}
+
+.pu74-signature-box label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 10px;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.status-new {
-    background-color: #e1f5fe;
-    color: #0288d1;
+.pu74-signature-canvas {
+    width: 220px;
+    height: 70px;
+    border-bottom: 2px solid #1e293b;
+    cursor: crosshair;
+    display: block;
+    margin: 0 auto;
+    background: rgba(248, 250, 252, 0.5);
+    transition: all 0.3s;
 }
 
-.status-urgent {
-    background-color: #ffebee;
-    color: #c62828;
+.pu74-signature-canvas:hover {
+    background: rgba(241, 245, 249, 0.8);
 }
 
-.status-fixed {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+.pu74-signature-canvas.signed {
+    border-bottom-color: #10b981;
 }
 
+.pu74-sign-btn {
+    margin-top: 8px;
+    font-size: 10px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #64748b;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.pu74-sign-btn:hover {
+    background: #f8fafc;
+    color: #ef4444;
+    border-color: #fca5a5;
+}
+
+/* ===== TOOLBAR BUTTONS ===== */
+.pu74-toolbar-btn {
+    border: none;
+    color: white !important;
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pu74-toolbar-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== SAQLANDI BADGE ===== */
+.pu74-saved-badge {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 40px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== PRINT: Professional PDF-Like Output ===== */
 @media print {
-
-    .pu74-header-card,
-    .pu74-toolbar,
-    .navbar,
-    .sidebar {
-        display: none !important;
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
     }
 
-    .container {
-        display: block !important;
-        margin: 0 !important;
+    body * { visibility: hidden !important; }
+    #pu74-excel-viewer, #pu74-excel-viewer * { visibility: visible !important; }
+
+    #pu74-excel-viewer {
+        position: absolute !important;
+        left: 0 !important; top: 0 !important;
+        width: 100% !important;
+        background: white !important;
+    }
+
+    #pu74-topbar, #pu74-sheet-tabs { display: none !important; }
+
+    #pu74-journal-content {
+        background: white !important;
         padding: 0 !important;
+        display: block !important;
     }
 
-    .pu74-container {
-        padding: 0;
-        background: white;
-        height: auto;
+    .pu74-paper-page {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        max-width: 100% !important;
     }
 
-    .pu74-paper {
-        box-shadow: none;
-        border: none;
+    /* Remove wrapper border and scrollbar in print mode */
+    .pu74-paper-page div {
+        overflow: visible !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
     }
 
-    .pu74-table-container {
-        padding: 0;
-        overflow: visible;
+    .pu74-journal-table {
+        font-size: 9px !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        table-layout: auto !important;
     }
 
-    .pu74-table th,
-    .pu74-table td {
-        border: 1px solid black !important;
+    .pu74-journal-table td {
+        border: 1px solid #444 !important;
         color: black !important;
+        padding: 3px 5px !important;
+    }
+
+    .pu74-empty-cell { border: none !important; }
+
+    /* Imzo qatori har doim yangi, alohida sahifadan boshlansin va bo'linib ketmasin */
+    .pu74-signature-area {
+        page-break-before: always !important;
+        break-before: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .pu74-signature-canvas {
+        border-bottom: 1.5px solid black !important;
     }
 }
+/* Vertical text for narrow columns like Norm time */
+.pu74-vertical-header {
+    writing-mode: vertical-rl !important;
+    transform: rotate(180deg) !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 10px 5px !important;
+    height: auto !important;
+    min-height: 180px !important;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+}
+
+.pu74-vertical-header {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    vertical-align: middle !important;
+    padding: 10px 4px !important;
+    min-width: 30px;
+}
+

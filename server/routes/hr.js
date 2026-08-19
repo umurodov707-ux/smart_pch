@@ -2,17 +2,107 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+// Helper to resolve subdivision ID for user
+function getSubdivisionId(user) {
+    if (!user) return null;
+    const role = String(user.role).toLowerCase();
+    const username = String(user.username || '').toLowerCase();
+    
+    if (role === 'admin') return null;
+    
+    // 1. Username pattern
+    if (username.includes('bolinma') || username.includes("bo'linma") || username.includes('sex') || username.includes("bo'lim") || username.includes('bolim')) {
+        const numMatch = username.match(/\d+/);
+        if (numMatch) {
+            return username.includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
+        }
+    }
+    
+    // 2. Explicit bolinmalar array
+    if (user.bolinmalar && user.bolinmalar.length > 0) {
+        const raw = user.bolinmalar[0];
+        const numMatch = String(raw).match(/\d+/);
+        if (numMatch) {
+            return String(raw).toLowerCase().includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
+        }
+        return raw;
+    }
+
+    // 2b. Departments containing a bo'linma/bo'lim/sex
+    if (user.departments && user.departments.length > 0) {
+        const d0 = user.departments[0];
+        const d0Low = String(d0).toLowerCase();
+        if (d0Low.includes('bo\'linma') || d0Low.includes('bolinma') || d0Low.includes('bo\'lim') || d0Low.includes('bolim') || d0Low.includes('sex')) {
+            const numMatch = String(d0).match(/\d+/);
+            if (numMatch) {
+                return d0Low.includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
+            }
+            return d0;
+        }
+    }
+    
+    if (role === 'bolinma' || role === 'subdivision') {
+        const numMatch = username.match(/\d+/);
+        return numMatch ? `${numMatch[0]}-bo'linma` : '1-bo\'linma';
+    }
+    
+    return null;
+}
+
 // Get all employees (with optional filters)
 router.get('/employees', (req, res) => {
+    // Auto-fix subdivision users' bolinmalar if empty
+    try {
+        db.serialize(() => {
+            for (let i = 1; i <= 10; i++) {
+                db.run(
+                    `UPDATE users SET bolinmalar = ? WHERE username = ? AND (bolinmalar IS NULL OR bolinmalar = '' OR bolinmalar = '[]')`,
+                    [JSON.stringify([`${i}-bo'linma`]), `bolinma${i}`]
+                );
+            }
+        });
+    } catch (dbErr) {
+        console.error('Database migration/auto-fix failed:', dbErr.message);
+    }
+
+    // Write debug users file
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        db.all('SELECT id, username, role, bolinmalar, departments FROM users', [], (err, rows) => {
+            if (!err && rows) {
+                fs.writeFileSync(path.join(__dirname, '..', '..', 'public', 'users_debug.json'), JSON.stringify(rows, null, 2));
+            }
+        });
+    } catch (e) {}
+
     const { bolinma_id, department_id, status, search } = req.query;
     let query = 'SELECT * FROM employees';
     let conditions = [];
     let params = [];
 
-    if (bolinma_id) {
-        conditions.push('bolinma_id = ?');
-        params.push(bolinma_id);
+    // Enforce subdivision filter if applicable
+    const subId = getSubdivisionId(req.user);
+    const activeBolinma = subId || (bolinma_id !== 'all' ? bolinma_id : null);
+    if (activeBolinma) {
+        const numMatch = String(activeBolinma).match(/\d+/);
+        if (numMatch) {
+            const num = numMatch[0];
+            if (String(activeBolinma).toLowerCase().includes('sex')) {
+                conditions.push("(bolinma_id LIKE ? OR bolinma_id LIKE ?)");
+                params.push(`${num}-sex%`);
+                params.push(`sex${num}%`);
+            } else {
+                conditions.push("(bolinma_id LIKE ? OR bolinma_id LIKE ?)");
+                params.push(`${num}-bo'linma%`);
+                params.push(`bolinma${num}%`);
+            }
+        } else {
+            conditions.push("bolinma_id = ?");
+            params.push(activeBolinma);
+        }
     }
+
     if (department_id) {
         conditions.push('department_id = ?');
         params.push(department_id);
@@ -38,13 +128,20 @@ router.get('/employees', (req, res) => {
     });
 });
 
-// Add employee
-router.post('/employees', (req, res) => {
-    const { full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status } = req.body;
+const { validate } = require('../middleware/validator');
+
+const employeeSchema = {
+    full_name: { required: true, type: 'string', min: 3 },
+    bolinma_id: { required: true }
+};
+
+// Create employee
+router.post('/', validate(employeeSchema), (req, res) => {
+    const { full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status, obektivka, relatives } = req.body;
     db.run(
-        `INSERT INTO employees (full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status || 'active'],
+        `INSERT INTO employees (full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status, obektivka, relatives) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status || 'active', obektivka || null, relatives || null],
         function (err) {
             if (err) return res.status(500).json({ message: err.message });
             res.json({ id: this.lastID, message: 'Employee added successfully' });
@@ -54,11 +151,11 @@ router.post('/employees', (req, res) => {
 
 // Update employee
 router.put('/employees/:id', (req, res) => {
-    const { full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status, tabel_number, face_template } = req.body;
+    const { full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status, tabel_number, face_template, obektivka, relatives } = req.body;
     db.run(
-        `UPDATE employees SET full_name=?, department_id=?, bolinma_id=?, position=?, rank=?, birth_date=?, phone=?, hired_date=?, medical_checkup_date=?, last_training_date=?, status=?, tabel_number=?, face_template=? 
+        `UPDATE employees SET full_name=?, department_id=?, bolinma_id=?, position=?, rank=?, birth_date=?, phone=?, hired_date=?, medical_checkup_date=?, last_training_date=?, status=?, tabel_number=?, face_template=?, obektivka=?, relatives=? 
          WHERE id = ?`,
-        [full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status, tabel_number, face_template, req.params.id],
+        [full_name, department_id, bolinma_id, position, rank, birth_date, phone, hired_date, medical_checkup_date, last_training_date, status, tabel_number, face_template, obektivka || null, relatives || null, req.params.id],
         (err) => {
             if (err) return res.status(500).json({ message: err.message });
             res.json({ message: 'Employee updated successfully' });
@@ -103,14 +200,37 @@ router.patch('/employees/:id/vacation', (req, res) => {
 
 // Get employee statistics
 router.get('/stats', (req, res) => {
-    db.get(`
+    const subId = getSubdivisionId(req.user);
+    let query = `
         SELECT 
             COUNT(*) as total,
             SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
             SUM(CASE WHEN status = 'vacation' THEN 1 ELSE 0 END) as on_vacation,
             SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
         FROM employees
-    `, [], (err, row) => {
+    `;
+    let params = [];
+    const activeBolinma = subId || (req.query.bolinma_id !== 'all' ? req.query.bolinma_id : null);
+    if (activeBolinma) {
+        const numMatch = String(activeBolinma).match(/\d+/);
+        if (numMatch) {
+            const num = numMatch[0];
+            if (String(activeBolinma).toLowerCase().includes('sex')) {
+                query += " WHERE (bolinma_id LIKE ? OR bolinma_id LIKE ?)";
+                params.push(`${num}-sex%`);
+                params.push(`sex${num}%`);
+            } else {
+                query += " WHERE (bolinma_id LIKE ? OR bolinma_id LIKE ?)";
+                params.push(`${num}-bo'linma%`);
+                params.push(`bolinma${num}%`);
+            }
+        } else {
+            query += " WHERE bolinma_id = ?";
+            params.push(activeBolinma);
+        }
+    }
+
+    db.get(query, params, (err, row) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json(row);
     });
