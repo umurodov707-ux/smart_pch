@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import api, { ApiError } from '../utils/api';
+import Pu74Journal from '../components/pu74/Pu74Journal';
 // DIQQAT: lucide-react v1 da ba'zi ikonka nomlari o'zgargan.
 // AlertTriangle -> TriangleAlert, CheckCircle2 -> CircleCheckBig,
 // FileSignature -> FilePenLine. Eski nomlar `undefined` bo'lib,
@@ -46,7 +47,7 @@ const emptyForm = () => ({
   details: { executor: '', volume: '', note: '' },
 });
 
-export default function Pu74Page() {
+function Pu74ActsView() {
   const confirm = useConfirm();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -166,7 +167,7 @@ export default function Pu74Page() {
             <ClipboardList size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-100 tracking-tight">PU-74 Jurnal</h1>
+            <h2 className="text-lg font-black text-slate-100 tracking-tight">Dalolatnomalar</h2>
             <p className="text-xs text-slate-500 font-semibold">
               Bajarilgan ishlar dalolatnomalari
               {userBolinma && !isAdmin && <span className="text-amber-500/80"> · {userBolinma}</span>}
@@ -451,5 +452,48 @@ function Field({ label, icon, children }) {
       </span>
       {children}
     </label>
+  );
+}
+
+/**
+ * PU-74 sahifasi: "Jurnal" — Excel shaklidagi qog'oz daftar ko'rinishi (asosiy),
+ * "Dalolatnomalar" — bajarilgan ishlar dalolatnomalari ro'yxati.
+ */
+export default function Pu74Page() {
+  const [view, setView] = useState(() => {
+    try { return localStorage.getItem('pu74_view') || 'journal'; } catch { return 'journal'; }
+  });
+  const choose = (v) => {
+    setView(v);
+    try { localStorage.setItem('pu74_view', v); } catch { /* ahamiyatsiz */ }
+  };
+  const tabCls = (v) =>
+    `px-4 py-2 rounded-lg text-sm font-bold transition ${
+      view === v ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+    }`;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+            <ClipboardList size={22} />
+          </div>
+          <div>
+            <h1 className="text-xl font-black text-slate-100 tracking-tight">PU-74 Jurnal</h1>
+            <p className="text-xs text-slate-500 font-semibold">Joriy ta'mirlash ishlari hisobi</p>
+          </div>
+        </div>
+        <div className="flex gap-1 p-1 rounded-xl bg-slate-900 border border-slate-800" role="tablist">
+          <button type="button" role="tab" aria-selected={view === 'journal'} className={tabCls('journal')} onClick={() => choose('journal')}>
+            Jurnal
+          </button>
+          <button type="button" role="tab" aria-selected={view === 'acts'} className={tabCls('acts')} onClick={() => choose('acts')}>
+            Dalolatnomalar
+          </button>
+        </div>
+      </div>
+      {view === 'journal' ? <Pu74Journal /> : <Pu74ActsView />}
+    </div>
   );
 }
