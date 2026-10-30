@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import TimesheetTab from '../components/hr/TimesheetTab';
 
@@ -9,6 +10,7 @@ const TABS = [
   { id: 'davomat',   label: 'Davomat',             icon: 'fas fa-clipboard-check' },
 ];
 export default function HrPortal() {
+  const confirm = useConfirm();
   const { token, user } = useAuth();
 
   // Check if the user is a subdivision user
@@ -310,7 +312,7 @@ export default function HrPortal() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Haqiqatan ham ushbu xodimni tizimdan o\'chirmoqchimisiz?')) return;
+    if (!(await confirm({ title: "Xodim tizimdan o'chirilsinmi?", description: "Bu amalni ortga qaytarib bo'lmaydi.", confirmText: "O'chirish", danger: true }))) return;
 
     try {
       const response = await fetch(`/api/hr/employees/${id}`, {

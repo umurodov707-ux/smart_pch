@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useToast, useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 export default function AppealCenterPage() {
+  const toast = useToast();
+  const confirm = useConfirm();
   const { token } = useAuth();
   const [appeals, setAppeals] = useState([]);
   const [statsData, setStatsData] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
@@ -138,19 +141,19 @@ export default function AppealCenterPage() {
         body: JSON.stringify({ manager_name: 'Bosh Muhandis / Rahbar', manager_comment: managerComment || 'Ma\'qullandi. VIZA qo\'yildi.' })
       });
       if (res.ok) {
-        alert('✅ Murojaatga VIZA qo\'yildi va tasdiqlandi!');
+        toast.success("Murojaatga VIZA qo'yildi va tasdiqlandi");
         setSelectedAppeal(null);
         setManagerComment('');
         fetchAppealsData();
       } else {
         // Fallback for UI if offline
         setAppeals(appeals.map(a => a.id === id ? { ...a, status: 'approved', manager_comment: managerComment || 'Ma\'qullandi', manager_name: 'Bosh Muhandis' } : a));
-        alert('✅ Murojaat tasdiqlandi!');
+        toast.warning("Server bilan bog'lanib bo'lmadi: o'zgarish faqat shu ekranda ko'rinadi va saqlanmadi");
         setSelectedAppeal(null);
       }
     } catch (e) {
       setAppeals(appeals.map(a => a.id === id ? { ...a, status: 'approved', manager_comment: managerComment || 'Ma\'qullandi', manager_name: 'Bosh Muhandis' } : a));
-      alert('✅ Murojaat tasdiqlandi!');
+      toast.warning("Server bilan bog'lanib bo'lmadi: o'zgarish faqat shu ekranda ko'rinadi va saqlanmadi");
       setSelectedAppeal(null);
     }
   };
@@ -158,7 +161,7 @@ export default function AppealCenterPage() {
   // Reject Appeal Handler
   const handleReject = async (id) => {
     if (!managerComment) {
-      alert('Iltimos, rad etish sababini izoh oynasiga kiriting!');
+      toast.warning('Rad etish sababini izoh maydoniga kiriting');
       return;
     }
     try {
@@ -168,25 +171,25 @@ export default function AppealCenterPage() {
         body: JSON.stringify({ manager_name: 'Rahbar', manager_comment: managerComment })
       });
       if (res.ok) {
-        alert('Murojaat rad etildi.');
+        toast.success('Murojaat rad etildi');
         setSelectedAppeal(null);
         setManagerComment('');
         fetchAppealsData();
       } else {
         setAppeals(appeals.map(a => a.id === id ? { ...a, status: 'rejected', manager_comment: managerComment } : a));
-        alert('Murojaat rad etildi.');
+        toast.warning("Server bilan bog'lanib bo'lmadi: o'zgarish faqat shu ekranda ko'rinadi va saqlanmadi");
         setSelectedAppeal(null);
       }
     } catch (e) {
       setAppeals(appeals.map(a => a.id === id ? { ...a, status: 'rejected', manager_comment: managerComment } : a));
-      alert('Murojaat rad etildi.');
+      toast.warning("Server bilan bog'lanib bo'lmadi: o'zgarish faqat shu ekranda ko'rinadi va saqlanmadi");
       setSelectedAppeal(null);
     }
   };
 
   // Delete Appeal
   const handleDelete = async (id) => {
-    if (!window.confirm('Haqiqatan ham ushbu murojaatni o\'chirmoqchimisiz?')) return;
+    if (!(await confirm({ title: "Murojaat o'chirilsinmi?", description: "Bu amalni ortga qaytarib bo'lmaydi.", confirmText: "O'chirish", danger: true }))) return;
     try {
       await fetch(`/api/murojaat/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
       setAppeals(appeals.filter(a => a.id !== id));
@@ -201,7 +204,7 @@ export default function AppealCenterPage() {
   const handleCreateAppeal = async (e) => {
     e.preventDefault();
     if (!newAppealForm.employee_name || !newAppealForm.murojaat_text) {
-      alert('F.I.O va Murojaat matnini to\'ldirish majburiy!');
+      toast.warning("F.I.O va murojaat matnini to'ldirish majburiy");
       return;
     }
     try {
@@ -211,7 +214,7 @@ export default function AppealCenterPage() {
         body: JSON.stringify(newAppealForm)
       });
       if (res.ok) {
-        alert('✅ Yangi murojaat muvaffaqiyatli saqlandi!');
+        toast.success('Yangi murojaat saqlandi');
         setShowNewModal(false);
         setNewAppealForm({ employee_name: '', employee_position: '', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: '' });
         fetchAppealsData();
@@ -232,7 +235,7 @@ export default function AppealCenterPage() {
         status: 'pending'
       };
       setAppeals([created, ...appeals]);
-      alert('✅ Murojaat yaratildi!');
+      toast.warning("Server bilan bog'lanib bo'lmadi: o'zgarish faqat shu ekranda ko'rinadi va saqlanmadi");
       setShowNewModal(false);
       setNewAppealForm({ employee_name: '', employee_position: '', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: '' });
     }
@@ -638,7 +641,7 @@ export default function AppealCenterPage() {
               <button 
                 onClick={() => {
                   if (appeals.length > 0) handleGenerateBuyruq(appeals[0]);
-                  else alert('Murojaatlar mavjud emas');
+                  else toast.info('Murojaatlar mavjud emas');
                 }}
                 className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center justify-between transition"
               >
@@ -649,7 +652,7 @@ export default function AppealCenterPage() {
               <button 
                 onClick={() => {
                   if (appeals.length > 0) handleGenerateBuyruq(appeals[0]);
-                  else alert('Murojaatlar mavjud emas');
+                  else toast.info('Murojaatlar mavjud emas');
                 }}
                 className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center justify-between transition"
               >

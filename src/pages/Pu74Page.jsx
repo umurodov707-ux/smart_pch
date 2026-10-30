@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import api, { ApiError } from '../utils/api';
 // DIQQAT: lucide-react v1 da ba'zi ikonka nomlari o'zgargan.
@@ -46,6 +47,7 @@ const emptyForm = () => ({
 });
 
 export default function Pu74Page() {
+  const confirm = useConfirm();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
@@ -141,7 +143,7 @@ export default function Pu74Page() {
   };
 
   const handleDelete = async (record) => {
-    if (!window.confirm(`№${record.act_number} dalolatnomasi o'chirilsinmi?`)) return;
+    if (!(await confirm({ title: `№${record.act_number} dalolatnomasi o'chirilsinmi?`, confirmText: "O'chirish", danger: true }))) return;
     try {
       await api.delete(`/api/pu74/records/${record.id}`);
       setRecords((prev) => prev.filter((r) => r.id !== record.id));

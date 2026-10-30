@@ -62,3 +62,11 @@ desktop.ini
 *.bak
 tmp/
 temp/
+
+# ===========================
+# Vaqtinchalik / zaxira fayllar (lokal qoladi, GitHub'ga chiqmaydi)
+# ===========================
+dist_react_backup/
+scratch/
+lines.txt
+test_click.js

@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Lock, Eye, EyeOff, LogIn, AlertTriangle, ArrowLeft, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { Button, Input } from '../components/ui';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -30,101 +35,102 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center relative overflow-hidden px-4">
-      {/* Decorative background circles */}
-      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] animate-pulse delay-700"></div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 grid lg:grid-cols-2">
+      {/* Chap: brend paneli (faqat katta ekranda) */}
+      <aside className="hidden lg:flex relative overflow-hidden flex-col justify-between p-12 bg-slate-900 border-r border-slate-800">
+        <div className="pointer-events-none absolute -top-32 -left-32 w-[28rem] h-[28rem] rounded-full bg-amber-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl" />
 
-      <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 p-8 md:p-10 rounded-3xl shadow-2xl relative z-10">
-        
-        {/* Logo and Header */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="p-1 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-2xl shadow-lg mb-4">
-            <img 
-              src="/img/logo.png" 
-              alt="Logo" 
-              className="w-16 h-16 object-contain rounded-xl"
-              onError={(e) => { e.target.style.display = 'none'; }}
-            />
+        <Link to="/" className="relative flex items-center gap-3">
+          <img src="/img/logo.png" alt="Logo" className="w-11 h-11 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+          <div>
+            <div className="text-base font-extrabold tracking-wide">SMART PCH</div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">O'zbekiston Temir Yo'llari</div>
           </div>
-          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">
-            SMART PCH
-          </h2>
-          <p className="text-sm text-slate-400 mt-1 flex items-center gap-1.5">
-            <i className="fas fa-map-marker-alt text-amber-500 text-xs"></i>
-            Temir Yo‘l Masofasi Tizimiga Kirish
+        </Link>
+
+        <div className="relative max-w-md">
+          <h1 className="text-4xl font-extrabold tracking-tight leading-tight">
+            Temir yo‘l masofasini <span className="text-amber-400">bitta oynadan</span> boshqaring
+          </h1>
+          <p className="mt-4 text-slate-400 leading-relaxed">
+            Dispetcherlik, kadrlar, murojaatlar, PU jurnallari va texnik bo‘limlar — yagona raqamli platformada.
           </p>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-300 block flex items-center gap-2">
-              <i className="fas fa-user text-slate-500 text-xs"></i>
-              Foydalanuvchi nomi
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                <i className="fas fa-user"></i>
-              </span>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-slate-950/80 border border-slate-800 focus:border-amber-500/50 rounded-xl py-3 pl-10 pr-4 text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500/20 transition"
-                placeholder="Login kiriting..."
-                required
-              />
-            </div>
+        <p className="relative text-xs text-slate-600">Smart PCH Enterprise v2.2.0</p>
+      </aside>
+
+      {/* O'ng: forma */}
+      <main className="relative flex flex-col items-center justify-center px-5 py-12">
+        <div className="absolute top-4 left-4 right-4 flex justify-between">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-200 transition">
+            <ArrowLeft size={14} /> Bosh sahifa
+          </Link>
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-800 text-slate-400 hover:text-amber-400 transition"
+            aria-label="Mavzuni almashtirish"
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+        </div>
+
+        <div className="w-full max-w-sm animate-slide-up">
+          <div className="lg:hidden flex justify-center mb-6">
+            <img src="/img/logo.png" alt="Logo" className="w-16 h-16 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-300 block flex items-center gap-2">
-              <i className="fas fa-lock text-slate-500 text-xs"></i>
-              Parol
-            </label>
+          <h2 className="text-2xl font-extrabold tracking-tight">Tizimga kirish</h2>
+          <p className="mt-1.5 text-sm text-slate-500">Hisobingiz ma‘lumotlarini kiriting</p>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <Input
+              label="Foydalanuvchi nomi"
+              icon={User}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Login"
+              autoComplete="username"
+              autoFocus
+              required
+            />
+
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                <i className="fas fa-lock"></i>
-              </span>
-              <input
-                type="password"
+              <Input
+                label="Parol"
+                icon={Lock}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950/80 border border-slate-800 focus:border-amber-500/50 rounded-xl py-3 pl-10 pr-4 text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500/20 transition"
-                placeholder="Parol kiriting..."
+                placeholder="••••••••"
+                autoComplete="current-password"
+                className="pr-11"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-1 bottom-1 w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-200 transition"
+                aria-label={showPassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
-          </div>
 
-          {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-xl text-sm leading-relaxed animate-shake">
-              <i className="fas fa-exclamation-triangle text-xs shrink-0"></i>
-              <span>{error}</span>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold py-3.5 px-4 rounded-xl transition duration-300 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? (
-              <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <>
-                <i className="fas fa-sign-in-alt"></i>
-                Kirish
-              </>
+            {error && (
+              <div role="alert" className="flex items-start gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm animate-fade-in">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
             )}
-          </button>
-        </form>
 
-        <div className="mt-8 flex items-center gap-3 text-slate-600 text-xs justify-center">
-          <span>Smart PCH Enterprise v2.2.0</span>
+            <Button type="submit" size="lg" className="w-full justify-center" loading={submitting} icon={LogIn}>
+              Kirish
+            </Button>
+          </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

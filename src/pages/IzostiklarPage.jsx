@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 export default function IzostiklarPage() {
+  const confirm = useConfirm();
   const { user, token } = useAuth();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,7 +105,7 @@ export default function IzostiklarPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Rostdan ham ushbu ma'lumotni o'chirmoqchimisiz?")) return;
+    if (!(await confirm({ title: "Ma'lumot o'chirilsinmi?", description: "Bu amalni ortga qaytarib bo'lmaydi.", confirmText: "O'chirish", danger: true }))) return;
     try {
       const res = await fetch(`/api/izostiklar/${id}`, {
         method: 'DELETE',
@@ -121,7 +123,7 @@ export default function IzostiklarPage() {
   };
 
   const handleRebuild = async (item) => {
-    if (!window.confirm("Izostik almashtirilganini tasdiqlaysizmi?")) return;
+    if (!(await confirm({ title: 'Izostik almashtirilganini tasdiqlaysizmi?' }))) return;
     try {
       const res = await fetch('/api/izostiklar', {
         method: 'POST',

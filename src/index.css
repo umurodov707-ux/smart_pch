@@ -1,10 +1,118 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 
 @source "../index.html";
 @source "./**/*.{js,ts,jsx,tsx}";
 
-body {
-  background-color: #0f172a;
-  color: #f1f5f9;
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+/* ===========================
+   Dizayn tokenlari
+   =========================== */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+
+  --color-brand-50: oklch(98.7% 0.022 95.277);
+  --color-brand-100: oklch(96.2% 0.059 95.617);
+  --color-brand-400: oklch(82.8% 0.189 84.429);
+  --color-brand-500: oklch(76.9% 0.188 70.08);
+  --color-brand-600: oklch(66.6% 0.179 58.318);
+
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-scale-in: scale-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.96) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ===========================
+   Yorug' rejim
+   Barcha sahifalar slate/amber klasslari bilan yozilgan. Har bir faylni
+   qayta yozmaslik uchun slate shkalasi teskari qilinadi: slate-950 (fon)
+   ochiq rangga, slate-100 (matn) to'q rangga aylanadi.
+   =========================== */
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-slate-950: oklch(97.6% 0.004 247.9);
+  --color-slate-900: oklch(100% 0 0);
+  --color-slate-800: oklch(91.8% 0.012 255.5);
+  --color-slate-700: oklch(85.5% 0.02 252.9);
+  --color-slate-600: oklch(64% 0.035 257);
+  --color-slate-500: oklch(53% 0.04 257.4);
+  --color-slate-400: oklch(45% 0.043 257.3);
+  --color-slate-300: oklch(37.2% 0.044 257.3);
+  --color-slate-200: oklch(27.9% 0.041 260);
+  --color-slate-100: oklch(20.8% 0.042 265.8);
+  --color-slate-50: oklch(15% 0.042 264.7);
+
+  /* Och fonda o'qilishi uchun aksent matnlar to'qroq */
+  --color-amber-200: oklch(47.3% 0.137 46.201);
+  --color-amber-300: oklch(55.5% 0.163 48.998);
+  --color-amber-400: oklch(66.6% 0.179 58.318);
+  --color-emerald-400: oklch(59.6% 0.145 163.225);
+  --color-blue-400: oklch(54.6% 0.245 262.881);
+  --color-red-400: oklch(57.7% 0.245 27.325);
+  --color-purple-400: oklch(55.8% 0.288 302.321);
+  --color-indigo-400: oklch(51.1% 0.262 276.966);
+  --color-cyan-400: oklch(60.9% 0.126 221.723);
+  --color-orange-400: oklch(64.6% 0.222 41.116);
+  --color-rose-400: oklch(58.6% 0.253 17.585);
+  --color-green-400: oklch(62.7% 0.194 149.214);
+  --color-yellow-400: oklch(68.1% 0.162 75.834);
+  --color-sky-400: oklch(58.8% 0.158 241.966);
+}
+
+/* Aksent tugmalardagi to'q matn yorug' rejimda ham to'q qoladi */
+:root[data-theme="light"] .text-slate-950 {
+  color: oklch(12.9% 0.042 264.695);
+}
+:root[data-theme="light"] .hover\:text-white:hover {
+  color: var(--color-slate-50);
+}
+
+/* base qatlamida: Tailwind utility klasslari (masalan focus:outline-none) ustun bo'lishi uchun */
+@layer base {
+  body {
+    background-color: var(--color-slate-950);
+    color: var(--color-slate-100);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 200ms ease;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--color-amber-500) 30%, transparent);
+  }
+
+  /* Ingichka scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-slate-800) transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--color-amber-500) 70%, transparent);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 // lucide-react v1 da ikonka nomlari o'zgargan (CheckCircle2, AlertTriangle,
 // XCircle, PlusCircle, BarChart3 endi mavjud emas). Eski nomlar `undefined`
@@ -19,6 +20,7 @@ import {
 } from 'recharts';
 
 export default function MetrologyPage() {
+  const toast = useToast();
     const { token, user: authUser } = useAuth();
     const [viewMode, setViewMode] = useState('electricity'); // 'electricity' | 'devices'
     const [userRole, setUserRole] = useState('subdivision');
@@ -88,7 +90,7 @@ export default function MetrologyPage() {
     };
 
     const handleElectricitySubmit = async () => {
-        if (!currentReading) return alert('Ko\'rsatkichni kiriting');
+        if (!currentReading) return toast.warning("Ko'rsatkichni kiriting");
         
         try {
             // Calculate consumption based on previous reading
@@ -108,7 +110,7 @@ export default function MetrologyPage() {
                 })
             });
             if (req.ok) {
-                alert('Hisobot tasdiqlash uchun yuborildi!');
+                toast.success('Hisobot tasdiqlash uchun yuborildi');
                 setCurrentReading('');
                 fetchData(userRole, bolinmaId);
             }
@@ -152,7 +154,7 @@ export default function MetrologyPage() {
     };
 
     const handleAddDevice = async () => {
-        if (!newDevice.name || !newDevice.stampDate) return alert('Asbob nomi va sanasini kiriting');
+        if (!newDevice.name || !newDevice.stampDate) return toast.warning('Asbob nomi va sanasini kiriting');
         try {
             const req = await fetch('/api/metrology/devices', {
                 method: 'POST',
@@ -231,7 +233,7 @@ export default function MetrologyPage() {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {userRole === 'admin' && (
                         <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 backdrop-blur-xl">
-                            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <h2 className="text-xl font-bold text-slate-50 mb-4 flex items-center gap-2">
                                 <ShieldAlert className="w-5 h-5 text-amber-400" /> 
                                 Kutilayotgan Tasdiqlar ({pendingReviews.length})
                             </h2>
@@ -248,7 +250,7 @@ export default function MetrologyPage() {
                                     <tbody className="divide-y divide-slate-800/50">
                                         {pendingReviews.map(r => (
                                             <tr key={r.id} className="hover:bg-slate-800/20 transition-colors">
-                                                <td className="p-3 font-medium text-white">{r.bolinma_id}</td>
+                                                <td className="p-3 font-medium text-slate-50">{r.bolinma_id}</td>
                                                 <td className="p-3 text-cyan-400">{r.month_year || r.date}</td>
                                                 <td className="p-3 font-bold text-amber-400">{r.currentMonth} kWh</td>
                                                 <td className="p-3 flex gap-2">
@@ -272,7 +274,7 @@ export default function MetrologyPage() {
                                 <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group hover:border-cyan-500/30 transition-all">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-cyan-500/10 transition-colors"></div>
                                     <div className="text-sm font-bold text-slate-400 mb-2">JORIY OY SARFI</div>
-                                    <div className="text-4xl font-black text-white flex items-baseline gap-2">
+                                    <div className="text-4xl font-black text-slate-50 flex items-baseline gap-2">
                                         {chartData.length > 0 ? chartData[chartData.length-1].Sarf : 0} 
                                         <span className="text-lg font-medium text-cyan-500">kWh</span>
                                     </div>
@@ -285,7 +287,7 @@ export default function MetrologyPage() {
                                 
                                 <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
                                     <div className="text-sm font-bold text-slate-400 mb-2">LIMIT HOLATI (10,000 kWh)</div>
-                                    <div className="text-3xl font-black text-white mb-3">
+                                    <div className="text-3xl font-black text-slate-50 mb-3">
                                         {Math.round(((chartData.length > 0 ? chartData[chartData.length-1].Sarf : 0) / limitVal) * 100) || 0}%
                                     </div>
                                     <div className="w-full bg-slate-800 rounded-full h-2.5 mb-2 overflow-hidden">
@@ -307,8 +309,8 @@ export default function MetrologyPage() {
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <input type="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-cyan-500/50" />
-                                        <input type="number" placeholder="Ko'rsatkich..." value={currentReading} onChange={e => setCurrentReading(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white font-bold outline-none focus:border-cyan-500/50" />
+                                        <input type="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-50 text-sm outline-none focus:border-cyan-500/50" />
+                                        <input type="number" placeholder="Ko'rsatkich..." value={currentReading} onChange={e => setCurrentReading(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-50 font-bold outline-none focus:border-cyan-500/50" />
                                     </div>
                                     <button onClick={handleElectricitySubmit} className="mt-4 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 flex justify-center items-center gap-2">
                                         <Save className="w-4 h-4" /> Yuborish (Kutilmoqda)
@@ -317,7 +319,7 @@ export default function MetrologyPage() {
                             </div>
 
                             <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-6">
-                                <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                <h2 className="text-lg font-bold text-slate-50 mb-6 flex items-center gap-2">
                                     <BarChart3 className="w-5 h-5 text-cyan-400" /> Yillik Sarf Tarixi
                                 </h2>
                                 <div className="h-72">
@@ -342,7 +344,7 @@ export default function MetrologyPage() {
             {viewMode === 'devices' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-slate-50 flex items-center gap-2">
                             <Activity className="w-5 h-5 text-cyan-400" /> Asbob-uskunalar Pasporti
                         </h2>
                         {userRole === 'subdivision' && (
@@ -368,7 +370,7 @@ export default function MetrologyPage() {
                                     return (
                                         <tr key={d.id} className="hover:bg-slate-800/30 transition-colors">
                                             <td className="p-4">
-                                                <div className="font-bold text-white">{d.name}</div>
+                                                <div className="font-bold text-slate-50">{d.name}</div>
                                                 <div className="text-xs text-slate-500 font-mono mt-1">SN: {d.serial || 'Yo\'q'}</div>
                                             </td>
                                             {userRole === 'admin' && <td className="p-4 text-slate-300 font-medium">{d.bolinma_id}</td>}
@@ -401,7 +403,7 @@ export default function MetrologyPage() {
                 <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl shadow-cyan-900/20">
                         <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-slate-50 flex items-center gap-2">
                                 <PlusCircle className="w-5 h-5 text-cyan-400" /> Yangi Asbob
                             </h3>
                             <button onClick={() => setShowDeviceModal(false)} className="text-slate-400 hover:text-white"><X className="w-5 h-5"/></button>
@@ -409,11 +411,11 @@ export default function MetrologyPage() {
                         <div className="p-6 space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 mb-2">ASBOB NOMI</label>
-                                <input type="text" value={newDevice.name} onChange={e => setNewDevice({...newDevice, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-cyan-500/50" placeholder="Masalan: Shtangensirkul" />
+                                <input type="text" value={newDevice.name} onChange={e => setNewDevice({...newDevice, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-50 outline-none focus:border-cyan-500/50" placeholder="Masalan: Shtangensirkul" />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 mb-2">SERIYA RAQAMI</label>
-                                <input type="text" value={newDevice.serial} onChange={e => setNewDevice({...newDevice, serial: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-cyan-500/50" placeholder="S/N..." />
+                                <input type="text" value={newDevice.serial} onChange={e => setNewDevice({...newDevice, serial: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-50 outline-none focus:border-cyan-500/50" placeholder="S/N..." />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 mb-2">KALIBROVKA SANASI</label>

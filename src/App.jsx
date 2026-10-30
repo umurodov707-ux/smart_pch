@@ -1,19 +1,35 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { NotificationsProvider, Skeleton } from './components/ui';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import MainDashboard from './pages/MainDashboard';
-import HrPortal from './pages/HrPortal';
-import LeaveManagement from './pages/LeaveManagement';
-import IzostiklarPage from './pages/IzostiklarPage';
-import MetrologyPage from './pages/MetrologyPage';
-import AppealCenterPage from './pages/AppealCenterPage';
-import Pu74Page from './pages/Pu74Page';
-import MechanicsPage from './pages/MechanicsPage';
 import ComingSoonPage from './pages/ComingSoonPage';
+
+// Katta bo'limlar faqat ochilganda yuklanadi (birinchi yuklanish tezroq)
+const HrPortal = lazy(() => import('./pages/HrPortal'));
+const LeaveManagement = lazy(() => import('./pages/LeaveManagement'));
+const IzostiklarPage = lazy(() => import('./pages/IzostiklarPage'));
+const MetrologyPage = lazy(() => import('./pages/MetrologyPage'));
+const AppealCenterPage = lazy(() => import('./pages/AppealCenterPage'));
+const Pu74Page = lazy(() => import('./pages/Pu74Page'));
+const MechanicsPage = lazy(() => import('./pages/MechanicsPage'));
+
+function PageFallback() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-8 w-56" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+      </div>
+      <Skeleton className="h-80 rounded-2xl" />
+    </div>
+  );
+}
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -21,7 +37,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-950 text-gold-500">
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-950">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
       </div>
     );
@@ -74,6 +90,7 @@ function AppContent() {
       <Route path="/dashboard/*" element={
         <ProtectedRoute>
           <DashboardLayout>
+            <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<MainDashboard />} />
               <Route path="/hr" element={<HrPortal />} />
@@ -111,6 +128,7 @@ function AppContent() {
 
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
+            </Suspense>
           </DashboardLayout>
         </ProtectedRoute>
       } />
@@ -124,11 +142,15 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <SocketProvider>
-          <AppContent />
-        </SocketProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <NotificationsProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <AppContent />
+            </SocketProvider>
+          </AuthProvider>
+        </NotificationsProvider>
+      </ThemeProvider>
     </Router>
   );
 }

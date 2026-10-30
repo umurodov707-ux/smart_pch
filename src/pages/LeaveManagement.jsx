@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 export default function LeaveManagement() {
+  const confirm = useConfirm();
   const { token, user } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [vacationEmployees, setVacationEmployees] = useState([]);
@@ -168,7 +170,7 @@ export default function LeaveManagement() {
   };
 
   const handleCancelLeave = async (emp) => {
-    if (!window.confirm(`Haqiqatan ham ${emp.full_name || emp.name}ning ta‘tilini bekor qilmoqchimisiz?`)) return;
+    if (!(await confirm({ title: `${emp.full_name || emp.name}ning ta‘tili bekor qilinsinmi?`, confirmText: 'Ta‘tilni bekor qilish', cancelText: 'Orqaga', danger: true }))) return;
 
     try {
       // Reset vacation dates

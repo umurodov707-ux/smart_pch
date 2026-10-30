@@ -961,7 +961,7 @@ export default function MechanicsPage() {
                       <td className="py-2.5 px-3 text-slate-400">{v.fuel_norm || 10}</td>
                       <td className="py-2.5 px-3">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${v.status === 'free' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : v.status === 'busy' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                          {v.status === 'free' ? 'Bo\\'sh' : v.status === 'busy' ? 'Ishda' : 'Ta\\'mirda'}
+                          {v.status === 'free' ? "Bo'sh" : v.status === 'busy' ? 'Ishda' : "Ta'mirda"}
                         </span>
                       </td>
                     </tr>
