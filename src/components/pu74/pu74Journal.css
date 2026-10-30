@@ -54,6 +54,8 @@
 .pu74j-btn:hover { background: rgb(30 41 59); color: rgb(226 232 240); }
 .pu74j-btn[aria-pressed='true'] { background: rgb(245 158 11); color: rgb(2 6 23); }
 .pu74j-btn:disabled { opacity: 0.45; cursor: default; }
+.pu74j-group.nowrap { flex-wrap: nowrap; min-width: 0; }
+.pu74j-group.nowrap .pu74j-pages { flex: 1 1 auto; min-width: 0; }
 .pu74j-pages {
   display: flex;
   gap: 4px;
