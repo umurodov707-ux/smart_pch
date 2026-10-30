@@ -611,8 +611,8 @@ window.showMasofaSetupWizard = function () {
                                         </div>
                                         <div style="min-width:0;">
                                             <div style="color:white;font-weight:600;font-size:0.9rem;
-                                                overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${m.name}">
-                                                ${m.name}
+                                                overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(m.name)}">
+                                                ${escapeHtml(m.name)}
                                             </div>
                                             <div style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-top:3px;">
                                                 <i class="fas fa-map-marker-alt" style="font-size:0.65rem;"></i>
@@ -696,7 +696,7 @@ window.selectMasofa = function (masofaId) {
                 <div style="font-size:0.8rem;color:${color};font-weight:700;letter-spacing:2px;margin-bottom:8px;">
                     ${masofa.pchNumber}
                 </div>
-                <h2 style="margin:0 0 8px;color:white;font-size:1.5rem;text-align:center;">${masofa.name}</h2>
+                <h2 style="margin:0 0 8px;color:white;font-size:1.5rem;text-align:center;">${escapeHtml(masofa.name)}</h2>
                 <p style="color:rgba(255,255,255,0.5);margin:0 0 25px;">${masofa.region} • ${masofa.kmStart}–${masofa.kmEnd} km</p>
                 <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.4);font-size:0.85rem;">
                     <i class="fas fa-spinner fa-spin" style="color:${color};"></i>

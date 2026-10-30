@@ -241,7 +241,7 @@
                             <div style="width: 44px; height: 44px; border-radius: 12px; background: ${d.color}; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
                                 ${d.icon}
                             </div>
-                            <div style="font-size: 0.82rem; font-weight: 800; color: #f8fafc; line-height: 1.2;">${d.name}</div>
+                            <div style="font-size: 0.82rem; font-weight: 800; color: #f8fafc; line-height: 1.2;">${escapeHtml(d.name)}</div>
                         </div>
                     `).join('')}
                 </div>
@@ -392,7 +392,7 @@
                     <i class="fas fa-user-shield"></i>
                 </div>
 
-                <h3 style="margin: 0 0 5px; font-size: 1.2rem; font-weight: 900; color: #fff;">${user.name || 'Foydalanuvchi'}</h3>
+                <h3 style="margin: 0 0 5px; font-size: 1.2rem; font-weight: 900; color: #fff;">${escapeHtml(user.name || 'Foydalanuvchi')}</h3>
                 <div style="font-size: 0.82rem; color: #f59e0b; font-weight: 700; margin-bottom: 15px;">${user.role || 'Inspektor'} — ${user.department || 'PCh-16'}</div>
 
                 <div style="background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; text-align: left; margin-bottom: 20px; font-size: 0.82rem; color: #94a3b8;">

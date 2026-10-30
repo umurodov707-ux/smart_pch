@@ -141,7 +141,7 @@ window.openTOJournal = function (type) {
                         <td style="padding: 15px;">${new Date(r.date).toLocaleDateString()}</td>
                         <td style="padding: 15px; font-weight: bold;">${r.vehicle_name} (${r.vehicle_number})</td>
                         <td style="padding: 15px;">${r.inspector}</td>
-                        <td style="padding: 15px; font-size: 0.9rem; color: #cbd5e1;">${r.notes || '-'}</td>
+                        <td style="padding: 15px; font-size: 0.9rem; color: #cbd5e1;">${escapeHtml(r.notes || '-')}</td>
                         <td style="padding: 15px; text-align: center;">
                             <button onclick="deleteTORecord('${r.id}')" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
                                 <i class="fas fa-trash"></i>
@@ -163,7 +163,7 @@ window.openNewTOForm = function () {
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     <select id="to-vehicle-select" style="background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;">
                         <option value="">Texnikani tanlang</option>
-                        ${toVehicles.map(v => `<option value="${v.id}">${v.name} (${v.number})</option>`).join('')}
+                        ${toVehicles.map(v => `<option value="${v.id}">${escapeHtml(v.name)} (${v.number})</option>`).join('')}
                     </select>
                     <input type="date" id="to-date-input" value="${new Date().toISOString().split('T')[0]}" style="background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;">
                     <input type="text" id="to-inspector-input" placeholder="Inspektor (F.I.SH)" style="background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;">

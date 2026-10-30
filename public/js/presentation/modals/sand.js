@@ -59,7 +59,7 @@ const ModernSand = {
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <input type="text" id="s-loc" placeholder="Joy nomi" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
                         <select id="s-bolinma" style="padding: 12px; background: rgba(0,0,10,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
-                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}
                         </select>
                         <input type="text" id="s-km-start" placeholder="KM Start" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
                         <input type="text" id="s-km-end" placeholder="KM End" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">

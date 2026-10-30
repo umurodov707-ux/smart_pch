@@ -461,7 +461,7 @@ function renderTNU19Form() {
                             <label style="display: block; margin-bottom: 10px; color: #64748b; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">Xodimni Tanlang</label>
                             <select id="tnu19-worker" onchange="updateWorkerDetails(this)" style="width: 100%; padding: 14px; background: #f8fafc; border: 1px solid rgba(31,38,135,0.1); color: #1e293b; border-radius: 12px; font-weight: 700; outline: none; transition: 0.3s; cursor: pointer;">
                                 <option value="">-- Tanlang --</option>
-                                ${workers.map(w => `<option value="${w.id}" data-name="${w.name}" data-pos="${w.position}">${w.name} - ${w.position}</option>`).join('')}
+                                ${workers.map(w => `<option value="${w.id}" data-name="${escapeHtml(w.name)}" data-pos="${escapeHtml(w.position)}">${escapeHtml(w.name)} - ${escapeHtml(w.position)}</option>`).join('')}
                             </select>
                         </div>
                     </div>
@@ -1055,8 +1055,8 @@ function renderTNU19Stats() {
 
         return `
                                     <tr style="border-bottom: 1px solid rgba(212, 175, 55, 0.1); transition: 0.2s;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
-                                        <td style="padding: 18px 30px; font-weight: 700; color: #1e293b;">${w.name}</td>
-                                        <td style="padding: 18px 20px; color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">${w.position}</td>
+                                        <td style="padding: 18px 30px; font-weight: 700; color: #1e293b;">${escapeHtml(w.name)}</td>
+                                        <td style="padding: 18px 20px; color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">${escapeHtml(w.position)}</td>
                                         <td style="padding: 18px 20px;">
                                             ${lastRecord ? `
                                                 <span style="background: ${typeBadgeClass}15; color: ${typeBadgeClass}; border: 1px solid ${typeBadgeClass}30; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">${lastRecord.instructionType}</span>

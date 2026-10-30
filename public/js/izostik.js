@@ -196,7 +196,7 @@ function renderIzostikTable(data, bolinmaId) {
                     ${warningBadge}
                 </td>
                 <td style="padding: 15px 20px;">${item.type}</td>
-                <td style="padding: 15px 20px; color: #cbd5e1;">${item.location}</td>
+                <td style="padding: 15px 20px; color: #cbd5e1;">${escapeHtml(item.location)}</td>
                 <td style="padding: 15px 20px;">${(item.lastDate || '').includes('-') ? (item.lastDate || '').split('-').reverse().join('.') : item.lastDate}</td>
                 <td style="padding: 15px 20px; font-weight: bold; color: ${diffDays < 0 ? '#ef4444' : '#f8fafc'}">${!isNaN(next.getTime()) ? next.toLocaleDateString('ru-RU') : '-'}</td>
                 <td style="padding: 15px 20px;">${statusHtml}</td>
@@ -409,7 +409,7 @@ window.openIzostikEditor = async function(itemId, bolinmaId) {
             </div>
             <div>
                 <label style="display:block; font-size:0.7rem; color:#94a3b8; margin-bottom:5px;">Joylashuvi</label>
-                <input type="text" id="edit-location" value="${item.location || ''}" style="width:100%; box-sizing:border-box; padding:8px; border-radius:5px; background:#0f172a; border:1px solid #334155; color:#fff;">
+                <input type="text" id="edit-location" value="${escapeHtml(item.location || '')}" style="width:100%; box-sizing:border-box; padding:8px; border-radius:5px; background:#0f172a; border:1px solid #334155; color:#fff;">
             </div>
             <div>
                 <label style="display:block; font-size:0.7rem; color:#94a3b8; margin-bottom:5px;">Oxirgi almashtirish</label>

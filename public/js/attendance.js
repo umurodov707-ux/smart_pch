@@ -129,7 +129,7 @@ const FaceIDAttendance = {
                 await this.handleRegistrationSuccess(worker, descriptor);
             }
         } catch (e) {
-            document.getElementById('attendance-status').innerHTML = `<i class='fas fa-times-circle' style='color:#f85149;'></i> ${e.message}`;
+            document.getElementById('attendance-status').innerHTML = `<i class='fas fa-times-circle' style='color:#f85149;'></i> ${escapeHtml(e.message)}`;
             setTimeout(() => this.close(), 3000);
         }
     },
@@ -341,7 +341,7 @@ const FaceIDAttendance = {
 
             <div style="margin-top: 40px; text-align: center; background: rgba(255,255,255,0.03); padding: 20px 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
                 <div style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase; letter-spacing: 1px;">Xodim:</div>
-                <div style="font-size: 1.25rem; font-weight: 800; margin-top: 5px;">${worker.name}</div>
+                <div style="font-size: 1.25rem; font-weight: 800; margin-top: 5px;">${escapeHtml(worker.name)}</div>
                 
                 <div style="display: flex; gap: 15px; margin-top: 25px;">
                     ${!registrationMode ? `
@@ -562,7 +562,7 @@ const FaceIDAttendance = {
         overlay.innerHTML = `
             <div style="background: white; width: 90%; max-width: 600px; border-radius: 30px; padding: 40px; box-shadow: 0 50px 100px rgba(0,0,0,0.5); text-align: center;">
                 <h2 style="color: #0d1117; margin-bottom: 10px; font-weight: 850;">QO'LDA IMZO QO'YING</h2>
-                <p style="color: #484f58; margin-bottom: 30px; font-weight: 600;">${worker.name}</p>
+                <p style="color: #484f58; margin-bottom: 30px; font-weight: 600;">${escapeHtml(worker.name)}</p>
                 
                 <div style="background: #f6f8fa; border: 2px dashed #d0d7de; border-radius: 20px; padding: 5px; margin-bottom: 30px;">
                     <canvas id="manual-sig-canvas" width="500" height="250" style="width: 100%; height: 250px; display: block; cursor: crosshair; touch-action: none; background: white; border-radius: 15px;"></canvas>

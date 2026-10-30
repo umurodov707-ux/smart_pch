@@ -186,7 +186,7 @@
                         <div style="grid-column: span 2;">
                             <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">BAJARILADIGAN ISH</label>
                             <input id="m-reja-work" list="pu74-norms-list" placeholder="Joriy tamirlash ishlari olib boriladi..." style="width:100%; padding:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px;">
-                            ${window.PU74_NORMS_DB ? `<datalist id="pu74-norms-list">${window.PU74_NORMS_DB.map(n => `<option value="${n.name}"></option>`).join('')}</datalist>` : ''}
+                            ${window.PU74_NORMS_DB ? `<datalist id="pu74-norms-list">${window.PU74_NORMS_DB.map(n => `<option value="${escapeHtml(n.name)}"></option>`).join('')}</datalist>` : ''}
                         </div>
                         <div>
                             <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">MANZIL (KM PK)</label>
@@ -683,7 +683,7 @@
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.km}</td>
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.path}</td>
                     <td style="padding: 15px 16px; text-align: center;"><span style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 5px 10px; border-radius: 6px; font-weight: 900; border: 1px solid rgba(239, 68, 68, 0.2);">${row.speed}</span></td>
-                    <td style="padding: 15px 16px; color: #94a3b8; font-size: 0.85rem;">${row.reason}</td>
+                    <td style="padding: 15px 16px; color: #94a3b8; font-size: 0.85rem;">${escapeHtml(row.reason)}</td>
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.time}</td>
                     <td style="padding: 15px 16px; color: #38bdf8;">${row.resp}</td>
             `, idx, 'generalWarnRows', idx)).join('') || '<tr><td colspan="8" style="padding: 40px; text-align: center; color: #475569;">Ma\'lumot kiritilmagan</td></tr>';
@@ -710,7 +710,7 @@
         if (planBody) {
             planBody.innerHTML = state.planRows.map((row, idx) => rowWrap(`
                     <td style="padding: 15px 16px; font-weight: 700; color: #f8fafc;">${row.area}</td>
-                    <td style="padding: 15px 16px; color: #94a3b8;">${row.location}</td>
+                    <td style="padding: 15px 16px; color: #94a3b8;">${escapeHtml(row.location)}</td>
                     <td style="padding: 15px 16px; color: #38bdf8; font-weight: 600;">${row.work}</td>
                     <td style="padding: 15px 16px; text-align: center;"><span style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 4px 12px; border-radius: 20px; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.2);">${row.staff}</span></td>
                     <td style="padding: 15px 16px; color: #94a3b8; font-size: 0.85rem;">${row.machines}</td>
@@ -722,7 +722,7 @@
         if (obxodBody) {
             obxodBody.innerHTML = state.obxodRows.map((row, idx) => rowWrap(`
                     <td style="padding: 15px 16px; font-weight: 700; color: #f8fafc;">${row.area}</td>
-                    <td style="padding: 15px 16px; color: #f1f5f9;">${row.name}</td>
+                    <td style="padding: 15px 16px; color: #f1f5f9;">${escapeHtml(row.name)}</td>
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.tel}</td>
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.km}</td>
                     <td style="padding: 15px 16px;"><span style="color: #ef4444; font-size: 0.85rem; font-weight: 600;">${row.kamchilik}</span></td>
@@ -785,7 +785,7 @@
         const matBody = document.getElementById('material-table-body');
         if (matBody) {
             matBody.innerHTML = state.materials.map((row, idx) => rowWrap(`
-                    <td style="padding: 15px 16px; font-weight: 700; color: #f8fafc;">${row.name}</td>
+                    <td style="padding: 15px 16px; font-weight: 700; color: #f8fafc;">${escapeHtml(row.name)}</td>
                     <td style="padding: 15px 16px; text-align: center; color: #94a3b8;">${row.unit}</td>
                     <td style="padding: 15px 16px; text-align: center; color: #10b981; font-weight: 900; font-size: 1.1rem;">${row.qty}</td>
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.loc}</td>
@@ -798,7 +798,7 @@
             trBody.innerHTML = state.transport.map((row, idx) => rowWrap(`
                     <td style="padding: 15px 16px; font-weight: 700; color: #f8fafc;">${row.type}</td>
                     <td style="padding: 15px 16px; color: #fbbf24; font-weight: 800;">${row.num}</td>
-                    <td style="padding: 15px 16px; color: #f1f5f9;">${row.name}</td>
+                    <td style="padding: 15px 16px; color: #f1f5f9;">${escapeHtml(row.name)}</td>
                     <td style="padding: 15px 16px; text-align: center; color: #94a3b8;">${row.time}</td>
                     <td style="padding: 15px 16px; color: #94a3b8;">${row.loc}</td>
             `, idx, 'transport', idx)).join('') || '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #475569;">Ma\'lumot kiritilmagan</td></tr>';
@@ -868,7 +868,7 @@
                 <td style="padding: 12px 16px; color: #334155;">${row.km}</td>
                 <td style="padding: 12px 16px; color: #334155;">${row.path}</td>
                 <td style="padding: 12px 16px; color: #ef4444; font-weight: 800; font-size: 1rem;">${row.speed}</td>
-                <td style="padding: 12px 16px; color: #0f172a;">${row.reason}</td>
+                <td style="padding: 12px 16px; color: #0f172a;">${escapeHtml(row.reason)}</td>
                 <td style="padding: 12px 16px; color: #334155; font-size: 0.85rem;">${row.time}</td>
                 <td style="padding: 12px 16px; color: #334155;">${row.resp}</td>
                 <td style="padding: 12px 16px; text-align: center;">
@@ -973,7 +973,7 @@
             return `
                 <tr style="border-bottom: 1px solid #cbd5e1; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='hsl(210, 40%, 96.1%, 0.5)'" onmouseout="this.style.background='#fff'">
                     <td style="padding: 12px 16px; color: #0f172a; font-weight: 500;">${window.currentUser?.bolinmalar?.[0] || 'Bo\'lim'}</td>
-                    <td style="padding: 12px 16px; color: #0f172a;">${row.location || '-'}</td>
+                    <td style="padding: 12px 16px; color: #0f172a;">${escapeHtml(row.location || '-')}</td>
                     <td style="padding: 12px 16px; color: #0f172a;">${row.work || '-'}</td>
                     <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; text-align: center;">${row.staff}</td>
                     <td style="padding: 12px 16px; color: #0f172a;">${row.machines || '-'}</td>
@@ -1016,7 +1016,7 @@
                         ${row.status || '-'}
                     </span>
                 </td>
-                <td style="padding: 12px 16px; color: #334155; font-size: 0.85rem;">${row.comment || '-'}</td>
+                <td style="padding: 12px 16px; color: #334155; font-size: 0.85rem;">${escapeHtml(row.comment || '-')}</td>
                 <td style="padding: 12px 16px; text-align: center;">
                     <i class="fas fa-trash-alt" onclick="window.deleteRow('oyna', ${idx})" style="cursor: pointer; color: #334155; padding: 5px; transition: 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#334155'"></i>
                 </td>
@@ -1063,7 +1063,7 @@
         tbody.innerHTML = window.dispatcherState.obxodRows.map((row, idx) => `
             <tr style="border-bottom: 1px solid #cbd5e1; transition: 0.2s;" onmouseover="this.style.background='hsl(210, 40%, 96.1%, 0.5)'" onmouseout="this.style.background='white'">
                 <td style="padding: 12px 16px; color: #1e3a8a; font-weight: 700;">${row.area || '-'}</td>
-                <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">${row.name}</td>
+                <td style="padding: 12px 16px; color: #0f172a; font-weight: 600;">${escapeHtml(row.name)}</td>
                 <td style="padding: 12px 16px; color: #3b82f6; text-align: center;">${row.tel || row.phone}</td>
                 <td style="padding: 12px 16px; color: #0f172a; text-align: center; font-weight: 700;">${row.km}</td>
                 <td style="padding: 12px 16px; color: #ef4444;">${row.kamchilik || row.defect || 'Kamchilik yo\'q'}</td>
@@ -1108,7 +1108,7 @@
         }
         body.innerHTML = window.dispatcherState.materials.map((m, idx) => `
             <tr style="border-bottom: 1px solid #cbd5e1; transition: 0.2s;" onmouseover="this.style.background='hsl(210, 40%, 96.1%, 0.5)'" onmouseout="this.style.background='white'">
-                <td style="padding:12px 16px; font-weight:600; color: #0f172a;">${m.name}</td>
+                <td style="padding:12px 16px; font-weight:600; color: #0f172a;">${escapeHtml(m.name)}</td>
                 <td style="padding:12px 16px; color: #334155; text-align:center;">${m.unit}</td>
                 <td style="padding:12px 16px; text-align:center; font-weight:700; color:#10b981;">${m.qty}</td>
                 <td style="padding:12px 16px; color: #334155;">${m.loc}</td>
@@ -1130,7 +1130,7 @@
             <tr style="border-bottom: 1px solid #cbd5e1; transition: 0.2s;" onmouseover="this.style.background='hsl(210, 40%, 96.1%, 0.5)'" onmouseout="this.style.background='white'">
                 <td style="padding: 12px 16px; font-weight:600; color: #0f172a;">${t.type}</td>
                 <td style="padding: 12px 16px; font-weight:700; color: #f59e0b; text-align:center;">${t.num}</td>
-                <td style="padding: 12px 16px; color: #0f172a; font-weight: 500;">${t.name}</td>
+                <td style="padding: 12px 16px; color: #0f172a; font-weight: 500;">${escapeHtml(t.name)}</td>
                 <td style="padding: 12px 16px; text-align:center; color: #3b82f6; font-weight:600;">${t.time}</td>
                 <td style="padding: 12px 16px; color: #334155;">${t.loc}</td>
                 <td style="padding: 12px 16px; text-align:center;">
@@ -1324,7 +1324,7 @@
                             const isSubmitted = plans.length > 0;
                             return `
                                 <div onclick="window.openSubdivisionAnalytics('${sub.id}')" style="background: ${isSubmitted ? 'rgba(16, 185, 129, 0.05)' : '#f8fafc'}; border: 1px solid ${isSubmitted ? '#10b981' : '#e2e8f0'}; border-radius: 12px; padding: 15px; cursor: pointer; transition: 0.2s; position: relative;">
-                                    <div style="font-weight: 800; color: #1e293b; font-size: 0.85rem; margin-bottom: 5px;">${sub.name}</div>
+                                    <div style="font-weight: 800; color: #1e293b; font-size: 0.85rem; margin-bottom: 5px;">${escapeHtml(sub.name)}</div>
                                     <div style="display: flex; align-items: center; gap: 5px;">
                                         <div style="width: 8px; height: 8px; border-radius: 50%; background: ${isSubmitted ? '#10b981' : '#f59e0b'};"></div>
                                         <span style="font-size: 0.75rem; color: ${isSubmitted ? '#059669' : '#d97706'}; font-weight: 700;">
@@ -1355,7 +1355,7 @@
                                 return `
                                     <div onclick="window.openSubdivisionAnalytics('${sub.id}')" style="padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s;">
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                            <span style="font-weight: 800; color: #1e293b;">${sub.name}</span>
+                                            <span style="font-weight: 800; color: #1e293b;">${escapeHtml(sub.name)}</span>
                                             <i class="fas fa-circle" style="color: ${r ? '#10b981' : '#f59e0b'}; font-size: 0.6rem;"></i>
                                         </div>
                                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; font-size: 0.75rem; color: #94a3b8;">
@@ -1407,7 +1407,7 @@
                                         <i class="fas fa-clipboard-list"></i>
                                     </div>
                                     <div style="flex: 1;">
-                                        <div style="font-size: 0.9rem; font-weight: 700; color: #1e293b;">${rep.bolinma_id}: ${rep.content}</div>
+                                        <div style="font-size: 0.9rem; font-weight: 700; color: #1e293b;">${rep.bolinma_id}: ${escapeHtml(rep.content)}</div>
                                         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">${rep.time || '12:00'}</div>
                                     </div>
                                 </div>
@@ -1444,7 +1444,7 @@
                     </div>
                     <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.1);"></div>
                     <h2 style="margin:0; font-size: 1.15rem; color: #fff; font-weight: 900; letter-spacing:0.5px; display:flex; align-items:center; gap:10px;">
-                        <i class="fas fa-satellite-dish" style="color:#d4af37;"></i> ${sub?.name || 'Bolinma'} <span style="color:#64748b; font-weight:600; font-size:0.8rem;">HISOBOT MARKAZI</span>
+                        <i class="fas fa-satellite-dish" style="color:#d4af37;"></i> ${escapeHtml(sub?.name || 'Bolinma')} <span style="color:#64748b; font-weight:600; font-size:0.8rem;">HISOBOT MARKAZI</span>
                     </h2>
                 </div>
                 
@@ -2207,7 +2207,7 @@
                 <h2 style="margin-top: 30px; font-weight: 800; text-align: center; color: #fff; font-size: 2rem;">Xatolik yuz berdi!</h2>
                 <p style="color: #94a3b8; text-align: center; font-size: 1.1rem; margin-bottom: 20px;">Server bilan bog'lanishda xatolik yuz berdi. Iltimos qayta urinib ko'ring.</p>
                 <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 10px 20px; font-size: 0.85rem; color: #f87171; font-family: monospace; margin-bottom: 30px;">
-                    ERROR: ${err.message || 'Unknown Network Error'}
+                    ERROR: ${escapeHtml(err.message || 'Unknown Network Error')}
                 </div>
                 <button onclick="this.parentElement.remove()" style="padding: 15px 40px; background: #334155; color: #fff; border: 1px solid #475569; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer;">Yopish</button>
             `;
@@ -2352,7 +2352,7 @@
                     <td style="${tdStyle}">${r.km}</td>
                     <td style="${tdStyle}">${r.path}</td>
                     <td style="${tdStyle} font-weight: 800; color: #ef4444;">${r.speed} (K)</td>
-                    <td style="${tdStyle} text-align: left; white-space: normal;">${r.reason}</td>
+                    <td style="${tdStyle} text-align: left; white-space: normal;">${escapeHtml(r.reason)}</td>
                 </tr>
             `).join('')}
             ${(sd.generalWarnRows || []).map(r => `
@@ -2361,7 +2361,7 @@
                     <td style="${tdStyle}">${r.km}</td>
                     <td style="${tdStyle}">${r.path}</td>
                     <td style="${tdStyle} font-weight: 800; color: #ef4444;">${r.speed} (D)</td>
-                    <td style="${tdStyle} text-align: left; white-space: normal;">${r.reason}</td>
+                    <td style="${tdStyle} text-align: left; white-space: normal;">${escapeHtml(r.reason)}</td>
                 </tr>
             `).join('')}
             </tbody>
@@ -2383,7 +2383,7 @@
                 <tr>
                     <td style="${tdStyle} text-align: left; font-weight: 700; color: #1e3a8a;">${r.area}</td>
                     <td style="${tdStyle} text-align: left; white-space: normal;">${r.work}</td>
-                    <td style="${tdStyle}">${r.location}</td>
+                    <td style="${tdStyle}">${escapeHtml(r.location)}</td>
                     <td style="${tdStyle}">${r.leader} (${r.staff})</td>
                     <td style="${tdStyle} font-weight: 800; color: #ef4444;">${r.window || '-'}</td>
                 </tr>
@@ -2532,7 +2532,7 @@
                             </thead>
                             <tbody>
                                 ${(sd.materials || sd.materialsData).map(m => `
-                                    <tr><td style="${tdStyle} text-align: left; font-weight: 600;">${m.name}</td><td style="${tdStyle}">${m.unit}</td><td style="${tdStyle} font-weight:800; color:#10b981;">${m.qty}</td><td style="${tdStyle}">${m.loc}</td></tr>
+                                    <tr><td style="${tdStyle} text-align: left; font-weight: 600;">${escapeHtml(m.name)}</td><td style="${tdStyle}">${m.unit}</td><td style="${tdStyle} font-weight:800; color:#10b981;">${m.qty}</td><td style="${tdStyle}">${m.loc}</td></tr>
                                 `).join('')}
                             </tbody>
                         </table>
@@ -2547,7 +2547,7 @@
                             </thead>
                             <tbody>
                                 ${(sd.transport || sd.transportData).map(t => `
-                                    <tr><td style="${tdStyle} font-weight: 600;">${t.type}</td><td style="${tdStyle} font-weight:800; color: #f59e0b;">${t.num}</td><td style="${tdStyle}">${t.name}</td><td style="${tdStyle}">${t.loc}</td></tr>
+                                    <tr><td style="${tdStyle} font-weight: 600;">${t.type}</td><td style="${tdStyle} font-weight:800; color: #f59e0b;">${t.num}</td><td style="${tdStyle}">${escapeHtml(t.name)}</td><td style="${tdStyle}">${t.loc}</td></tr>
                                 `).join('')}
                             </tbody>
                         </table>
@@ -2580,7 +2580,7 @@
                 <div style="background:#0f172a; padding:40px; border-radius:30px 30px 0 0;">
                     <button onclick="this.parentElement.parentElement.parentElement.remove()" style="position:absolute; top:30px; right:30px; background:none; border:none; color:#94a3b8; font-size:1.8rem; cursor:pointer;"><i class="fas fa-times"></i></button>
                     <h2 style="margin:0; font-size:2rem; font-weight:900; color:#38bdf8; display:flex; align-items:center; gap:15px;">
-                        <i class="fas fa-chart-line"></i> ${sub.name} - OPERATIV ANALITIKA
+                        <i class="fas fa-chart-line"></i> ${escapeHtml(sub.name)} - OPERATIV ANALITIKA
                     </h2>
                     <p style="color:#94a3b8; margin-top:10px;">Bo'lim dispetcheri tomonidan yuborilgan strukturalangan hisobot</p>
                 </div>
@@ -2609,7 +2609,7 @@
                     <label style="color:#94a3b8; font-size:0.8rem; display:block; margin-bottom:8px;">QABUL QILUVCHI</label>
                     <select id="task-target" style="width:100%; padding:12px; background:#1e293b; border:1px solid #334155; border-radius:8px; color:#fff;">
                         <option value="all">Barcha bo'linmalar</option>
-                        ${subdivisions.map(s => `<option value="${s.id}" ${s.id === bolinmaId ? 'selected' : ''}>${s.name}</option>`).join('')}
+                        ${subdivisions.map(s => `<option value="${s.id}" ${s.id === bolinmaId ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
                     </select>
                 </div>
                 <div style="margin-bottom:30px;">
@@ -2662,7 +2662,7 @@
                     rowsHTML += `
                         <tr style="border-bottom: 1px solid #f1f5f9;">
                             <td style="padding: 15px; color: #0f172a; font-weight: 500;">${idx === 0 ? sub.name : ''}</td>
-                            <td style="padding: 15px; color: #475569;">${p.location || '-'}</td>
+                            <td style="padding: 15px; color: #475569;">${escapeHtml(p.location || '-')}</td>
                             <td style="padding: 15px; color: #475569;">${p.work || '-'}</td>
                             <td style="padding: 15px; color: #0f172a; font-weight: 600; text-align: center;">${rowStaff}</td>
                             <td style="padding: 15px; color: #475569;">${p.machines || '-'}</td>
@@ -2876,7 +2876,7 @@
                         <i class="fas ${checkIcon}" style="color: ${isDone ? '#10b981' : '#cbd5e1'}; font-size: 1rem;"></i>
                     </div>
                     <div style="margin-top: 18px;">
-                        <div style="font-weight: 800; font-size: 0.95rem; color: ${textColor}; letter-spacing: 0.2px;">${mod.name}</div>
+                        <div style="font-weight: 800; font-size: 0.95rem; color: ${textColor}; letter-spacing: 0.2px;">${escapeHtml(mod.name)}</div>
                         <div style="font-size: 0.8rem; font-weight: 600; color: ${isDone ? '#047857' : '#64748b'}; margin-top: 6px;">
                             ${isDone ? '<i class="fas fa-check"></i> ' : ''}${statusText}
                         </div>

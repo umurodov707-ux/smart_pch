@@ -70,7 +70,7 @@ const FileApproval = {
             `;
         } catch (error) {
             container.innerHTML = `<div class="error-state" style="color: #e74c3c; padding: 20px; text-align: center;">
-                <i class="fas fa-exclamation-triangle"></i> Xatolik: ${error.message}
+                <i class="fas fa-exclamation-triangle"></i> Xatolik: ${escapeHtml(error.message)}
             </div>`;
         }
     },

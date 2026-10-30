@@ -222,7 +222,7 @@ window.AdminDashboard = {
                     <i class="fas ${a.icon}"></i>
                 </div>
                 <div>
-                    <div style="font-size: 0.8rem; color: white; font-weight: 700; line-height: 1.3;">${a.text}</div>
+                    <div style="font-size: 0.8rem; color: white; font-weight: 700; line-height: 1.3;">${escapeHtml(a.text)}</div>
                     <div style="font-size: 0.65rem; color: #64748b; margin-top: 4px;"><i class="far fa-clock"></i> ${a.time}</div>
                 </div>
             </div>

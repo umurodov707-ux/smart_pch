@@ -120,7 +120,7 @@ const ModernAnalytics = {
                 .replace(/\n/g, '<br>');
             output.innerHTML = `<div>${html}</div>`;
         } catch (e) {
-            output.innerHTML = `<p style="color:#ef4444;">Bashorat olishda xatolik: ${e.message || 'Server bilan aloqa yo\'q'}</p>`;
+            output.innerHTML = `<p style="color:#ef4444;">Bashorat olishda xatolik: ${escapeHtml(e.message || 'Server bilan aloqa yo\'q')}</p>`;
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> QAYTA BASHORAT QILISH';

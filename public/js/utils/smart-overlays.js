@@ -62,7 +62,7 @@ const SmartOverlays = {
                 });
 
                 L.marker([lat, lng], { icon })
-                    .bindPopup(`<strong>OGOHLANTIRISH:</strong> ${warn.message}<br><strong>Tezlik:</strong> ${warn.speed_limit} km/soat`)
+                    .bindPopup(`<strong>OGOHLANTIRISH:</strong> ${escapeHtml(warn.message)}<br><strong>Tezlik:</strong> ${warn.speed_limit} km/soat`)
                     .addTo(this.layers.warnings);
             });
         } catch (e) { console.error('Overlay error (warnings):', e); }

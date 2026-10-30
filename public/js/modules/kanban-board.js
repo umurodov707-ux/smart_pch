@@ -76,7 +76,7 @@ function renderKanbanList(status) {
         div.draggable = true;
         div.id = `task-${task.id}`;
         div.innerHTML = `
-                <div>${task.text}</div>
+                <div>${escapeHtml(task.text)}</div>
                 <div style="margin-top:0.5rem; display:flex; justify-content:flex-end;">
                     <i class="fas fa-trash" style="color:#e74c3c; cursor:pointer; font-size:0.8rem;" onclick="deleteKanbanTask(${task.id}, '${status}')"></i>
                 </div>

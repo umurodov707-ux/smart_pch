@@ -120,8 +120,8 @@ const StaffAttendance = {
                     ${emp.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
                 </div>
                 <div style="flex: 1; overflow: hidden;">
-                    <div style="font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem;">${emp.name}</div>
-                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">${emp.position}</div>
+                    <div style="font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem;">${escapeHtml(emp.name)}</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">${escapeHtml(emp.position)}</div>
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
                         ${hasFace ? 
                             `<span style="font-size: 0.65rem; color: #ffd700; background: rgba(212, 175, 55, 0.1); padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); font-weight: 800;"><i class="fas fa-face-smile"></i> FACE O'RNATILGAN</span>` : 

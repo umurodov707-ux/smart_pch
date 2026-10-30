@@ -65,17 +65,6 @@ router.get('/employees', (req, res) => {
         console.error('Database migration/auto-fix failed:', dbErr.message);
     }
 
-    // Write debug users file
-    try {
-        const fs = require('fs');
-        const path = require('path');
-        db.all('SELECT id, username, role, bolinmalar, departments FROM users', [], (err, rows) => {
-            if (!err && rows) {
-                fs.writeFileSync(path.join(__dirname, '..', '..', 'public', 'users_debug.json'), JSON.stringify(rows, null, 2));
-            }
-        });
-    } catch (e) {}
-
     const { bolinma_id, department_id, status, search } = req.query;
     let query = 'SELECT * FROM employees';
     let conditions = [];

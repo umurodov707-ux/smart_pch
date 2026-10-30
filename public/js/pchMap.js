@@ -236,7 +236,7 @@ window.updateLiveWorkers = function (map) {
                 className: 'worker-marker',
                 html: `<div style="background: ${worker.color}; border: 2px solid #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px ${worker.color}99; color: #fff; font-size: 12px; position: relative;">
                             <i class="fas fa-user-hard-hat"></i>
-                            <div style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,0.9); color: #fff; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; white-space: nowrap; font-weight: 700; border: 1px solid ${worker.color}55;">${worker.name}</div>
+                            <div style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,0.9); color: #fff; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; white-space: nowrap; font-weight: 700; border: 1px solid ${worker.color}55;">${escapeHtml(worker.name)}</div>
                        </div>`,
                 iconSize: [28, 28],
                 iconAnchor: [14, 14]
@@ -293,7 +293,7 @@ window.updateLiveTrains = function (map, stations) {
                         className: 'train-marker',
                         html: `<div style="background: ${train.color}; border: 2px solid #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px ${train.color}; color: #fff; font-size: 14px; position: relative;">
                                     <i class="fas fa-train"></i>
-                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; white-space: nowrap; font-weight: 800;">${train.name}</div>
+                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; white-space: nowrap; font-weight: 800;">${escapeHtml(train.name)}</div>
                                </div>`,
                         iconSize: [32, 32],
                         iconAnchor: [16, 16]
@@ -694,7 +694,7 @@ async function initPCHLeafletMap(masofa) {
                             icon: L.divIcon({
                                 className: 'speed-zone-marker',
                                 html: `<div style="width:36px; height:36px; background:#fff; border:3px solid #ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; color:#000; box-shadow:0 2px 10px rgba(0,0,0,0.4); font-family:Arial;">${zone.limit}</div>
-                                       <div style="position:absolute; top:38px; left:50%; transform:translateX(-50%); background:rgba(15,23,42,0.9); color:#f59e0b; font-size:8px; font-weight:700; padding:1px 5px; border-radius:3px; white-space:nowrap;">${zone.reason}</div>`,
+                                       <div style="position:absolute; top:38px; left:50%; transform:translateX(-50%); background:rgba(15,23,42,0.9); color:#f59e0b; font-size:8px; font-weight:700; padding:1px 5px; border-radius:3px; white-space:nowrap;">${escapeHtml(zone.reason)}</div>`,
                                 iconSize: [36, 36],
                                 iconAnchor: [18, 18]
                             }),
@@ -893,7 +893,7 @@ function showStationInfo(st, color, masofa) {
                 <i class="fas ${isStation ? 'fa-train-subway' : 'fa-code-branch'}" style="color: ${color}; font-size: 1.3rem;"></i>
             </div>
             <div style="flex: 1; min-width: 0;">
-                <div style="color: #fff; font-weight: 900; font-size: 1.15rem; letter-spacing: 0.5px;">${st.name}</div>
+                <div style="color: #fff; font-weight: 900; font-size: 1.15rem; letter-spacing: 0.5px;">${escapeHtml(st.name)}</div>
                 <div style="color: rgba(255,255,255,0.4); font-size: 0.78rem; margin-top: 2px;">${isStation ? 'STANSIYA' : 'RAZEZD'} • KM ${st.km} • ${bolinmaName}</div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -962,7 +962,7 @@ window.initUserLiveTracking = function (map) {
         className: 'user-location-marker',
         html: `<div style="background: #2ecc71; border: 2px solid white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px #2ecc71; color: white; position: relative;">
                     <i class="fas fa-user-hard-hat"></i>
-                    <div style="position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; white-space: nowrap;">${user.full_name}</div>
+                    <div style="position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; white-space: nowrap;">${escapeHtml(user.full_name)}</div>
                </div>`,
         iconSize: [35, 35],
         iconAnchor: [17, 17]
@@ -1004,7 +1004,7 @@ function renderStationSidebar(stations, markers, map, colorMap, masofa) {
                     box-shadow: 0 0 5px ${color};"></div>
                 <div style="min-width: 0; flex: 1;">
                     <div style="color: white; font-size: 0.85rem; font-weight: ${isStation ? 600 : 400};
-                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${st.name}</div>
+                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(st.name)}</div>
                     <div style="color: rgba(255,255,255,0.35); font-size: 0.7rem;">
                         ${st.km} km &nbsp;·&nbsp; ${st.type === 'станция' ? 'Stansiya' : 'Razezd'}
                     </div>
@@ -1097,7 +1097,7 @@ window.renderTrainListHTML = function () {
     return window.TRAIN_SCHEDULE.map((t, idx) => `
         <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; border-left: 3px solid ${t.color}; position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="font-weight: 800; font-size: 0.8rem;">${t.name}</span>
+                <span style="font-weight: 800; font-size: 0.8rem;">${escapeHtml(t.name)}</span>
                 <span style="background: ${t.color}22; color: ${t.color}; padding: 2px 6px; border-radius: 5px; font-size: 0.65rem; font-weight: 900;">LIVE</span>
             </div>
             <div style="font-size: 0.72rem; color: #94a3b8;">${t.from} (${t.depTime}) &rarr; ${t.to} (${t.arrTime})</div>
@@ -1132,7 +1132,7 @@ window.openTrainAdminModal = function () {
                 ${window.TRAIN_SCHEDULE.map((t, i) => `
                     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <div style="font-weight: 800; font-size: 0.85rem;">${t.name}</div>
+                            <div style="font-weight: 800; font-size: 0.85rem;">${escapeHtml(t.name)}</div>
                             <div style="font-size: 0.7rem; color: #94a3b8;">${t.from} &rarr; ${t.to}</div>
                         </div>
                         <button onclick="window.deleteTrainRecord(${i})" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;"><i class="fas fa-trash"></i></button>
@@ -1224,7 +1224,7 @@ window.initUserLiveTracking = function (map) {
         className: 'user-location-marker',
         html: `<div style="background: #27ae60; border: 2px solid white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px #27ae60; color: white; position: relative;">
                     <i class="fas fa-user-hard-hat"></i>
-                    <div style="position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); background: #27ae60; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; white-space: nowrap;">${user.full_name}</div>
+                    <div style="position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); background: #27ae60; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; white-space: nowrap;">${escapeHtml(user.full_name)}</div>
                </div>`,
         iconSize: [35, 35],
         iconAnchor: [17, 17]

@@ -66,10 +66,10 @@ const Infrastructure = {
         container.innerHTML = this.warnings.map(w => `
             <div class="warning-item priority-${w.priority}" style="margin-bottom:10px; padding:12px; border-radius:8px; background:rgba(255,255,255,0.05); border-left:4px solid ${this.getPriorityColor(w.priority)};">
                 <div style="display:flex; justify-content:space-between; align-items:start;">
-                    <div style="font-weight:bold; color:white;">${w.title}</div>
+                    <div style="font-weight:bold; color:white;">${escapeHtml(w.title)}</div>
                     <span style="font-size:0.75rem; color:#64748b;">${new Date(w.created_at).toLocaleDateString()}</span>
                 </div>
-                <div style="font-size:0.85rem; color:#94a3b8; margin-top:4px;">${w.message}</div>
+                <div style="font-size:0.85rem; color:#94a3b8; margin-top:4px;">${escapeHtml(w.message)}</div>
                 ${w.speed_limit ? `<div style="margin-top:8px; font-size:0.8rem; font-weight:bold; color:#f59e0b;">
                     <i class="fas fa-tachometer-alt"></i> Tezlik: ${w.speed_limit} km/soat
                 </div>` : ''}
@@ -130,9 +130,9 @@ const Infrastructure = {
                     if (leafletObj) {
                         leafletObj.addTo(mapInstance).bindPopup(`
                             <div style="font-family:'Inter', sans-serif;">
-                                <strong style="color:#1e293b;">${item.name}</strong><br>
+                                <strong style="color:#1e293b;">${escapeHtml(item.name)}</strong><br>
                                 Holat: <span style="color:${this.getInfraStatusColor(item.status)}; font-weight:bold;">${item.status.toUpperCase()}</span><br>
-                                ${item.details || ''}
+                                ${escapeHtml(item.details || '')}
                             </div>
                         `);
                     }
@@ -161,7 +161,7 @@ const Infrastructure = {
             L.marker([w.lat, w.lng], { icon }).addTo(mapInstance || window.PchMap.instance).bindPopup(`
                 <div style="padding:5px;">
                     <strong style="color:#ef4444;">Dahshatli Ogohlantirish</strong><br>
-                    ${w.message}<br>
+                    ${escapeHtml(w.message)}<br>
                     ${w.speed_limit ? `Limit: <strong>${w.speed_limit} km/soat</strong>` : ''}
                 </div>
             `);

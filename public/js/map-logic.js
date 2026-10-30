@@ -48,7 +48,7 @@ function updateMapMarkers() {
 
         marker.bindPopup(`
             <div style="color: #333;">
-                <strong>${sub.name}</strong><br>
+                <strong>${escapeHtml(sub.name)}</strong><br>
                 <strong>Mas'ul:</strong> ${sub.manager}<br>
                 <strong>Bo'lim:</strong> ${getDepartmentName(sub.department)}<br>
                 <strong>Holat:</strong> Faol

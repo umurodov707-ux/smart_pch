@@ -1,7 +1,8 @@
-const CACHE_NAME = 'smart-pch-v20260730.network.first.v5';
+const CACHE_NAME = 'smart-pch-v20261030.network.first.v6';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
+    '/js/core/escape-html.js',
     // CSS fayllari
     '/css/style.css',
     '/css/base.css',

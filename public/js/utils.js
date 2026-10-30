@@ -305,7 +305,7 @@ const SmartUtils = {
                     <h2>O'ZBEKISTON TEMIR YO'LLARI</h2>
                     <h3>"${(window.MasofaConfig && window.MasofaConfig.getMasofaInfo && window.MasofaConfig.getMasofaInfo().fullName) ? window.MasofaConfig.getMasofaInfo().fullName.toUpperCase() : 'TEMIR YO\'L MASOFASI'}" FILIALI</h3>
                     <div class="report-title-box">
-                        <h1 class="report-main-title">${options.title || 'RASMIY HISOBOT'}</h1>
+                        <h1 class="report-main-title">${escapeHtml(options.title || 'RASMIY HISOBOT')}</h1>
                         <p class="report-subtitle">${options.subtitle || ''}</p>
                     </div>
                 </div>

@@ -224,7 +224,7 @@ function loadPU74Brigade(fileName, title) {
     }).catch(err => {
         document.getElementById('pu74-loading').innerHTML = `
             <i class="fas fa-exclamation-triangle" style="font-size:3rem;color:#e74c3c;margin-bottom:20px;"></i>
-            <div style="font-size:1.2rem;color:#c0392b;">${err.message}</div>
+            <div style="font-size:1.2rem;color:#c0392b;">${escapeHtml(err.message)}</div>
             <label style="margin-top:20px;background:#217346;color:white;padding:12px 30px;border-radius:8px;cursor:pointer;">
                 <i class="fas fa-upload"></i> Faylni yuklash
                 <input type="file" accept=".xlsx,.xls" style="display:none;" onchange="handlePU74FileUpload(this)">
@@ -1694,8 +1694,8 @@ function renderPU74EmpList(filterText) {
                 <i class="fas fa-user-tie" style="color: #2563eb; font-size: 13px;"></i>
             </div>
             <div style="display: flex; flex-direction: column; text-align: left; overflow: hidden;">
-                <span style="font-weight: 700; color: #1e293b; font-size: 13px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${emp.full_name}</span>
-                <span style="font-size: 11px; color: #64748b; margin-top: 3px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${emp.position || 'Xodim'}</span>
+                <span style="font-weight: 700; color: #1e293b; font-size: 13px; line-height: 1.2; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${escapeHtml(emp.full_name)}</span>
+                <span style="font-size: 11px; color: #64748b; margin-top: 3px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${escapeHtml(emp.position || 'Xodim')}</span>
             </div>
         `;
         div.onclick = async () => {
@@ -2288,8 +2288,8 @@ function openPU74WarningsModal(warnings, R, targetDate) {
             html += `
                 <div style="padding:15px; border:1px solid #fecaca; margin-bottom:15px; border-radius:8px; background:#fffcfc;">
                     <div style="margin-bottom:10px;">${typeBadge}</div>
-                    <h4 style="margin:0 0 5px 0; color:#1e293b;">${w.title}</h4>
-                    <p style="margin:0 0 10px 0; font-size:14px; color:#475569; line-height:1.5;">${w.message}</p>
+                    <h4 style="margin:0 0 5px 0; color:#1e293b;">${escapeHtml(w.title)}</h4>
+                    <p style="margin:0 0 10px 0; font-size:14px; color:#475569; line-height:1.5;">${escapeHtml(w.message)}</p>
                     <div style="font-size:12px; color:#64748b; margin-bottom:10px;">
                         <i class="fas fa-map-marker-alt"></i> КМ: <b>${w.km || '-'}</b> | ПК: <b>${w.pk || '-'}</b>
                     </div>
@@ -2418,7 +2418,7 @@ function renderPU74NormsList(filterText = '') {
         
         html += `
             <div onclick="selectPU74Norm('${n.id}')" style="padding:14px 16px; border:1px solid #e2e8f0; margin-bottom:8px; border-radius:10px; cursor:pointer; transition:all 0.2s; background:white; border-left:4px solid ${gradeColor};" onmouseover="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 4px 12px -2px rgba(59,130,246,0.15)'; this.style.transform='translateX(4px)';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'; this.style.transform='none'; this.style.borderLeftColor='${gradeColor}';">
-                <div style="font-weight:700; color:#1e293b; font-size:13.5px; margin-bottom:8px; line-height:1.4;">${n.name}</div>
+                <div style="font-weight:700; color:#1e293b; font-size:13.5px; margin-bottom:8px; line-height:1.4;">${escapeHtml(n.name)}</div>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:11.5px; color:#64748b;">
                     <span style="background:#f1f5f9; padding:3px 8px; border-radius:6px; font-weight:600;">
                         <i class="fas fa-hashtag" style="color:#3b82f6;"></i> ${n.paragraph}
@@ -2687,7 +2687,7 @@ window.showPU74WarningTooltip = function(td, dayNum) {
             html += `<div style="margin-bottom:12px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                 <div style="margin-bottom:6px; display:flex; align-items:flex-start;">
                     <i class="fas ${icon}" style="color:${color}; margin-top:3px; margin-right:8px; width:14px;"></i> 
-                    <b style="color:#f8fafc; line-height:1.3; font-size: 13px;">${w.title}</b>
+                    <b style="color:#f8fafc; line-height:1.3; font-size: 13px;">${escapeHtml(w.title)}</b>
                 </div>
                 ${timeHtml}
                 <div style="font-size:12px; color:#cbd5e1; padding-left:22px; line-height:1.4;">${w.message.substring(0, 150)}${w.message.length > 150 ? '...' : ''}</div>

@@ -58,7 +58,7 @@ const ModernOKNO = {
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         ${isDispetcher ? `
                         <select id="o-bolinma" style="padding: 12px; background: rgba(0,0,10,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
-                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}
                         </select>
                         ` : ''}
                         <input type="text" id="o-title" placeholder="Ish nomi / Sababi" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
@@ -191,7 +191,7 @@ const ModernOKNO = {
                 <div style="display: flex; align-items: center; gap: 20px;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: ${isRequested ? '#ef4444' : '#10b981'}; box-shadow: 0 0 10px ${isRequested ? '#ef4444' : '#10b981'};"></div>
                     <div>
-                        <div style="color: #fff; font-weight: bold; font-size: 1rem;">${item.title}</div>
+                        <div style="color: #fff; font-weight: bold; font-size: 1rem;">${escapeHtml(item.title)}</div>
                         <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">${item.km || '-'} KM | Bo'linma: ${item.bolinma_id}</div>
                     </div>
                 </div>

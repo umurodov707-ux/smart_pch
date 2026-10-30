@@ -259,7 +259,7 @@ function renderVisaDocuments(filterStatus) {
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 18px;">
                     <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px;">
                         <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px;">Yo'l ustasi</div>
-                        <div style="color: #cbd5e1; font-weight: 600;">${doc.master || '—'}</div>
+                        <div style="color: #cbd5e1; font-weight: 600;">${escapeHtml(doc.master || '—')}</div>
                     </div>
                     <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px;">
                         <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px;">Yaratilgan sana</div>
@@ -485,7 +485,7 @@ window.printSignedDocument = function (docId) {
             </div>
 
             <div style="text-align: justify; text-indent: 50px;">
-                Biz quyida imzo chekuvchilar <b>${act.bolinmaNum}</b> yo'l ustasi: <b>${act.master}</b>, 
+                Biz quyida imzo chekuvchilar <b>${act.bolinmaNum}</b> yo'l ustasi: <b>${escapeHtml(act.master)}</b>, 
                 yo'l brigadiri: <b>${act.brigadier1}</b>, yo'l brigadiri: <b>${act.brigadier2}</b> 
                 lar tomonidan tuzildi ushbu dalolatnoma shu haqidakim
             </div>
@@ -515,7 +515,7 @@ window.printSignedDocument = function (docId) {
 
             <div style="margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; line-height: 2;">
                 <div>yo'l ustasi:</div>
-                <div style="border-bottom: 1px solid black;"><span style="float:right">${act.master}</span></div>
+                <div style="border-bottom: 1px solid black;"><span style="float:right">${escapeHtml(act.master)}</span></div>
 
                 <div>yo'l brigadiri:</div>
                 <div style="border-bottom: 1px solid black;"><span style="float:right">${act.brigadier1}</span></div>
@@ -705,7 +705,7 @@ function renderArchiveRows(docs) {
                 <td style="padding: 12px 15px; color: #94a3b8; font-size: 0.85rem; white-space: nowrap;">${date}</td>
                 <td style="padding: 12px 15px; color: #38bdf8; font-weight: 600; font-size: 0.85rem;">M-29</td>
                 <td style="padding: 12px 15px; color: #cbd5e1; font-size: 0.85rem;">${doc.bolinmaNum || '—'}-bo'linma</td>
-                <td style="padding: 12px 15px; color: #cbd5e1; font-size: 0.85rem;">${doc.master || '—'}</td>
+                <td style="padding: 12px 15px; color: #cbd5e1; font-size: 0.85rem;">${escapeHtml(doc.master || '—')}</td>
                 <td style="padding: 12px 15px; color: #94a3b8; font-size: 0.8rem;" title="${materials}">${shortMaterials}</td>
                 <td style="padding: 12px 15px; text-align: center;">${statusBadge}</td>
                 <td style="padding: 12px 15px; text-align: center;">

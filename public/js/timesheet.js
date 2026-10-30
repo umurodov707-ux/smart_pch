@@ -147,7 +147,7 @@ function openTimesheet(deptId = 'all') {
         renderTimesheetTable().catch(e => {
             console.error('Tabel yuklashda xatolik:', e);
             if (container) {
-                container.innerHTML = `<div style="text-align:center; padding:60px; color:#f43f5e;"><i class="fas fa-triangle-exclamation fa-2x"></i><br><br>Ma'lumotlarni yuklashda xatolik<br><small>${e.message || ''}</small></div>`;
+                container.innerHTML = `<div style="text-align:center; padding:60px; color:#f43f5e;"><i class="fas fa-triangle-exclamation fa-2x"></i><br><br>Ma'lumotlarni yuklashda xatolik<br><small>${escapeHtml(e.message || '')}</small></div>`;
             }
         });
     }, 10);
@@ -861,7 +861,7 @@ async function renderTimesheetMonitor() {
         html += `
             <tr style="border-bottom: 1px solid #000; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
                 <td style="padding: 15px; color: #000 !important; font-weight: 700; border-right: 1px solid #000;">${i + 1}</td>
-                <td style="padding: 15px; font-weight: 900; color: #000 !important; border-right: 1px solid #000;">${sub.name}</td>
+                <td style="padding: 15px; font-weight: 900; color: #000 !important; border-right: 1px solid #000;">${escapeHtml(sub.name)}</td>
                 <td style="padding: 15px; text-align: center; border-right: 1px solid #000;">${getStatusIcon(sigs.tuzuvchi_name)}</td>
                 <td style="padding: 15px; text-align: center; border-right: 1px solid #000;">${getStatusIcon(sigs.xodimlar_name)}</td>
                 <td style="padding: 15px; text-align: center; border-right: 1px solid #000;">${getStatusIcon(sigs.iqtisod_name)}</td>
@@ -1289,7 +1289,7 @@ window.exportTimesheetToExcel = function () {
                 ${exportTable.outerHTML}
                 <div style="margin-top: 20px;">
                     <p><i>Sana: ${new Date().toLocaleDateString()}</i></p>
-                    <p><i>Tuzuvchi: ${window.Auth?.currentUser?.full_name || 'Mas\'ul shaxs'}</i></p>
+                    <p><i>Tuzuvchi: ${escapeHtml(window.Auth?.currentUser?.full_name || 'Mas\'ul shaxs')}</i></p>
                 </div>
             </body>
             </html>

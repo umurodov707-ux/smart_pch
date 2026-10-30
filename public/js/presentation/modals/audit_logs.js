@@ -102,7 +102,7 @@ const ModernAuditLogs = {
                     <td style="padding: 15px 20px;">
                         <span style="display: flex; align-items: center; gap: 8px;">
                             <div style="width: 24px; height: 24px; background: rgba(59, 130, 246, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #3b82f6;">${log.username.charAt(0).toUpperCase()}</div>
-                            ${log.username}
+                            ${escapeHtml(log.username)}
                         </span>
                     </td>
                     <td style="padding: 15px 20px;">

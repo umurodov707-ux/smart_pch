@@ -670,7 +670,7 @@ function getDefectoscopeTrackerHTML() {
                         <div class="defecto-card" style="--accent-color: ${cartColorHex};">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span class="cart-badge" style="background: ${cartColorHex};">
-                                    <i class="fas fa-subway"></i> ${cart.name}
+                                    <i class="fas fa-subway"></i> ${escapeHtml(cart.name)}
                                 </span>
                                 ${getStatusBadge(cart.status)}
                             </div>
@@ -750,7 +750,7 @@ function getDefectoscopeTrackerHTML() {
                         ${stations.map(st => `
                             <div style="position: absolute; top: 65px; left: ${st.pct}%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2;">
                                 <div style="width: 16px; height: 16px; border-radius: 50%; background: #0f172a; border: 3px solid #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);"></div>
-                                <div style="color: #cbd5e1; font-size: 0.72rem; font-weight: 800; margin-top: 8px; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${st.name}</div>
+                                <div style="color: #cbd5e1; font-size: 0.72rem; font-weight: 800; margin-top: 8px; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${escapeHtml(st.name)}</div>
                                 <div style="color: #64748b; font-size: 0.65rem; font-weight: 700;">PK ${st.km}</div>
                             </div>
                         `).join('')}
@@ -780,7 +780,7 @@ function getDefectoscopeTrackerHTML() {
                                             <div style="flex:1;">
                                                 <div style="font-weight:bold; font-size:0.85em; margin-bottom:2px; color:#fff;">${defect.type}</div>
                                                 <div style="font-size:0.78em; color:#cbd5e1; line-height:1.3;">
-                                                    ${defect.description}
+                                                    ${escapeHtml(defect.description)}
                                                 </div>
                                             </div>
                                         </div>
@@ -1042,7 +1042,7 @@ window.viewCartDetails = function (cartId) {
                         <i class="fas fa-arrow-left"></i> Orqaga (Monitoring)
                     </button>
                     <span class="cart-badge" style="background: ${cartColorHex}; font-size: 1.1rem; padding: 8px 18px;">
-                        <i class="fas fa-subway"></i> ${cart.name}
+                        <i class="fas fa-subway"></i> ${escapeHtml(cart.name)}
                     </span>
                 </div>
                 <div>
@@ -1099,7 +1099,7 @@ window.viewCartDetails = function (cartId) {
                                         <td style="padding: 10px; text-align: center; font-weight: bold; color: #0284c7;">PK ${d.pk}</td>
                                         <td style="padding: 10px; text-align: center;"><span style="padding: 4px 10px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-weight: 900;">${d.code || '-'}</span></td>
                                         <td style="padding: 10px; text-align: center; font-weight: bold; color: ${d.type.includes('Og\'ir') ? '#ef4444' : '#f59e0b'};">${d.type}</td>
-                                        <td style="padding: 10px; color: #cbd5e1;">${d.description}</td>
+                                        <td style="padding: 10px; color: #cbd5e1;">${escapeHtml(d.description)}</td>
                                         <td style="padding: 10px; text-align: center; color: #94a3b8;">${d.time}</td>
                                     </tr>
                                 `).join('')}
@@ -1137,7 +1137,7 @@ window.viewCartDetails = function (cartId) {
                                             ${day}-sana ${isTodayDay ? '<span style="font-size:0.65rem; color:#38bdf8; display:block;">(Bugun)</span>' : ''}
                                         </td>
                                         <td style="padding: 10px; color: #f8fafc; font-weight: 600;">
-                                            ${sched.text}
+                                            ${escapeHtml(sched.text)}
                                         </td>
                                         <td style="padding: 10px; text-align: center; color: #cbd5e1;">PK ${sched.start || '-'}</td>
                                         <td style="padding: 10px; text-align: center; color: #cbd5e1;">PK ${sched.end || '-'}</td>
@@ -1309,7 +1309,7 @@ window.openScheduleEditor = function () {
                                             <input type="number" id="cell_${cartId}_${day}_start" placeholder="Boshlanish PK" value="${dayData.start !== 4020 ? dayData.start : ""}">
                                             <input type="number" id="cell_${cartId}_${day}_end" placeholder="Tugash PK" value="${dayData.end !== 4020 ? dayData.end : ""}">
                                         </div>
-                                        <input type="text" class="desc" id="cell_${cartId}_${day}_text" placeholder="(Ixtiyoriy Izoh yozing, Masalan: Texnik ko'rik)" value="${dayData.text || ""}">
+                                        <input type="text" class="desc" id="cell_${cartId}_${day}_text" placeholder="(Ixtiyoriy Izoh yozing, Masalan: Texnik ko'rik)" value="${escapeHtml(dayData.text || "")}">
                                     </div>
                                 </div>
                             `;
@@ -1457,7 +1457,7 @@ window.viewDefectReport = function () {
                         <td style="padding: 10px;">${d.cart}</td>
                         <td style="padding: 10px;">${d.pk}</td>
                         <td style="padding: 10px;">${d.type}</td>
-                        <td style="padding: 10px;">${d.description}</td>
+                        <td style="padding: 10px;">${escapeHtml(d.description)}</td>
                         <td style="padding: 10px;">${d.time}</td>
                     </tr>
                 `).join('')}
@@ -1622,7 +1622,7 @@ window.openAScanBScanModal = function (defectCode, pk, cartId) {
                             <i class="fas fa-clipboard-check"></i> Ekspertiza Diagnostika Xulosasi
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; color: #cbd5e1;">
-                            <div><b>Defekt Turi:</b> <span style="color: #fff;">${catalogItem.name}</span></div>
+                            <div><b>Defekt Turi:</b> <span style="color: #fff;">${escapeHtml(catalogItem.name)}</span></div>
                             <div><b>Joylashuvi:</b> PK ${pkNum} (${catalogItem.category})</div>
                             <div><b>Chuqurlik / O'lcham:</b> <span style="color: #38bdf8; font-weight: bold;">${depthMm} mm</span> (Uzunlik: ${lengthMm} mm)</div>
                             <div><b>Signal Amplitudasi:</b> <span style="color: #ef4444; font-weight: bold;">${amplitudePct}% (+${gainDb} dB)</span></div>

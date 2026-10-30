@@ -54,7 +54,7 @@ async function openRepairJournal(bolinmaId) {
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                             <td style="padding:15px;">${new Date(r.date).toLocaleDateString()}</td>
                             <td style="padding:15px; font-weight:bold; color:#38bdf8;">${r.vehicle_name}</td>
-                            <td style="padding:15px; font-size:0.9rem; color:#cbd5e1;">${r.description}</td>
+                            <td style="padding:15px; font-size:0.9rem; color:#cbd5e1;">${escapeHtml(r.description)}</td>
                             <td style="padding:15px; font-size:0.8rem; color:#94a3b8;">${r.parts_replaced || '-'}</td>
                             <td style="padding:15px; font-weight:bold; color:#2ecc71;">${(r.total_cost || 0).toLocaleString()} som</td>
                             <td style="padding:15px;">
@@ -85,7 +85,7 @@ async function openRepairJournal(bolinmaId) {
                     <div style="display:flex; flex-direction:column; gap:15px;">
                         <select id="rep-vehicle" style="background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
                             <option value="">Texnikani tanlang</option>
-                            ${vehicles.map(v => `<option value="${v.id}">${v.name} (${v.number})</option>`).join('')}
+                            ${vehicles.map(v => `<option value="${v.id}">${escapeHtml(v.name)} (${v.number})</option>`).join('')}
                         </select>
                         <input type="date" id="rep-date" value="${new Date().toISOString().split('T')[0]}" style="background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
                         <textarea id="rep-desc" placeholder="Ta'mir tavsifi (Nima qilindi?)" style="background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px; min-height:80px;"></textarea>
@@ -160,7 +160,7 @@ async function openSpareParts(bolinmaId) {
                     <div style="background:#1e293b; padding:20px; border-radius:15px; border:1px solid ${p.quantity <= p.min_limit ? '#ef444450' : '#334155'}; position:relative;">
                         <div style="display:flex; justify-content:space-between; align-items:start;">
                             <div>
-                                <h4 style="margin:0; color:white;">${p.name}</h4>
+                                <h4 style="margin:0; color:white;">${escapeHtml(p.name)}</h4>
                                 <span style="font-size:0.75rem; color:#64748b;">Artikul: ${p.part_number || '---'}</span>
                             </div>
                             <span style="background:${p.quantity <= p.min_limit ? '#ef444420' : '#23863620'}; color:${p.quantity <= p.min_limit ? '#ef4444' : '#238636'}; padding:4px 8px; border-radius:8px; font-size:0.75rem; font-weight:700;">
@@ -566,7 +566,7 @@ function renderVehicleCards() {
                     </span>
                 </div>
 
-                <h3 style="color: white; margin: 0 0 5px 0; font-size: 1.2rem;">${v.name}</h3>
+                <h3 style="color: white; margin: 0 0 5px 0; font-size: 1.2rem;">${escapeHtml(v.name)}</h3>
                 <p style="color: #94a3b8; margin: 0 0 15px 0; font-size: 0.9rem;">${v.number}</p>
 
                 <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
@@ -739,7 +739,7 @@ function openWaybillWindow(bolinmaId) {
                     <h4 style="color: #94a3b8; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                         <span><i class="fas fa-user-circle" style="color: #38bdf8;"></i> Haydovchi</span>
                         <select onchange="updateDriver(this.value)" style="background: #0f172a; border: 1px solid #334155; color: white; padding: 5px 10px; border-radius: 6px; outline: none; cursor: pointer;">
-                            ${filteredDrivers.map(d => `<option value="${d.id}" ${d.id === currentWaybill.driverId ? 'selected' : ''}>${d.name}</option>`).join('')}
+                            ${filteredDrivers.map(d => `<option value="${d.id}" ${d.id === currentWaybill.driverId ? 'selected' : ''}>${escapeHtml(d.name)}</option>`).join('')}
                         </select>
                     </h4>
                     <div class="driver-profile" id="wb-driver-profile" style="flex: 1;">
@@ -752,7 +752,7 @@ function openWaybillWindow(bolinmaId) {
                     <h4 style="color: #94a3b8; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
                         <span><i class="fas fa-truck-monster" style="color: #f39c12;"></i> Texnika</span>
                          <select onchange="updateVehicle(this.value)" style="background: #0f172a; border: 1px solid #334155; color: white; padding: 5px 10px; border-radius: 6px; outline: none; cursor: pointer;">
-                            ${filteredVehicles.map(v => `<option value="${v.id}" ${v.id === currentWaybill.vehicleId ? 'selected' : ''}>${v.name}</option>`).join('')}
+                            ${filteredVehicles.map(v => `<option value="${v.id}" ${v.id === currentWaybill.vehicleId ? 'selected' : ''}>${escapeHtml(v.name)}</option>`).join('')}
                         </select>
                     </h4>
                     <div id="wb-vehicle-info" style="flex: 1;">
@@ -906,7 +906,7 @@ function renderTechListRows(vehicles) {
     return list.map((v, index) => `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
             <td style="padding: 10px;">${index + 1}</td>
-            <td style="padding: 10px;">${v.name}</td>
+            <td style="padding: 10px;">${escapeHtml(v.name)}</td>
             <td style="padding: 10px;">${v.number}</td>
             <td style="padding: 10px;">${v.garage}</td>
             <td style="padding: 10px; color: #aaa;">${v.departmentId || '-'}</td>
@@ -1055,7 +1055,7 @@ function renderDriverProfile(driver) {
     return `
         <div class="driver-avatar">${driver.avatar}</div>
         <div>
-            <div style="color:white; font-weight:bold; font-size:1.1rem;">${driver.name}</div>
+            <div style="color:white; font-weight:bold; font-size:1.1rem;">${escapeHtml(driver.name)}</div>
             <div class="status-active">ID: ${driver.id}</div>
             <div class="status-active">Active</div>
         </div>
@@ -1063,7 +1063,7 @@ function renderDriverProfile(driver) {
              <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:10px 0;">
             <div class="info-row"><span class="info-label">Toifa:</span><span class="info-value">${driver.category}</span></div>
             <div class="info-row"><span class="info-label">Smena:</span><span class="info-value">${driver.shift}</span></div>
-            <div class="info-row"><span class="info-label">Telefon:</span><span class="info-value">${driver.phone}</span></div>
+            <div class="info-row"><span class="info-label">Telefon:</span><span class="info-value">${escapeHtml(driver.phone)}</span></div>
         </div>
     `;
 }
@@ -1073,7 +1073,7 @@ function renderVehicleInfo(vehicle) {
     return `
         <div style="text-align:center; margin-bottom:15px;">
             <i class="fas fa-truck-moving" style="font-size: 3rem; color: #f39c12;"></i>
-            <div style="margin-top:10px; color:#f39c12; font-weight:bold;">${vehicle.name}</div>
+            <div style="margin-top:10px; color:#f39c12; font-weight:bold;">${escapeHtml(vehicle.name)}</div>
             <div style="color:#aaa; font-size:0.9rem;">Davlat raqami: ${vehicle.number}</div>
         </div>
         <div class="input-group">
@@ -1323,7 +1323,7 @@ async function openFuelReport() {
         return `
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                         <td style="padding:15px;">
-                            <div style="font-weight:bold;">${s.name}</div>
+                            <div style="font-weight:bold;">${escapeHtml(s.name)}</div>
                             <div style="font-size:0.75rem; color:#64748b;">${s.number}</div>
                         </td>
                         <td style="padding:15px;">${s.totalKm.toFixed(1)}</td>

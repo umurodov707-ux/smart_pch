@@ -389,7 +389,7 @@ window.openPU28Section2NewModal = function(deptId) {
     `;
 
     const catalogOptions = window.NTIDefectCatalog.map(c => `
-        <option value="${c.code}">[${c.code}] ${c.category}: ${c.name}</option>
+        <option value="${c.code}">[${c.code}] ${c.category}: ${escapeHtml(c.name)}</option>
     `).join('');
 
     modal.innerHTML = `

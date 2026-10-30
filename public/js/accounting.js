@@ -320,7 +320,7 @@ function createRowHTML(material) {
                 <input type="text" id="schyot-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.schyot}" onchange="recalculateRow(${material.id})">
             </td>
             <td style="padding: 10px; color: #ffffff; border: 1px solid #4a4a6a;">
-                <input type="text" id="name-${material.id}" style="width: 100%; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.name}">
+                <input type="text" id="name-${material.id}" style="width: 100%; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${escapeHtml(material.name)}">
             </td>
             <td style="padding: 10px; text-align: center; color: #ffffff; border: 1px solid #4a4a6a;">
                 <input type="text" id="uom-${material.id}" style="width: 100%; text-align: center; background: #3d3d5c; border: 1px solid #5a5a7a; color: white; font-size: 13px; border-radius: 3px; padding: 4px; box-sizing: border-box;" value="${material.uom}">
@@ -734,7 +734,7 @@ async function openApprovalList() {
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                     <td style="padding: 10px;">${new Date(act.date).toLocaleDateString()}</td>
                     <td style="padding: 10px;">${act.station}</td>
-                    <td style="padding: 10px;">${act.master}</td>
+                    <td style="padding: 10px;">${escapeHtml(act.master)}</td>
                     <td style="padding: 10px;">${act.matSummary || 'No summary'}</td>
                     <td style="padding: 10px;"><span style="background: #f39c12; padding: 2px 8px; border-radius: 4px; font-size: 0.8em;">Kutilmoqda</span></td>
                     <td style="padding: 10px;">

@@ -398,7 +398,7 @@ function updateM29ListUI() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="border: 1px solid black; padding: 8px; text-align: center;">${index + 1}</td>
-            <td style="border: 1px solid black; padding: 8px; font-size: 12pt;"><b>${item.name}</b></td>
+            <td style="border: 1px solid black; padding: 8px; font-size: 12pt;"><b>${escapeHtml(item.name)}</b></td>
             <td style="border: 1px solid black; padding: 8px; text-align: center;">${item.uom}</td>
             <td style="border: 1px solid black; padding: 8px; text-align: center; font-weight: bold;">${item.qty}</td>
             <td class="no-print" style="border: 1px solid black; padding: 8px; text-align: center;">
@@ -575,7 +575,7 @@ function printDocumentAct(data) {
             materialsTableRows += `
                 <tr>
                     <td style="border: 1px solid black; padding: 8px; text-align: center;">${index + 1}</td>
-                    <td style="border: 1px solid black; padding: 8px;">${item.name}</td>
+                    <td style="border: 1px solid black; padding: 8px;">${escapeHtml(item.name)}</td>
                     <td style="border: 1px solid black; padding: 8px; text-align: center;">${item.uom}</td>
                     <td style="border: 1px solid black; padding: 8px; text-align: center; font-weight: bold;">${item.qty}</td>
                 </tr>
@@ -613,7 +613,7 @@ function printDocumentAct(data) {
             </div>
 
             <div class="text">
-                Biz quyida imzo chekuvchilar, <b>${data.deptName}</b> yo'l ustasi: <b>${data.master}</b>, 
+                Biz quyida imzo chekuvchilar, <b>${data.deptName}</b> yo'l ustasi: <b>${escapeHtml(data.master)}</b>, 
                 yo'l brigadiri: <b>${data.brigadier1}</b>, yo'l brigadiri: <b>${data.brigadier2}</b> 
                 lar tomonidan ushbu dalolatnoma tuzildi.
             </div>
@@ -652,7 +652,7 @@ function printDocumentAct(data) {
                 <div class="sig-row">
                     <div style="width: 150px;">Yo'l ustasi:</div>
                     <div class="sig-line"><span class="sig-label">(imzo)</span></div>
-                    <div style="width: 200px; border-bottom: 1px solid black; text-align: center;"><b>${data.master}</b></div>
+                    <div style="width: 200px; border-bottom: 1px solid black; text-align: center;"><b>${escapeHtml(data.master)}</b></div>
                 </div>
                 <div class="sig-row">
                     <div style="width: 150px;">Brigadir:</div>

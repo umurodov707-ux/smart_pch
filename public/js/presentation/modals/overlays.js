@@ -84,7 +84,7 @@ const SmartOverlays = {
                         .bindPopup(`
                             <div style="padding:10px; min-width:200px;">
                                 <div style="color:#a78bfa; font-weight:900; margin-bottom:5px;"><i class="fas fa-hammer"></i> TA'MIRLASH ISHLARI (OKNO)</div>
-                                <div style="color:#fff; font-size:0.9rem; margin-bottom:8px;">${plan.title}</div>
+                                <div style="color:#fff; font-size:0.9rem; margin-bottom:8px;">${escapeHtml(plan.title)}</div>
                                 <div style="font-size:0.75rem; color:rgba(255,255,255,0.5);">Vaxt: ${new Date(plan.start_time).toLocaleTimeString()} - ${new Date(plan.end_time).toLocaleTimeString()}</div>
                             </div>
                         `, { className: 'modern-popup' })

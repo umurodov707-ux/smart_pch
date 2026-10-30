@@ -195,7 +195,7 @@ function renderFMUTable() {
         tr.innerHTML = `
             <td style="border: 1px solid black; padding: 5px; text-align: center;">${item.schyot}</td>
             <td style="border: 1px solid black; padding: 5px; text-align: center;">${item.code}</td>
-            <td style="border: 1px solid black; padding: 5px;">${item.name}</td>
+            <td style="border: 1px solid black; padding: 5px;">${escapeHtml(item.name)}</td>
             <td style="border: 1px solid black; padding: 5px; text-align: center;">${item.uom}</td>
             <td style="border: 1px solid black; padding: 5px; text-align: center;">${item.req}</td>
             <td style="border: 1px solid black; padding: 5px; text-align: center;">${item.rel}</td>

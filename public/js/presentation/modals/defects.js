@@ -62,7 +62,7 @@ const ModernDefects = {
                     <h3 style="color: #00c6ff; margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase;">Yangi nuqsonni ro'yxatga olish</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <select id="d-bolinma" style="padding: 12px; background: rgba(0,0,10,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
-                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}
                         </select>
                         <input type="text" id="d-pk" placeholder="PK" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
                         <input type="text" id="d-issue" placeholder="Nuqson turi" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
@@ -155,7 +155,7 @@ const ModernDefects = {
                     border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;
                 `;
                 div.innerHTML = `
-                    <div style="color: rgba(255,255,255,0.8); font-weight: 500; font-size: 0.9rem;">${s.name}</div>
+                    <div style="color: rgba(255,255,255,0.8); font-weight: 500; font-size: 0.9rem;">${escapeHtml(s.name)}</div>
                     <div style="background: ${defects.length > 0 ? 'rgba(248, 81, 73, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${defects.length > 0 ? '#f85149' : '#10b981'}; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.8rem;">
                         ${defects.length} ta
                     </div>

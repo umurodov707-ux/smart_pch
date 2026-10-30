@@ -361,7 +361,7 @@ function renderTNU20Form() {
                         </label>
                         <select id="tnu20-worker" style="width: 100%; padding: 15px; border-radius: 14px; border: 1px solid rgba(31, 38, 135, 0.1); background: #f8fafc; color: #1e293b; font-size: 1rem; font-weight: 600; outline: none; transition: 0.3s;">
                             <option value="">Tanlang...</option>
-                            ${workers.map(w => `<option value="${w.id}" data-name="${w.name}" data-position="${w.role || 'Xodim'}">${w.name} - ${w.role || 'Xodim'}</option>`).join('')}
+                            ${workers.map(w => `<option value="${w.id}" data-name="${escapeHtml(w.name)}" data-position="${w.role || 'Xodim'}">${escapeHtml(w.name)} - ${w.role || 'Xodim'}</option>`).join('')}
                         </select>
                     </div>
 

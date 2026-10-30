@@ -88,7 +88,7 @@ window.renderCommandResults = function (query) {
             <div class="command-item-left">
                 <div class="command-item-icon"><i class="fas ${item.icon}"></i></div>
                 <div>
-                    <div class="command-item-title">${item.title}</div>
+                    <div class="command-item-title">${escapeHtml(item.title)}</div>
                     <div class="command-item-sub">${item.sub}</div>
                 </div>
             </div>
@@ -436,7 +436,7 @@ function getReportSubmissionPanelHTML(bolinmaId) {
                                                         <div style="font-size: 0.8rem; opacity: 0.6;">Yuborilgan vaqt: ${report.time}</div>
                                                     </div>
                                                     <div id="print-area-${bolinmaId}" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; font-size: 1rem; color: rgba(255,255,255,0.9); line-height: 1.6; text-align: left; border-left: 4px solid #2ecc71; margin-bottom: 10px;">
-                                                        "${report.text}"
+                                                        "${escapeHtml(report.text)}"
                                                     </div>
                                                     <button onclick="SmartUtils.exportToPDF('print-area-${bolinmaId}', 'Hisobot_${bolinmaId}', {title: 'KUNLIK ISH REJASI', subtitle: '${bolinmaId} - ' + new Date().toLocaleDateString()})" 
                                                             style="background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.5); color: #e74c3c; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">
@@ -643,7 +643,7 @@ function getDispatcherDashboardHTML() {
                                                                 <i class="fas fa-hard-hat"></i>
                                                             </div>
                                                             <div style="flex: 1;">
-                                                                <h4 style="margin: 0; font-size: 1.2rem; color: #1e3a8a; font-weight: 800;">${s.name}</h4>
+                                                                <h4 style="margin: 0; font-size: 1.2rem; color: #1e3a8a; font-weight: 800;">${escapeHtml(s.name)}</h4>
                                                                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
                                                                     <i class="fas fa-user-tie" style="font-size: 0.8rem; color: #64748b;"></i>
                                                                     <span style="font-size: 0.85rem; color: #475569; font-weight: 600;">${s.manager || 'Ma\'sul xodim'}</span>
@@ -1249,7 +1249,7 @@ function initSubdivisionFeatures(idArg) {
                         tasksHtml += `
                             <div class="record-item" style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
-                                    <div style="font-weight: 700;">${t.title}</div>
+                                    <div style="font-weight: 700;">${escapeHtml(t.title)}</div>
                                     <div style="font-size: 0.75rem; color: #94a3b8;">${t.deadline || 'Bugun'}</div>
                                 </div>
                                 <i class="fas fa-chevron-right" style="color: #475569;"></i>
@@ -1270,8 +1270,8 @@ function initSubdivisionFeatures(idArg) {
                     const b = myBroadcasts[0];
                     teleListEl.innerHTML = `
                         <div style="background: rgba(239, 68, 68, 0.1); border-radius: 12px; padding: 15px; border: 1px solid rgba(239, 68, 68, 0.2);">
-                            <div style="color: #ef4444; font-weight: 800; font-size: 0.85rem; margin-bottom: 5px;">${b.title}</div>
-                            <div style="font-size: 0.9rem; line-height: 1.4;">${b.message}</div>
+                            <div style="color: #ef4444; font-weight: 800; font-size: 0.85rem; margin-bottom: 5px;">${escapeHtml(b.title)}</div>
+                            <div style="font-size: 0.9rem; line-height: 1.4;">${escapeHtml(b.message)}</div>
                             <button onclick="SmartUtils.showToast('Imzolandi', 'success')" style="width: 100%; margin-top: 10px; background: #ef4444; border: none; padding: 8px; border-radius: 8px; font-weight: bold; color: white; cursor: pointer;">TANISHDIM</button>
                         </div>
                      `;
@@ -1477,7 +1477,7 @@ function renderTask(task) {
     div.id = task.id;
     div.draggable = true;
     div.innerHTML = `
-                                <strong>${task.title}</strong>
+                                <strong>${escapeHtml(task.title)}</strong>
                                 <div class="task-meta" style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">${task.deadline}</div>
                                 <div class="task-actions">
                                     <button class="delete-btn" onclick="deleteTask(this, event)" title="O'chirish">&times;</button>
@@ -1931,7 +1931,7 @@ window.openHistoryModal = async function () {
                                         <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);"><i class="far fa-clock"></i> ${rep.time}</span>
                                     </div>
                                     <div style="color: rgba(255,255,255,0.8); line-height: 1.5; font-size: 0.9rem;">
-                                        ${rep.text}
+                                        ${escapeHtml(rep.text)}
                                     </div>
                                 </div>
                             `;
@@ -1941,7 +1941,7 @@ window.openHistoryModal = async function () {
             `;
         }).join('');
     } catch (error) {
-        document.getElementById('history-content').innerHTML = `<div style="color:red; text-align:center; padding:20px;">Xatolik: ${error.message}</div>`;
+        document.getElementById('history-content').innerHTML = `<div style="color:red; text-align:center; padding:20px;">Xatolik: ${escapeHtml(error.message)}</div>`;
     }
 }
 
@@ -2261,7 +2261,7 @@ function updateMapMarkers() {
 
         marker.bindPopup(`
                     <div style="color: #333;">
-                        <strong>${sub.name}</strong><br>
+                        <strong>${escapeHtml(sub.name)}</strong><br>
                         <strong>Mas'ul:</strong> ${sub.manager}<br>
                         <strong>Bo'lim:</strong> ${getDepartmentName(sub.department)}<br>
                         <strong>Holat:</strong> Faol<br>
@@ -2558,7 +2558,7 @@ function updateChartValueInputs() {
         const efficiency = competitionData.values[sub.id]?.efficiency || 30;
 
         inputGroup.innerHTML = `
-                    <label>${sub.name}</label>
+                    <label>${escapeHtml(sub.name)}</label>
                     <input type="number" class="performance-value" value="${performance}" 
                            data-id="${sub.id}" data-type="performance" min="0" max="200"
                            onchange="updateChartValue(this)">
@@ -2888,7 +2888,7 @@ function setupEventListeners() {
             html += `
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                     <td style="padding:15px; font-family:monospace; color:#3498db;">${key}</td>
-                    <td style="padding:15px; font-weight:bold;">${u.name}</td>
+                    <td style="padding:15px; font-weight:bold;">${escapeHtml(u.name)}</td>
                     <td style="padding:15px;"><span style="background:${u.role === 'admin' ? 'rgba(231, 76, 60, 0.2)' : 'rgba(52, 152, 219, 0.2)'}; color:${u.role === 'admin' ? '#e74c3c' : '#3498db'}; padding:5px 10px; border-radius:20px; font-size:0.85em; border:1px solid ${u.role === 'admin' ? 'rgba(231, 76, 60, 0.5)' : 'rgba(52, 152, 219, 0.5)'};">${u.role.toUpperCase()}</span></td>
                     <td style="padding:15px; font-size:0.85em; color:#aaa;">${u.role === 'admin' ? 'Barchasi' : (u.departments ? u.departments.join(', ') : '-')}</td>
                     <td style="padding:15px; text-align:center;">
@@ -2917,7 +2917,7 @@ function setupEventListeners() {
                     <input type="text" id="edit-user-login" value="${username || ''}" ${isEdit ? 'readonly' : ''} style="width:100%; padding:12px; margin-bottom:15px; background:${isEdit ? '#34495e' : 'rgba(0,0,0,0.2)'}; color:${isEdit ? '#bdc3c7' : 'white'}; border:1px solid rgba(255,255,255,0.1); border-radius:5px;">
                     
                     <label style="display:block; margin-bottom:5px; color:#aaa; font-size:0.9em;">Ism (F.I.SH)*</label>
-                    <input type="text" id="edit-user-name" value="${user.name}" style="width:100%; padding:12px; margin-bottom:15px; background:rgba(0,0,0,0.2); color:white; border:1px solid rgba(255,255,255,0.1); border-radius:5px;">
+                    <input type="text" id="edit-user-name" value="${escapeHtml(user.name)}" style="width:100%; padding:12px; margin-bottom:15px; background:rgba(0,0,0,0.2); color:white; border:1px solid rgba(255,255,255,0.1); border-radius:5px;">
                     
                     <label style="display:block; margin-bottom:5px; color:#aaa; font-size:0.9em;">Parol*</label>
                     <input type="text" id="edit-user-pass" value="${user.password}" style="width:100%; padding:12px; margin-bottom:15px; background:rgba(0,0,0,0.2); color:white; border:1px solid rgba(255,255,255,0.1); border-radius:5px;">
@@ -3026,7 +3026,7 @@ function setupEventListeners() {
             const item = document.createElement('div');
             item.className = 'department-score-item';
             item.innerHTML = `
-                    <label>${dept.name}</label>
+                    <label>${escapeHtml(dept.name)}</label>
                     <input type="number" min="0" max="100" value="${dept.score}" 
                            data-dept="${dept.id}" class="score-input">
                     <input type="color" value="${dept.color}" 
@@ -3078,7 +3078,7 @@ function setupEventListeners() {
             item.className = 'station-item';
             item.innerHTML = `
                     <div>
-                        <strong>${station.name}</strong> (${station.code})
+                        <strong>${escapeHtml(station.name)}</strong> (${station.code})
                         <br>
                         <small>Yo'lovchilar: ${station.passengers} kuniga</small>
                     </div>
@@ -3255,7 +3255,7 @@ function setupEventListeners() {
             const tooltip = document.createElement('div');
             tooltip.className = 'station-tooltip';
             tooltip.innerHTML = `
-                    <strong>${station.name}</strong><br>
+                    <strong>${escapeHtml(station.name)}</strong><br>
                     Kodi: ${station.code}<br>
                     Yo'lovchilar: ${station.passengers}/kun<br>
                     Status: Faol
@@ -3309,7 +3309,7 @@ function setupEventListeners() {
             const info = document.createElement('div');
             info.className = 'station-info-item';
             info.innerHTML = `
-                    <h5>${station.name} (${station.code})</h5>
+                    <h5>${escapeHtml(station.name)} (${station.code})</h5>
                     <p><i class="fas fa-users"></i> Kunlik yo'lovchilar: ${station.passengers}</p>
                     <p><i class="fas fa-map-marker-alt"></i> Pozitsiya: ${station.x}%, ${station.y}%</p>
                     <hr>
@@ -3509,7 +3509,7 @@ function loadNews() {
                                     <div class="news-item" style="display:flex; align-items:center; margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.05); border-radius:12px; border-left: 3px solid #00f2ff; transition:all 0.3s ease;">
                                         <div class="news-icon" style="min-width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(0, 242, 255, 0.1); margin-right:15px; font-size:1.2rem; color:#00f2ff; box-shadow: 0 0 10px rgba(0,242,255,0.2);"><i class="${news.icon}"></i></div>
                                         <div class="news-content">
-                                            <h4 style="margin:0 0 5px 0; color:#e0f7ff; font-size:1rem; font-weight:600; text-shadow:0 0 5px rgba(0,198,255,0.3);">${news.title}</h4>
+                                            <h4 style="margin:0 0 5px 0; color:#e0f7ff; font-size:1rem; font-weight:600; text-shadow:0 0 5px rgba(0,198,255,0.3);">${escapeHtml(news.title)}</h4>
                                             <span style="font-size:0.8rem; color:rgba(255,255,255,0.6);"><i class="far fa-clock"></i> ${news.date}</span>
                                         </div>
                                     </div>
@@ -3634,7 +3634,7 @@ function renderSidebar() {
         li.setAttribute('data-target', dept.id);
         li.innerHTML = `
                     <i class="${dept.icon}"></i>
-                    <span>${dept.name}</span>
+                    <span>${escapeHtml(dept.name)}</span>
                 `;
         sidebarMenu.appendChild(li);
     });
@@ -3817,7 +3817,7 @@ function createDashboardSection() {
             <div class="hero-content">
                 <div class="hero-welcome" style="color: #ffd700; letter-spacing: 3px; font-weight: 800; font-size: 0.8rem; margin-bottom: 10px;">SMART PCH BOSHQRUV MARKAZI</div>
                 <h1 class="hero-title" style="font-size: 2.5rem; font-weight: 900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    ${currentUser.name || 'Foydalanuvchi'} xush kelibsiz!
+                    ${escapeHtml(currentUser.name || 'Foydalanuvchi')} xush kelibsiz!
                 </h1>
                 <p style="color: #94a3b8; margin-top: 10px; max-width: 600px;">Bugun tizimda barcha ko'rsatkichlar barqaror. Ish vaqtini samarali tashkil eting.</p>
                 
@@ -3985,7 +3985,7 @@ function createDashboardSection() {
             .filter(dept => currentUser.role === 'admin' || userDepts.includes(dept.id))
             .map(dept => `
                                 <div onclick="window.SmartRouting.navigate('/${dept.id}')" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s;">
-                                    <div style="font-weight: 700; color: #fff;">${dept.name}</div>
+                                    <div style="font-weight: 700; color: #fff;">${escapeHtml(dept.name)}</div>
                                     <div style="font-size: 0.7rem; color: #94a3b8;">${dept.description.substring(0, 50)}...</div>
                                 </div>
                             `).join('')}
@@ -4239,7 +4239,7 @@ window.renderMetrologyHomeWidgets = async function renderMetrologyHomeWidgets(co
                         ${upcoming && upcoming.length > 0 ? upcoming.map(d => `
                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
                                 <div>
-                                    <div style="font-weight: 700; font-size: 0.82rem; color: #fff;">${d.name}</div>
+                                    <div style="font-weight: 700; font-size: 0.82rem; color: #fff;">${escapeHtml(d.name)}</div>
                                     <div style="font-size: 0.65rem; color: #64748b;">S/N: ${d.serial}</div>
                                 </div>
                                 <div style="color: #f59e0b; font-weight: 800; font-size: 0.72rem;">${d.stampDate || '—'}</div>
@@ -4305,7 +4305,7 @@ async function renderHRHomeWidgets(container) {
                             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff;">
                                 ${emp.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
                             </div>
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 3px;">${emp.name}</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 3px;">${escapeHtml(emp.name)}</div>
                             <div style="font-size: 0.7rem; color: #94a3b8;">${new Date(emp.birthday).toLocaleDateString('uz-UZ', { month: 'long', day: 'numeric' })}</div>
                         </div>
                     `).join('') : '<div style="color: #64748b; font-size: 0.85rem; padding: 20px;">Hozircha yaqin tug\'ilgan kunlar yo\'q.</div>'}
@@ -4447,7 +4447,7 @@ async function renderMechanicsHomeWidgets(container) {
                 <div style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
                     ${vehicles.length > 0 ? vehicles.slice(0, 3).map(v => `
                         <div style="min-width: 150px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 3px;">${v.name}</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 3px;">${escapeHtml(v.name)}</div>
                             <div style="font-size: 0.65rem; color: #94a3b8;">${v.number}</div>
                             <div style="font-size: 0.7rem; color: #38bdf8; margin-top: 8px;">TO-1: 150 km qoldi</div>
                         </div>
@@ -4694,8 +4694,8 @@ function createDepartmentSection(department) {
     }
 
     section.innerHTML = `
-        <h2><i class="${department.icon}"></i> ${department.name}</h2>
-            <p>${department.name} ma'lumotlari va hisobotlari</p>
+        <h2><i class="${department.icon}"></i> ${escapeHtml(department.name)}</h2>
+            <p>${escapeHtml(department.name)} ma'lumotlari va hisobotlari</p>
 
                 ${department.id.includes('mexanika') || (department.name && department.name.toLowerCase().includes('mexanika')) ? `
                 <div class="content-card" style="background: linear-gradient(135deg, rgba(230, 126, 34, 0.2), rgba(211, 84, 0, 0.2));">
@@ -4721,8 +4721,8 @@ function createDepartmentSection(department) {
                     <div class="journal-list" style="flex: 1; min-width: 0;">
                         ${displaySectionsList.map(s => `
                             <div class="journal-card" data-department="${sectionsData[department.id] ? department.id + '-section-' + s.id : s.id}">
-                                <h4><i class="${s.icon}"></i> ${s.name}</h4>
-                                <p>${s.description || ''}</p>
+                                <h4><i class="${s.icon}"></i> ${escapeHtml(s.name)}</h4>
+                                <p>${escapeHtml(s.description || '')}</p>
                             </div>
                         `).join('')}
                     </div>
@@ -5154,7 +5154,7 @@ function renderSubdivisionReportSection(winEl, bolinmaId) {
             }
         }).catch(err => {
             console.error("Dispetcher yuklashda xato:", err);
-            reportView.innerHTML = `<div style="padding:20px; color:#ef4444; text-align:center;">Ma'lumotlarni yuklab bo'lmadi: ${err.message}</div>`;
+            reportView.innerHTML = `<div style="padding:20px; color:#ef4444; text-align:center;">Ma'lumotlarni yuklab bo'lmadi: ${escapeHtml(err.message)}</div>`;
         });
     } else {
         reportView.innerHTML = `
@@ -5912,8 +5912,8 @@ function renderPU74Table(brigadaNum, bolinmaId) {
             <td>${item.workType || '-'}</td>
             <td>${item.unit || '-'}</td>
             <td style="font-weight: bold; color: #f1c40f;">${item.quantity || 0}</td>
-            <td>${item.location || '-'}</td>
-            <td>${item.responsible || '-'}</td>
+            <td>${escapeHtml(item.location || '-')}</td>
+            <td>${escapeHtml(item.responsible || '-')}</td>
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
                     <button class="icon-btn edit" onclick="editPU74Entry(${index})" title="Tahrirlash" style="background: rgba(52, 152, 219, 0.3);">
@@ -6430,7 +6430,7 @@ function renderEmployeeManagement(window, bolinmaId) {
 
             html += `
                                             <tr>
-                                                <td><strong>${worker.name}</strong></td>
+                                                <td><strong>${escapeHtml(worker.name)}</strong></td>
                                                 <td style="font-size: 0.9rem; opacity: 0.8;">${worker.role}</td>
                                                 <td>${statusBadge}</td>
                                                 <td>${medicalBadge}</td>
@@ -6953,7 +6953,7 @@ window.openArtificialStructures = function (bolinmaId) {
                                 <i class="fas ${s.type === 'bridge' ? 'fa-bridge' : (s.type === 'tunnel' ? 'fa-archway' : 'fa-water')}"></i>
                             </div>
                             <div style="flex: 1;">
-                                <div style="font-weight: 800; color: white; margin-bottom: 6px; font-size: 1.05rem;">${s.name}</div>
+                                <div style="font-weight: 800; color: white; margin-bottom: 6px; font-size: 1.05rem;">${escapeHtml(s.name)}</div>
                                 <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); display: flex; flex-direction: column; gap: 4px;">
                                     <span><i class="fas fa-location-dot" style="width: 15px; color: #ffd700;"></i> KM: <strong>${s.km}</strong></span>
                                     <span><i class="fas fa-ruler-horizontal" style="width: 15px; color: #60a5fa;"></i> Uzunligi: <strong>${s.length}</strong></span>
@@ -7313,7 +7313,7 @@ function updateFilesTable(window, departmentId) {
         if (isM29Virtual) {
             fileNameHtml = `<span style="display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-file-pdf" style="color: #e74c3c; font-size: 1.2em;"></i>
-                <span>${file.name}</span>
+                <span>${escapeHtml(file.name)}</span>
                 <span style="background: ${file.status === 'approved' ? '#27ae60' : '#f39c12'}; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; color: white;">${file.status === 'approved' ? 'TASDIQLANGAN' : 'M-29'}</span>
             </span>`;
         }
@@ -7457,7 +7457,7 @@ function updateArchiveFilesTable(files) {
                            <button class="action-btn" onclick="printM29VirtualFile('${file.id}')" title="Chop etish" style="background: #8e44ad; color: white; margin-left: 5px;"><i class="fas fa-print"></i></button>`;
         }
 
-        const fileNameHtml = isM29Virtual ? `<i class="fas fa-file-pdf" style="color:#e74c3c;"></i> ${file.name}` : file.name;
+        const fileNameHtml = isM29Virtual ? `<i class="fas fa-file-pdf" style="color:#e74c3c;"></i> ${escapeHtml(file.name)}` : file.name;
         const row = document.createElement('tr');
         row.innerHTML = `
                     <td>${fileNameHtml}</td>
@@ -7717,7 +7717,7 @@ function updateFolderContents(window, departmentId, folderName) {
 
             folderItem.innerHTML = `
                         <i class="${fileIcon}"></i>
-                        <span>${file.name}</span>
+                        <span>${escapeHtml(file.name)}</span>
                     `;
 
             folderContents.appendChild(folderItem);
@@ -7802,7 +7802,7 @@ function updateMexanikaMonitor(departmentId) {
                                         <tbody>
                                             ${technics.map((t, index) => `
                                                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                                    <td style="padding: 10px;">${t.name}</td>
+                                                    <td style="padding: 10px;">${escapeHtml(t.name)}</td>
                                                     <td style="padding: 10px;">${t.ref}</td>
                                                     <td style="padding: 10px;"><span class="status-badge" style="background: ${t.status === 'Faol' ? '#2ecc71' : (t.status === 'Ta\'mir' ? '#e67e22' : '#3498db')}">${t.status}</span></td>
                                                     <td style="padding: 10px;">${t.fuel}%</td>
@@ -7838,7 +7838,7 @@ function updateMexanikaMonitor(departmentId) {
     const maintenanceList = window.querySelector('#mex-maintenance ul');
     maintenanceList.innerHTML = technics.slice(0, 3).map(t => `
                                     <li style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
-                                        <span>${t.name} ${t.ref} (${(technics.indexOf(t) + seed) % 2 === 0 ? 'Moy almashtirish' : 'Profilaktika'})</span>
+                                        <span>${escapeHtml(t.name)} ${t.ref} (${(technics.indexOf(t) + seed) % 2 === 0 ? 'Moy almashtirish' : 'Profilaktika'})</span>
                                         <span style="color: #ffd700;">${new Date(t.inspection).toLocaleDateString()}</span>
                                     </li>
                                 `).join('');
@@ -7957,7 +7957,7 @@ function editTechnic(index, deptId) {
                                         <div style="display: flex; flex-direction: column; gap: 15px;">
                                             <div>
                                                 <label style="display: block; font-size: 0.8rem; margin-bottom: 5px;">Nomi:</label>
-                                                <input type="text" id="edit-t-name" value="${t.name}" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; color: white;">
+                                                <input type="text" id="edit-t-name" value="${escapeHtml(t.name)}" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; color: white;">
                                             </div>
                                             <div>
                                                 <label style="display: block; font-size: 0.8rem; margin-bottom: 5px;">Raqami:</label>
@@ -8061,7 +8061,7 @@ function previewFile(file) {
         // Matn fayllari
         const textContent = document.createElement('div');
         textContent.className = 'word-preview';
-        textContent.innerHTML = `<pre>${file.content}</pre>`;
+        textContent.innerHTML = `<pre>${escapeHtml(file.content)}</pre>`;
         previewContent.appendChild(textContent);
     } else if (fileName.endsWith('.docx')) {
         // Word fayllari (Mammoth orqali)
@@ -8071,7 +8071,7 @@ function previewFile(file) {
                     previewContent.innerHTML = `<div class="word-preview" style="background:white; color:black; padding:20px;">${result.value}</div>`;
                 })
                 .catch(err => {
-                    previewContent.innerHTML = `<p>Xatolik: ${err.message}</p>`;
+                    previewContent.innerHTML = `<p>Xatolik: ${escapeHtml(err.message)}</p>`;
                 });
         }
     } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
@@ -8083,7 +8083,7 @@ function previewFile(file) {
             const html = XLSX.utils.sheet_to_html(firstSheet);
             previewContent.innerHTML = `<div style="background:white; color:black; overflow:auto;">${html}</div>`;
         } catch (e) {
-            previewContent.innerHTML = `<p>Excel faylni ko'rsatib bo'lmadi: ${e.message}</p>`;
+            previewContent.innerHTML = `<p>Excel faylni ko'rsatib bo'lmadi: ${escapeHtml(e.message)}</p>`;
         }
     } else if (fileName.endsWith('.pdf')) {
         // PDF fayllari
@@ -8738,7 +8738,7 @@ function loadAdminWorkersList() {
                                                 ${worker.name.charAt(0)}
                                             </div>
                                             <div style="flex: 1;">
-                                                <div style="color: white; font-weight: 500; font-size: 0.9rem;">${worker.name}</div>
+                                                <div style="color: white; font-weight: 500; font-size: 0.9rem;">${escapeHtml(worker.name)}</div>
                                                 <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem;">${worker.bolinma} - ${worker.role}</div>
                                             </div>
                                             <button onclick="deleteWorker(${worker.id})" style="background: #e74c3c; border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;">
@@ -8762,7 +8762,7 @@ function loadAdminStationsList() {
                                                 <i class="fas fa-map-marker-alt"></i>
                                             </div>
                                             <div style="flex: 1;">
-                                                <div style="color: white; font-weight: 500; font-size: 0.9rem;">${station.name}</div>
+                                                <div style="color: white; font-weight: 500; font-size: 0.9rem;">${escapeHtml(station.name)}</div>
                                                 <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem;">${station.bolinma}-bo'linma | ${station.lat.toFixed(2)}, ${station.lng.toFixed(2)}</div>
                                             </div>
                                             <button onclick="deleteStation(${station.id})" style="background: #e74c3c; border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;">
@@ -8984,7 +8984,7 @@ function addStationMarkers() {
 
         marker.bindPopup(`
                                         <div style="text-align: center;">
-                                            <strong style="color: #1a2a3a;">${station.name}</strong><br>
+                                            <strong style="color: #1a2a3a;">${escapeHtml(station.name)}</strong><br>
                                             <span>${station.bolinma}-bo'linma</span><br>
                                             <small>Koordinatalar: ${station.lat.toFixed(2)}, ${station.lng.toFixed(2)}</small>
                                         </div>
@@ -9037,7 +9037,7 @@ function addWorkerMarkers() {
 
         marker.bindPopup(`
                                         <div style="text-align: center;">
-                                            <strong style="color: #1a2a3a;">${worker.name}</strong><br>
+                                            <strong style="color: #1a2a3a;">${escapeHtml(worker.name)}</strong><br>
                                             <span>${worker.bolinma}</span><br>
                                             <small>${worker.role}</small>
                                         </div>
@@ -9093,7 +9093,7 @@ function loadWorkersOnline() {
                                                 ${worker.name.charAt(0)}
                                             </div>
                                             <div style="flex: 1;">
-                                                <div style="color: white; font-size: 0.85rem;">${worker.name}</div>
+                                                <div style="color: white; font-size: 0.85rem;">${escapeHtml(worker.name)}</div>
                                                 <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem;">${worker.bolinma}</div>
                                             </div>
                                             <span style="color: #2ecc71; font-size: 0.7rem;"><i class="fas fa-circle"></i></span>
@@ -9247,7 +9247,7 @@ function loadHistoryDetails(date, element) {
                                             <span class="history-report-time"><i class="far fa-clock"></i> ${report.time}</span>
                                         </div>
                                         <div style="line-height: 1.5; color: rgba(255,255,255,0.9);">
-                                            ${report.text}
+                                            ${escapeHtml(report.text)}
                                         </div>
                                     `;
         container.appendChild(card);
@@ -9735,7 +9735,7 @@ function loadHistoryDetails(date, element) {
                         <span class="history-report-time"><i class="far fa-clock"></i> ${report.time}</span>
                     </div>
                     <div style="line-height: 1.5; color: rgba(255,255,255,0.9);">
-                        ${report.text}
+                        ${escapeHtml(report.text)}
                     </div>
                 `;
         container.appendChild(card);
@@ -9835,7 +9835,7 @@ window.openTrainScheduleModal = function (bolinmaId, event) {
                     ${trains.map((t, index) => `
                         <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid ${t.status === 'delayed' ? '#e74c3c' : '#2ecc71'};">
                             <div>
-                                <div style="font-weight: bold; color: white;">${t.name}</div>
+                                <div style="font-weight: bold; color: white;">${escapeHtml(t.name)}</div>
                                 <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5);">${t.route} | PK: ${t.pk}</div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 15px;">
@@ -9927,7 +9927,7 @@ window.renderTrainRadarWidget = function (bolinmaId) {
                         <div style="background: ${color}; padding: 5px; border-radius: 5px; box-shadow: 0 0 15px ${color}; color: black;">
                             <i class="fas fa-subway"></i>
                         </div>
-                        <div style="font-size: 0.6rem; color: ${color}; margin-top: 5px; white-space: nowrap; background: rgba(0,0,0,0.8); padding: 2px 5px; border-radius: 4px;">${t.name} (PK ${t.pk})</div>
+                        <div style="font-size: 0.6rem; color: ${color}; margin-top: 5px; white-space: nowrap; background: rgba(0,0,0,0.8); padding: 2px 5px; border-radius: 4px;">${escapeHtml(t.name)} (PK ${t.pk})</div>
                     </div>
                 `;
     }).join('')}
@@ -9942,7 +9942,7 @@ window.renderTrainRadarWidget = function (bolinmaId) {
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <i class="fas fa-train" style="color: rgba(255,255,255,0.5);"></i>
                             <div>
-                                <div style="font-weight: bold; color: white; font-size: 0.9rem;">${t.name}</div>
+                                <div style="font-weight: bold; color: white; font-size: 0.9rem;">${escapeHtml(t.name)}</div>
                                 <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">${t.route}</div>
                             </div>
                         </div>
@@ -10237,7 +10237,7 @@ function renderMechanicsSection(windowElement, bolinmaId) {
                     </span>
                 </div>
 
-                <h4 style="margin: 0 0 2px 0; color: white; font-size: 1.1rem; font-weight: 700;">${v.name}</h4>
+                <h4 style="margin: 0 0 2px 0; color: white; font-size: 1.1rem; font-weight: 700;">${escapeHtml(v.name)}</h4>
                 <p style="margin: 0 0 12px 0; color: #38bdf8; font-family: monospace; font-size: 0.85rem; font-weight: 600;">${v.number}</p>
 
                 <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; color: #94a3b8; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.04);">
@@ -10589,10 +10589,10 @@ function displaySearchResults(results, container) {
         container.innerHTML = '<div class="search-item"><div class="search-item-info"><span class="search-item-name">Hech narsa topilmadi</span></div></div>';
     } else {
         container.innerHTML = results.map(item => `
-            <div class="search-item" onclick="handleSearchClick('${item.type}', '${item.name}')">
+            <div class="search-item" onclick="handleSearchClick('${item.type}', '${escapeHtml(item.name)}')">
                 <i class="fas ${item.icon}"></i>
                 <div class="search-item-info">
-                    <span class="search-item-name">${item.name}</span>
+                    <span class="search-item-name">${escapeHtml(item.name)}</span>
                     <span class="search-item-meta">${item.meta}</span>
                 </div>
             </div>

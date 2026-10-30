@@ -50,10 +50,10 @@ async function loadAdminUsersList() {
                         <div style="width:32px; height:32px; border-radius:50%; background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.2); display:flex; align-items:center; justify-content:center; color:var(--accent-gold);">
                             <i class="fas fa-user"></i>
                         </div>
-                        ${user.full_name || 'Ismsiz'}
+                        ${escapeHtml(user.full_name || 'Ismsiz')}
                     </div>
                 </td>
-                <td style="padding:15px 10px;"><code style="background:rgba(212,175,55,0.05); color:var(--accent-gold); padding:3px 8px; border-radius:6px; font-size:0.85rem; border:1px solid rgba(212,175,55,0.1); font-family:'Fira Code', monospace;">@${user.username}</code></td>
+                <td style="padding:15px 10px;"><code style="background:rgba(212,175,55,0.05); color:var(--accent-gold); padding:3px 8px; border-radius:6px; font-size:0.85rem; border:1px solid rgba(212,175,55,0.1); font-family:'Fira Code', monospace;">@${escapeHtml(user.username)}</code></td>
                 <td style="padding:15px 10px;"><span style="padding:4px 12px; border-radius:20px; font-size:0.65rem; font-weight:900; background:${roleColors[user.role] || '#95a5a6'}; color:white; text-transform:uppercase; box-shadow:0 2px 10px rgba(0,0,0,0.2); letter-spacing:0.5px;">${user.role}</span></td>
                 <td style="padding:15px 10px;"><div style="font-size:0.75rem; color:rgba(255,255,255,0.5); max-width:180px; line-height:1.4;">${user.departments.length > 0 ? user.departments.map(d => `<span style="display:inline-block; background:rgba(255,255,255,0.05); padding:1px 5px; border-radius:3px; margin:1px;">${d}</span>`).join(' ') : '<span style="opacity:0.3">-</span>'}</div></td>
                 <td style="padding:15px 10px;">
@@ -65,10 +65,10 @@ async function loadAdminUsersList() {
                 <td style="padding:15px 10px;">
                     <div style="display:flex; gap:8px;">
                         <button class="action-btn" onclick="openUserEditModal(${JSON.stringify(user).replace(/"/g, '&quot;')})" title="Tahrirlash" style="background:rgba(52,152,219,0.15); color:#3498db; border:1px solid rgba(52,152,219,0.3); width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn gold-btn" onclick="resetUserPassword(${user.id}, '${user.username}')" title="Parolni yangilash" style="background:rgba(212,175,55,0.15); color:var(--accent-gold); border:1px solid rgba(212,175,55,0.3); width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas fa-key"></i></button>
-                        <button class="action-btn" onclick="toggleUserStatus(${user.id}, '${user.username}', '${status}')" title="${isInactive ? 'Faollashtirish' : 'Bloklash'}" style="background:${isInactive ? 'rgba(46,204,113,0.15)' : 'rgba(231,76,60,0.15)'}; color:${isInactive ? '#2ecc71' : '#e74c3c'}; border:1px solid ${isInactive ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)'}; width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas ${isInactive ? 'fa-unlock' : 'fa-lock'}"></i></button>
+                        <button class="action-btn gold-btn" onclick="resetUserPassword(${user.id}, '${escapeHtml(user.username)}')" title="Parolni yangilash" style="background:rgba(212,175,55,0.15); color:var(--accent-gold); border:1px solid rgba(212,175,55,0.3); width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas fa-key"></i></button>
+                        <button class="action-btn" onclick="toggleUserStatus(${user.id}, '${escapeHtml(user.username)}', '${status}')" title="${isInactive ? 'Faollashtirish' : 'Bloklash'}" style="background:${isInactive ? 'rgba(46,204,113,0.15)' : 'rgba(231,76,60,0.15)'}; color:${isInactive ? '#2ecc71' : '#e74c3c'}; border:1px solid ${isInactive ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)'}; width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas ${isInactive ? 'fa-unlock' : 'fa-lock'}"></i></button>
                         ${user.username !== 'admin' ? `
-                            <button class="action-btn" onclick="deleteUserPermanent(${user.id}, '${user.username}')" title="Bazadan o'chirish" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.1); width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn" onclick="deleteUserPermanent(${user.id}, '${escapeHtml(user.username)}')" title="Bazadan o'chirish" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.1); width:32px; height:32px; border-radius:8px; cursor:pointer; transition:all 0.2s;"><i class="fas fa-trash"></i></button>
                         ` : ''}
                     </div>
                 </td>
@@ -76,7 +76,7 @@ async function loadAdminUsersList() {
             listBody.appendChild(tr);
         });
     } catch (err) {
-        listBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i> Xatolik: ${err.message}</td></tr>`;
+        listBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i> Xatolik: ${escapeHtml(err.message)}</td></tr>`;
     }
 }
 
@@ -113,16 +113,16 @@ async function loadAuditLogs() {
 
             tr.innerHTML = `
                 <td style="padding:12px 10px; font-size:0.75rem; color:rgba(255,255,255,0.5); font-family:monospace;">${new Date(log.created_at).toLocaleString()}</td>
-                <td style="padding:12px 10px;"><span style="color:var(--accent-gold); font-weight:600;">@${log.username}</span></td>
+                <td style="padding:12px 10px;"><span style="color:var(--accent-gold); font-weight:600;">@${escapeHtml(log.username)}</span></td>
                 <td style="padding:12px 10px;"><span style="font-size:0.7rem; font-weight:900; background:${(actionColors[log.action] || '#95a5a6')}20; color:${actionColors[log.action] || '#95a5a6'}; padding:2px 8px; border-radius:4px;">${log.action}</span></td>
                 <td style="padding:12px 10px; font-size:0.8rem; color:#3b82f6; font-weight:500;">${log.entity.replace('/api/', '').toUpperCase()}</td>
-                <td style="padding:12px 10px;"><div style="font-size:0.75rem; color:rgba(255,255,255,0.5); max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title='${log.details}'>${detailsText}</div></td>
+                <td style="padding:12px 10px;"><div style="font-size:0.75rem; color:rgba(255,255,255,0.5); max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title='${escapeHtml(log.details)}'>${detailsText}</div></td>
                 <td style="padding:12px 10px; font-size:0.75rem; color:rgba(255,255,255,0.3); font-family:monospace;">${log.ip_address || '127.0.0.1'}</td>
             `;
             listBody.appendChild(tr);
         });
     } catch (err) {
-        listBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#e74c3c;">Xatolik: ${err.message}</td></tr>`;
+        listBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#e74c3c;">Xatolik: ${escapeHtml(err.message)}</td></tr>`;
     }
 }
 

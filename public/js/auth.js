@@ -292,9 +292,9 @@ window.Auth = {
                         
                         <!-- User Info -->
                         <div style="flex: 1; min-width: 200px;">
-                            <h2 style="margin: 0 0 5px 0; font-size: 1.5rem; color: #fff; font-weight: 700;">${user.name || 'Foydalanuvchi'}</h2>
-                            <p style="color: #00c6ff; margin: 0 0 5px 0; font-size: 0.95rem; font-weight: 500;">@${user.username || user.role}</p>
-                            <p style="color: #ccc; margin: 0 0 10px 0; font-size: 0.85rem;"><i class="fas fa-phone"></i> ${user.phone || '+998 --- -- --'}</p>
+                            <h2 style="margin: 0 0 5px 0; font-size: 1.5rem; color: #fff; font-weight: 700;">${escapeHtml(user.name || 'Foydalanuvchi')}</h2>
+                            <p style="color: #00c6ff; margin: 0 0 5px 0; font-size: 0.95rem; font-weight: 500;">@${escapeHtml(user.username || user.role)}</p>
+                            <p style="color: #ccc; margin: 0 0 10px 0; font-size: 0.85rem;"><i class="fas fa-phone"></i> ${escapeHtml(user.phone || '+998 --- -- --')}</p>
                             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                 <span style="padding: 4px 14px; background: ${roleBadgeColor}; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: white; letter-spacing: 0.5px; text-transform: uppercase;">
                                     <i class="fas ${isAdmin ? 'fa-crown' : 'fa-user-tag'}" style="margin-right: 4px;"></i> ${roleName}
@@ -352,9 +352,9 @@ window.Auth = {
                     <!-- Profile Update Form -->
                     <div id="profile-update-form" style="display: none; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
                         <h4 style="color: white; margin-top: 0;">Ma'lumotlarni tahrirlash</h4>
-                        <input type="text" id="updateNameInput" value="${user.name || ''}" placeholder="To'liq ismingiz" 
+                        <input type="text" id="updateNameInput" value="${escapeHtml(user.name || '')}" placeholder="To'liq ismingiz" 
                             style="width: 100%; padding: 12px 16px; margin-bottom: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; font-size: 0.9rem; box-sizing: border-box; outline: none;">
-                        <input type="text" id="updatePhoneInput" value="${user.phone || ''}" placeholder="Telefon raqami (+998901234567)" 
+                        <input type="text" id="updatePhoneInput" value="${escapeHtml(user.phone || '')}" placeholder="Telefon raqami (+998901234567)" 
                             style="width: 100%; padding: 12px 16px; margin-bottom: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; font-size: 0.9rem; box-sizing: border-box; outline: none;">
                         <input type="text" id="updateAvatarInput" value="${user.avatar || ''}" placeholder="Rasm URL (ixtiyoriy)" 
                             style="width: 100%; padding: 12px 16px; margin-bottom: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; font-size: 0.9rem; box-sizing: border-box; outline: none;">

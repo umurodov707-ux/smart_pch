@@ -426,7 +426,7 @@
                                         <i class="fas ${getDeviceIcon(d.name)}"></i>
                                     </div>
                                     <div>
-                                        <div class="device-name-text">${d.name}</div>
+                                        <div class="device-name-text">${escapeHtml(d.name)}</div>
                                         <div class="device-type-subtitle">O'lchash Vositasi</div>
                                     </div>
                                 </div>
@@ -820,7 +820,7 @@
             <div style="padding:30px;display:flex;flex-direction:column;gap:18px;">
                 <div>
                     <label style="font-size:0.72rem;color:#94a3b8;font-weight:800;letter-spacing:0.8px;display:block;margin-bottom:8px;">ASBOB TURI / NOMI</label>
-                    <input type="text" id="metro-edit-dev-name" value="${dev.name}" style="width:100%;background:#0f172a;border:1px solid rgba(255,255,255,0.1);padding:12px 16px;border-radius:12px;color:#fff;font-weight:700;font-size:0.9rem;outline:none;box-sizing:border-box;">
+                    <input type="text" id="metro-edit-dev-name" value="${escapeHtml(dev.name)}" style="width:100%;background:#0f172a;border:1px solid rgba(255,255,255,0.1);padding:12px 16px;border-radius:12px;color:#fff;font-weight:700;font-size:0.9rem;outline:none;box-sizing:border-box;">
                 </div>
                 <div>
                     <label style="font-size:0.72rem;color:#94a3b8;font-weight:800;letter-spacing:0.8px;display:block;margin-bottom:8px;">ZAVOD / SERIYA RAQAMI</label>

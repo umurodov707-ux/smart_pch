@@ -656,7 +656,7 @@ function renderPremiumTableRows(filter = '', dept = 'all') {
                         ${e.name ? e.name.charAt(0) : 'X'}
                     </div>
                     <div>
-                        <div style="font-weight: 700; color: white;">${e.name || 'Noma\'lum'} ${e.is_head ? '<i class="fas fa-crown" style="color:#ffd700; font-size:0.7rem;"></i>' : ''}</div>
+                        <div style="font-weight: 700; color: white;">${escapeHtml(e.name || 'Noma\'lum')} ${e.is_head ? '<i class="fas fa-crown" style="color:#ffd700; font-size:0.7rem;"></i>' : ''}</div>
                         <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4);">№ ${e.tabelNumber || e.id || '---'}</div>
                     </div>
                 </div>
@@ -1223,8 +1223,8 @@ function renderEmployeeTable(filterText = '', filterDept = '') {
                 ${employees.map(emp => `
                     <tr class="premium-row">
                         <td class="no-wrap" style="color: #0088ff; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${emp.tabelNumber || emp.tabel_number || '---'}</td>
-                        <td class="no-wrap" style="font-weight: 700; color: white;">${emp.name}</td>
-                        <td style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">${emp.position}</td>
+                        <td class="no-wrap" style="font-weight: 700; color: white;">${escapeHtml(emp.name)}</td>
+                        <td style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">${escapeHtml(emp.position)}</td>
                         <td style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">
                              <span style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); display: inline-block; white-space: normal; max-width: 160px;">
                                 ${emp.department}
@@ -1305,7 +1305,7 @@ function renderTrainingAlertWidget(alerts) {
                 ${alerts.map(emp => `
                     <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; background: rgba(231, 76, 60, 0.1); margin-bottom: 10px; border-left: 3px solid #e74c3c;">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: white;">${emp.name}</div>
+                            <div style="font-weight: 600; color: white;">${escapeHtml(emp.name)}</div>
                             <div style="font-size: 0.8rem; color: rgba(231, 76, 60, 0.8);">
                                 ${emp.medicalCheckupDate ? `Muddati: ${emp.medicalCheckupDate}` : 'Yo\'riqnoma yo\'q!'}
                             </div>
@@ -1346,13 +1346,13 @@ async function renderTimesheetArchiveWidget() {
             return `
                         <div style="background: rgba(255,165,0,0.05); border: 1px solid rgba(255,165,0,0.1); padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;" onmouseover="this.style.background='rgba(255,165,0,0.1)'" onmouseout="this.style.background='rgba(255,165,0,0.05)'">
                             <div style="flex: 1; overflow: hidden;">
-                                <div style="font-weight: bold; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 0.8rem;">${f.original_name}</div>
+                                <div style="font-weight: bold; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 0.8rem;">${escapeHtml(f.original_name)}</div>
                                 <div style="font-size: 0.65rem; color: rgba(255,255,255,0.4); display: flex; gap: 10px;">
                                     <span><i class="fas fa-calendar"></i> ${date}</span>
                                     <span><i class="fas fa-building"></i> ${bolinma}</span>
                                 </div>
                             </div>
-                            <a href="/${f.file_path}" target="_blank" style="background: #f59e0b; color: white; width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
+                            <a href="#" onclick="downloadUploadedFile(${Number(f.id)}); return false;" title="Yuklab olish" style="background: #f59e0b; color: white; width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
                                 <i class="fas fa-download"></i>
                             </a>
                         </div>
@@ -1402,7 +1402,7 @@ function renderBirthdayWidget(birthdays) {
                             ${emp.name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: white;">${emp.name}</div>
+                            <div style="font-weight: 600; color: white;">${escapeHtml(emp.name)}</div>
                             <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">
                                 <i class="fas fa-calendar"></i> ${formatted}
                             </div>
@@ -1989,7 +1989,7 @@ window.printEmployeeDetails = function (id) {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Ma'lumotnoma - ${employee.full_name || employee.name}</title>
+          <title>Ma'lumotnoma - ${escapeHtml(employee.full_name || employee.name)}</title>
           <style>
             @page { size: A4; margin: 2cm; }
             body { font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.4; color: #000; background: #fff; padding: 0; margin: 0; }
@@ -2018,12 +2018,12 @@ window.printEmployeeDetails = function (id) {
             
             <div class="header-title">MA'LUMOTNOMA</div>
             <div class="employee-name">
-              ${employee.full_name || employee.name}
+              ${escapeHtml(employee.full_name || employee.name)}
             </div>
             
             <div style="margin-bottom: 25px; text-align: justify;">
               <strong>${ob.current_position_date || '—'} dan:</strong><br>
-              ${employee.position || '—'}
+              ${escapeHtml(employee.position || '—')}
             </div>
             
             <table class="meta-table">
@@ -2088,7 +2088,7 @@ window.printEmployeeDetails = function (id) {
                 `<p style="font-style: italic;">Mavjud emas</p>` :
                 career.map(c => `
                   <div class="timeline-item">
-                    <strong>${c.years || '—'} yy.</strong> - ${c.position || '—'} (${c.organization || '—'})
+                    <strong>${c.years || '—'} yy.</strong> - ${escapeHtml(c.position || '—')} (${c.organization || '—'})
                   </div>
                 `).join('')
               }
@@ -2097,7 +2097,7 @@ window.printEmployeeDetails = function (id) {
           
           <div class="page-break">
             <div class="header-title" style="font-size: 12pt; text-transform: none; font-weight: bold;">
-              ${employee.full_name || employee.name}ning yaqin qarindoshlari haqida<br>
+              ${escapeHtml(employee.full_name || employee.name)}ning yaqin qarindoshlari haqida<br>
               MA'LUMOT
             </div>
             
@@ -2117,7 +2117,7 @@ window.printEmployeeDetails = function (id) {
                   relatives.map(r => `
                     <tr>
                       <td><strong>${r.relation || '—'}</strong></td>
-                      <td>${r.full_name || '—'}</td>
+                      <td>${escapeHtml(r.full_name || '—')}</td>
                       <td>${r.birth_year_place || '—'}</td>
                       <td>${r.workplace_position || '—'}</td>
                       <td>${r.residence || '—'}</td>
@@ -2182,7 +2182,7 @@ window.viewEmployeeDetails = function (id) {
                     <div style="position: relative;">
                         <div style="position: absolute; left: -26px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #ffd700; border: 2px solid #020617; box-shadow: 0 0 8px #ffd700;"></div>
                         <div style="font-size: 0.75rem; color: #ffd700; font-family: monospace; font-weight: bold; background: rgba(255,215,0,0.1); display: inline-block; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px;">${item.years || '—'}</div>
-                        <h4 style="margin: 0; color: white; font-size: 0.9rem; font-weight: 700;">${item.position || '—'}</h4>
+                        <h4 style="margin: 0; color: white; font-size: 0.9rem; font-weight: 700;">${escapeHtml(item.position || '—')}</h4>
                         <p style="margin: 3px 0 0 0; color: rgba(255,255,255,0.5); font-size: 0.8rem;">${item.organization || '—'}</p>
                     </div>
                 `).join('')}
@@ -2201,11 +2201,11 @@ window.viewEmployeeDetails = function (id) {
                 </div>
 
                 <div style="text-align: center; font-weight: 800; color: rgba(255,255,255,0.7); font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase;">MA'LUMOTNOMA</div>
-                <div style="text-align: center; font-weight: 800; color: #ffd700; font-size: 1.1rem; margin-bottom: 25px;">${employee.name}</div>
+                <div style="text-align: center; font-weight: 800; color: #ffd700; font-size: 1.1rem; margin-bottom: 25px;">${escapeHtml(employee.name)}</div>
 
                 <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); line-height: 1.5;">
                     <strong style="color: #ffd700; font-family: monospace;">${currentPositionDate} dan:</strong><br>
-                    <span style="font-size: 0.9rem; font-weight: bold; color: white;">${employee.position || '—'}</span>
+                    <span style="font-size: 0.9rem; font-weight: bold; color: white;">${escapeHtml(employee.position || '—')}</span>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr; gap: 15px; clear: both; margin-top: 15px;">
@@ -2293,7 +2293,7 @@ window.viewEmployeeDetails = function (id) {
     } else {
         relativesHTML = `
             <div style="text-align: center; font-weight: bold; color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-bottom: 15px;">
-                ${employee.name}ning yaqin qarindoshlari haqida
+                ${escapeHtml(employee.name)}ning yaqin qarindoshlari haqida
                 <div style="color: #ffd700; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.95rem; margin-top: 5px;">MA'LUMOT</div>
             </div>
             <div style="overflow-x: auto;">
@@ -2311,7 +2311,7 @@ window.viewEmployeeDetails = function (id) {
                         ${relativesList.map(rel => `
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                                 <td style="padding: 10px; font-weight: bold; color: #ffd700;">${rel.relation || '—'}</td>
-                                <td style="padding: 10px; font-weight: bold; color: white;">${rel.full_name || '—'}</td>
+                                <td style="padding: 10px; font-weight: bold; color: white;">${escapeHtml(rel.full_name || '—')}</td>
                                 <td style="padding: 10px; color: rgba(255,255,255,0.9);">${rel.birth_year_place || '—'}</td>
                                 <td style="padding: 10px; color: rgba(255,255,255,0.7);">${rel.workplace_position || '—'}</td>
                                 <td style="padding: 10px; color: rgba(255,255,255,0.6);">${rel.residence || '—'}</td>
@@ -2395,7 +2395,7 @@ window.viewEmployeeDetails = function (id) {
                 <div style="flex: 1; display: grid; gap: 15px;">
                     <div>
                         <div style="color: rgba(255,255,255,0.4); font-size: 0.8rem; text-transform: uppercase;">Ism Familiya</div>
-                        <div style="font-size: 1.2rem; font-weight: bold; color: white;">${employee.name}</div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: white;">${escapeHtml(employee.name)}</div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
@@ -2411,7 +2411,7 @@ window.viewEmployeeDetails = function (id) {
                     </div>
                     <div>
                         <div style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">Lavozimi</div>
-                        <div style="color: rgba(255,255,255,0.9);">${employee.position}</div>
+                        <div style="color: rgba(255,255,255,0.9);">${escapeHtml(employee.position)}</div>
                     </div>
                     <div>
                         <div style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">Bo'linma</div>
@@ -2420,7 +2420,7 @@ window.viewEmployeeDetails = function (id) {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <div style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">Telefon</div>
-                            <div style="color: rgba(255,255,255,0.9);">${employee.phone || '---'}</div>
+                            <div style="color: rgba(255,255,255,0.9);">${escapeHtml(employee.phone || '---')}</div>
                         </div>
                         <div>
                             <div style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">Tug'ilgan kuni</div>
@@ -2494,7 +2494,7 @@ window.openFaceRegistrationModal = async function (id) {
                 <i class="fas fa-camera-retro" style="font-size: 2rem; color: #00c6ff;"></i>
             </div>
             <h2 style="color: white; font-size: 1.8rem; letter-spacing: 2px; margin: 0;">FACE ID RO'YXATGA OLISH</h2>
-            <p style="color: #8b949e; margin-top: 10px;">${employee.name}</p>
+            <p style="color: #8b949e; margin-top: 10px;">${escapeHtml(employee.name)}</p>
         </div>
         
         <div style="position: relative; width: 320px; height: 320px; border-radius: 50%; border: 4px solid #30363d; overflow: hidden; background: #000; box-shadow: 0 0 50px rgba(0, 198, 255, 0.2);">
@@ -2606,7 +2606,7 @@ window.openFingerprintRegistrationModal = async function (id) {
                 <i class="fas fa-fingerprint" style="font-size: 2.5rem; color: #f59e0b;"></i>
             </div>
             <h2 style="color: white; font-size: 1.8rem; letter-spacing: 2px; margin: 0;">BARMOQ IZI RO'YXATGA OLISH</h2>
-            <p style="color: #8b949e; margin-top: 10px;">${employee.name}</p>
+            <p style="color: #8b949e; margin-top: 10px;">${escapeHtml(employee.name)}</p>
         </div>
         
         <div style="position: relative; width: 250px; height: 250px; border-radius: 20px; border: 4px solid #30363d; overflow: hidden; background: #000; box-shadow: 0 0 50px rgba(245, 158, 11, 0.2); display: flex; align-items: center; justify-content: center;">
@@ -2767,14 +2767,14 @@ window.editEmployee = function (id) {
                                 <label style="display: block; margin-bottom: 8px; color: #00c6ff; font-weight: 500;">
                                     <i class="fas fa-user"></i> Ism Familiya *
                                 </label>
-                                <input type="text" id="emp-name" value="${employee.name}" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,198,255,0.3); color: white; border-radius: 8px;">
+                                <input type="text" id="emp-name" value="${escapeHtml(employee.name)}" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,198,255,0.3); color: white; border-radius: 8px;">
                             </div>
 
                             <div>
                                 <label style="display: block; margin-bottom: 8px; color: #00c6ff; font-weight: 500;">
                                     <i class="fas fa-briefcase"></i> Lavozim *
                                 </label>
-                                <input type="text" id="emp-position" value="${employee.position}" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,198,255,0.3); color: white; border-radius: 8px;">
+                                <input type="text" id="emp-position" value="${escapeHtml(employee.position)}" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,198,255,0.3); color: white; border-radius: 8px;">
                             </div>
                         </div>
 
@@ -2790,7 +2790,7 @@ window.editEmployee = function (id) {
                                 <label style="display: block; margin-bottom: 8px; color: #00c6ff; font-weight: 500;">
                                     <i class="fas fa-phone"></i> Telefon *
                                 </label>
-                                <input type="tel" id="emp-phone" value="${employee.phone}" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,198,255,0.3); color: white; border-radius: 8px;">
+                                <input type="tel" id="emp-phone" value="${escapeHtml(employee.phone)}" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,198,255,0.3); color: white; border-radius: 8px;">
                             </div>
                         </div>
 
@@ -3142,7 +3142,7 @@ window.handleExcelFile = async function (file) {
             <i class="fas fa-spinner fa-spin"></i>
         </div>
         <h3 style="color: #10b981; margin: 0;">Fayl o'qilmoqda...</h3>
-        <p style="color: rgba(255, 255, 255, 0.7); margin: 10px 0 0 0;">${file.name}</p>
+        <p style="color: rgba(255, 255, 255, 0.7); margin: 10px 0 0 0;">${escapeHtml(file.name)}</p>
     `;
 
     // Check if XLSX is loaded
@@ -3238,7 +3238,7 @@ window.handleExcelFile = async function (file) {
                     <div class="import-icon" style="color: #ef4444;">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <h3 style="color: #ef4444; margin: 0;">Xatolik: ${error.message}</h3>
+                    <h3 style="color: #ef4444; margin: 0;">Xatolik: ${escapeHtml(error.message)}</h3>
                     <p style="color: rgba(255, 255, 255, 0.7); margin: 10px 0 0 0;">Iltimos, faylni tekshirib qaytadan yuklang</p>
                     <button onclick="openExodimImportModal()" style="margin-top:20px; padding:10px 20px; background:#30363d; border:none; color:white; border-radius:5px; cursor:pointer;">Qaytadan urinish</button>
                 `;
@@ -3430,7 +3430,7 @@ window.processExcelData = async function (jsonData, fileName, shouldClear = fals
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
                 <h3 style="color: #ef4444; margin: 0;">Import xatoligi</h3>
-                <p style="color: rgba(255, 255, 255, 0.7); margin: 10px 0 0 0;">${e.message || 'Serverga yuborishda xatolik yuz berdi'}</p>
+                <p style="color: rgba(255, 255, 255, 0.7); margin: 10px 0 0 0;">${escapeHtml(e.message || 'Serverga yuborishda xatolik yuz berdi')}</p>
                 <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:#3498db; border:none; color:white; border-radius:5px; cursor:pointer;">Qayta yuklash</button>
             `;
         }
@@ -3493,7 +3493,7 @@ window.openHRMurojaatWindow = async function (deptId) {
         : employees;
 
     const employeeOptions = filteredEmployees.length > 0
-        ? filteredEmployees.map(e => `<option value="${e.id}" data-name="${e.name}" data-position="${e.position}">${e.name} — ${e.position}</option>`).join('')
+        ? filteredEmployees.map(e => `<option value="${e.id}" data-name="${escapeHtml(e.name)}" data-position="${escapeHtml(e.position)}">${escapeHtml(e.name)} — ${escapeHtml(e.position)}</option>`).join('')
         : '<option value="">Xodimlar topilmadi</option>';
 
     modal.innerHTML = `
@@ -4071,7 +4071,7 @@ function updateMurojaatTemplate() {
             verifyBtn.style.background = 'rgba(56, 189, 248, 0.1)';
             verifyBtn.style.borderColor = 'rgba(56, 189, 248, 0.4)';
             verifyBtn.style.color = '#38bdf8';
-            if (faceText) faceText.innerHTML = `<strong>${user.name}</strong> sifatida Face ID tasdiqlashga tayyor.`;
+            if (faceText) faceText.innerHTML = `<strong>${escapeHtml(user.name)}</strong> sifatida Face ID tasdiqlashga tayyor.`;
         } else {
             verifyBtn.innerHTML = `<i class="fas fa-user-plus" style="margin-right: 5px;"></i> FACE ID RO'YXATGA OLISH`;
             verifyBtn.onclick = enrollFaceID;
@@ -4526,7 +4526,7 @@ window.simulateFaceID = async function () {
         if (cameraContainer) cameraContainer.style.display = 'block';
         if (video) video.srcObject = stream;
 
-        text.innerHTML = `<strong>${employee.name}</strong> shaxsini biometrik aniqlash jarayoni...`;
+        text.innerHTML = `<strong>${escapeHtml(employee.name)}</strong> shaxsini biometrik aniqlash jarayoni...`;
         text.style.color = '#38bdf8';
 
         // Add scan style animation if not present
@@ -4563,7 +4563,7 @@ window.simulateFaceID = async function () {
 
         if (dist < 0.55) {
             statusDiv.innerHTML = '<i class="fas fa-check-circle" style="font-size: 5rem; color: #2ecc71; filter: drop-shadow(0 0 10px rgba(46,204,113,0.5));"></i>';
-            text.innerHTML = `<i class="fas fa-check"></i> <strong>${employee.name}</strong> — Shaxs tasdiqlandi!`;
+            text.innerHTML = `<i class="fas fa-check"></i> <strong>${escapeHtml(employee.name)}</strong> — Shaxs tasdiqlandi!`;
             text.style.color = '#2ecc71';
             btn.style.display = 'none';
             section.style.background = 'rgba(46, 204, 113, 0.1)';
@@ -4646,7 +4646,7 @@ window.enrollFaceID = async function () {
         if (cameraContainer) cameraContainer.style.display = 'block';
         if (video) video.srcObject = stream;
 
-        text.innerHTML = `<strong>${employee.name}</strong> yuzini ro'yxatga olish jarayoni...`;
+        text.innerHTML = `<strong>${escapeHtml(employee.name)}</strong> yuzini ro'yxatga olish jarayoni...`;
         text.style.color = '#f59e0b';
 
         // Get face descriptor
@@ -4684,7 +4684,7 @@ window.enrollFaceID = async function () {
 
         // Immediately verify them!
         statusDiv.innerHTML = '<i class="fas fa-check-circle" style="font-size: 5rem; color: #2ecc71; filter: drop-shadow(0 0 10px rgba(46,204,113,0.5));"></i>';
-        text.innerHTML = `<i class="fas fa-check"></i> <strong>${employee.name}</strong> — Ro'yxatdan o'tdi va tasdiqlandi!`;
+        text.innerHTML = `<i class="fas fa-check"></i> <strong>${escapeHtml(employee.name)}</strong> — Ro'yxatdan o'tdi va tasdiqlandi!`;
         text.style.color = '#2ecc71';
         btn.style.display = 'none';
         section.style.background = 'rgba(46, 204, 113, 0.1)';
@@ -4924,7 +4924,7 @@ window.openHRMurojaatInboxModal = async function () {
         container.innerHTML = filtered.map(m => `
             <div style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.3s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <strong style="font-size: 1.1rem; color: white;">${m.employee_name || 'Noma\'lum'} (${m.employee_position || ''})</strong>
+                    <strong style="font-size: 1.1rem; color: white;">${escapeHtml(m.employee_name || 'Noma\'lum')} (${escapeHtml(m.employee_position || '')})</strong>
                     <span style="font-size: 0.8rem; color: #94a3b8;"><i class="fas fa-clock"></i> ${new Date(m.created_at).toLocaleString('uz-UZ')}</span>
                 </div>
                 <div style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 15px;">
@@ -5039,7 +5039,7 @@ window.viewMurojaatDetails = async function (id) {
                     <button onclick="document.getElementById('murojaat-preview-modal').remove()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
                 </div>
                 <div style="background:white; color:black; padding:30px; border-radius:10px; font-family:'Times New Roman', serif; line-height:1.6; font-size:14pt; margin-bottom:20px; white-space:pre-wrap; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                    ${m.murojaat_text}
+                    ${escapeHtml(m.murojaat_text)}
                     
                     <div style="margin-top:40px; border-top:1px solid #ddd; padding-top:20px; display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
@@ -5047,14 +5047,14 @@ window.viewMurojaatDetails = async function (id) {
                                 <i class="fas ${m.face_verified ? 'fa-check-circle' : 'fa-times-circle'}"></i> Face ID ${m.face_verified ? 'bilan tasdiqlangan' : 'mavjud emas'}
                             </div>
                             ${m.signature_data ? `<img src="${m.signature_data}" style="max-height: 70px; display:block; margin-top:10px; border-bottom: 1px solid #333;">` : ''}
-                            <div style="font-size:10pt; color: #333; margin-top: 5px;">(${m.employee_name}) imzosi</div>
+                            <div style="font-size:10pt; color: #333; margin-top: 5px;">(${escapeHtml(m.employee_name)}) imzosi</div>
                         </div>
                     </div>
 
                     ${m.status === 'approved' ? `
                     <div style="margin-top:30px; background: rgba(56, 189, 248, 0.05); border: 2px solid #38bdf8; border-radius: 12px; padding: 20px; position: relative; overflow: hidden;">
                         <h4 style="color: #0369a1; margin: 0 0 10px 0; font-family: 'Inter', sans-serif;"><i class="fas fa-gavel"></i> KORXONA RAHBARI VIZASI</h4>
-                        <p style="font-weight: bold; font-size: 1.1rem; color: #0f172a; margin-bottom: 15px; font-style: italic;">"${m.manager_comment}"</p>
+                        <p style="font-weight: bold; font-size: 1.1rem; color: #0f172a; margin-bottom: 15px; font-style: italic;">"${escapeHtml(m.manager_comment)}"</p>
                         
                         <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
                             <div>
@@ -5062,7 +5062,7 @@ window.viewMurojaatDetails = async function (id) {
                                 <span style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #94a3b8;">Sana: ${new Date(m.approved_date).toLocaleString()}</span>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-size: 0.9rem; color: #000; font-family: 'Inter', sans-serif; font-weight: bold; margin-top: 5px;">${m.manager_name}</div>
+                                <div style="font-size: 0.9rem; color: #000; font-family: 'Inter', sans-serif; font-weight: bold; margin-top: 5px;">${escapeHtml(m.manager_name)}</div>
                             </div>
                         </div>
                     </div>
@@ -5395,4 +5395,31 @@ window.filterModalEmployees = function(defaultDept = '') {
     if (filterDept === 'all') filterDept = '';
 
     container.innerHTML = renderEmployeeTable(searchVal, filterDept);
+};
+
+// Fayllar endi /uploads orqali ochiq emas: token bilan himoyalangan API'dan yuklab olinadi
+window.downloadUploadedFile = async function (fileId) {
+    try {
+        const res = await fetch(`/api/files/download/${encodeURIComponent(fileId)}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken')}` }
+        });
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.message || `Xatolik (${res.status})`);
+        }
+        const disposition = res.headers.get('Content-Disposition') || '';
+        const match = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+        const fileName = match ? decodeURIComponent(match[1] || match[2]) : `fayl-${fileId}`;
+
+        const url = URL.createObjectURL(await res.blob());
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+        alert('Faylni yuklab bo\'lmadi: ' + e.message);
+    }
 };

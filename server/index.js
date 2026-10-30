@@ -166,6 +166,23 @@ if (rateLimit) {
     app.use('/api/auth/login', loginLimiter);
 }
 
+// Ichki xato matnlarini yashirish: ko'p marshrutlar 500 da err.message (SQL xatolari,
+// fayl yo'llari) ni to'g'ridan-to'g'ri qaytaradi. Production'da foydalanuvchiga umumiy
+// xabar ketadi, asl matn esa server logida qoladi.
+if (process.env.NODE_ENV === 'production') {
+    app.use('/api', (req, res, next) => {
+        const originalJson = res.json.bind(res);
+        res.json = (body) => {
+            if (res.statusCode >= 500 && body && typeof body === 'object') {
+                console.error(`[500] ${req.method} ${req.originalUrl}:`, body.message || body.error || body);
+                return originalJson({ message: 'Serverda ichki xatolik yuz berdi' });
+            }
+            return originalJson(body);
+        };
+        next();
+    });
+}
+
 // CSRF Protection (Custom Header Check for SPAs)
 app.use((req, res, next) => {
     // Only check state-changing methods
@@ -324,9 +341,9 @@ const publicPath = path.join(__dirname, '..', 'public');
 // 2) React production build (dist/) — yangi komponentlar
 const distPath = path.join(__dirname, '..', 'dist');
 
-// Yuklangan fayllar (uploads/) ni ham xizmat qilish
-const uploadsPath = path.join(__dirname, 'uploads');
-app.use('/uploads', express.static(uploadsPath));
+// Yuklangan fayllar (uploads/) endi ochiq tarqatilmaydi: ular ichki hujjatlar.
+// Yuklab olish faqat GET /api/files/download/:id orqali (token va ruxsat tekshiriladi).
+app.use('/uploads', (req, res) => res.status(404).end());
 
 app.use(express.static(publicPath));
 app.use(express.static(distPath));

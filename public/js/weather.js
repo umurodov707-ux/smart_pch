@@ -127,7 +127,7 @@ function renderCurrentWeather(container, locName) {
             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; padding: 0 5px;">
                 <span><i class="fas fa-wind"></i> ${wind.speed || 0} m/s</span>
                 <span><i class="fas fa-droplet"></i> ${main.humidity || 0}%</span>
-                <span>${weather.description || ''}</span>
+                <span>${escapeHtml(weather.description || '')}</span>
             </div>
         </div>
     `;

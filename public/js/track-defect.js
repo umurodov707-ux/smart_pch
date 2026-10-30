@@ -361,7 +361,7 @@ window.generateTrackDefectHTML = function (bolinmaId, isInline = false) {
                                         </div>
                                         <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px;">
                                             <div style="color: #38bdf8; font-weight: bold; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.type}</div>
-                                            <div style="color: #cbd5e1; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${d.description}</div>
+                                            <div style="color: #cbd5e1; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(d.description)}</div>
                                         </div>
                                         <div style="text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
                                             ${d.degree >= 3 ? `<button onclick="event.stopPropagation(); window.generateDalolatnoma(${d.id})" style="background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #ef4444; padding: 3px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'"><i class="fas fa-file-pdf"></i> PU-28</button>` : ''}
@@ -460,7 +460,7 @@ window.showTapeForKm = async function (km, pk = null) {
                 </div>`;
         }
     } catch (err) {
-        display.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 20px;"><i class="fas fa-exclamation-circle"></i> Xatolik: ${err.message}</div>`;
+        display.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 20px;"><i class="fas fa-exclamation-circle"></i> Xatolik: ${escapeHtml(err.message)}</div>`;
     }
 };
 
@@ -1316,7 +1316,7 @@ window.handlePromerFileSelect = async function (e) {
     } catch (err) {
         progressDiv.style.display = 'none';
         resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `<div style="color: #ef4444;">Xato: ${err.message}</div>`;
+        resultDiv.innerHTML = `<div style="color: #ef4444;">Xato: ${escapeHtml(err.message)}</div>`;
     }
 };
 
@@ -1381,7 +1381,7 @@ window.showPromerPage = async function (page) {
             display.innerHTML = '<div style="color: #475569;">Ushbu sahifa topilmadi</div>';
         }
     } catch (err) {
-        display.innerHTML = `<div style="color: #ef4444;">Xato: ${err.message}</div>`;
+        display.innerHTML = `<div style="color: #ef4444;">Xato: ${escapeHtml(err.message)}</div>`;
     }
 };
 

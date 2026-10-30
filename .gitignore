@@ -70,3 +70,6 @@ dist_react_backup/
 scratch/
 lines.txt
 test_click.js
+
+# Hech qachon ochiq papkaga chiqmasin
+public/users_debug.json

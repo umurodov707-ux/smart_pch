@@ -219,6 +219,29 @@ router.get('/list/:bolinma_id', authMiddleware, (req, res) => {
     );
 });
 
+// Faylni yuklab olish. Ilgari fayllar /uploads orqali kirishsiz ochiq edi.
+// Bazada to'liq yo'l saqlanadi (boshqa kompyuterniki ham bo'lishi mumkin),
+// shuning uchun "uploads/" dan keyingi qismi bo'yicha qidiriladi.
+router.get('/download/:id', authMiddleware, (req, res) => {
+    db.get('SELECT * FROM files WHERE id = ?', [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ message: 'Ma\'lumotlar bazasida xatolik' });
+        if (!row) return res.status(404).json({ message: 'Fayl topilmadi' });
+
+        const isViewer = ['admin', 'director', 'rahbar', 'dispetcher'].includes(req.user.role);
+        if (!isViewer && row.uploaded_by !== req.user.id && !req.hasAccessToBolinma(row.bolinma_id)) {
+            return res.status(403).json({ message: 'Ushbu faylga ruxsat yo\'q' });
+        }
+
+        const relative = String(row.file_path || '').split(/[\\/]uploads[\\/]/).pop();
+        const absPath = path.resolve(uploadsDir, relative);
+        if (!absPath.startsWith(uploadsDir + path.sep) || !fs.existsSync(absPath)) {
+            return res.status(404).json({ message: 'Fayl diskda topilmadi' });
+        }
+
+        res.download(absPath, row.original_name || path.basename(absPath));
+    });
+});
+
 // Modul bo'yicha fayllarni olish (masalan, 'timesheet_archive')
 router.get('/module/:module_name', authMiddleware, (req, res) => {
     const query = req.user.role === 'admin'

@@ -59,7 +59,7 @@ const ModernWarnings = {
                     <h3 style="color: #d4af37; margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Yangi ogohlantirish kiritish</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <select id="w-bolinma" style="padding: 12px; background: rgba(0,0,10,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
-                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}
                         </select>
                         <input type="text" id="w-km" placeholder="KM" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
                         <input type="text" id="w-pk" placeholder="PK" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
@@ -178,7 +178,7 @@ const ModernWarnings = {
                 tr.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
                 tr.innerHTML = `
                     <td style="padding: 20px;">${i + 1}</td>
-                    <td style="padding: 20px; font-weight: bold; color: #fff;">${sub.name}</td>
+                    <td style="padding: 20px; font-weight: bold; color: #fff;">${escapeHtml(sub.name)}</td>
                     <td style="padding: 20px;">${w.km || '-'} / ${w.pk || '-'}</td>
                     <td style="padding: 20px; font-weight: bold; color: #f85149;">${w.speed_limit || '0'} km/soat</td>
                     <td style="padding: 20px;">${w.start_date || '-'}</td>

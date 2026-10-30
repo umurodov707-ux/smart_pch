@@ -389,7 +389,7 @@ function generatePU28TableHTML(deptId) {
                            <div style="text-align:center;">
                                <div style="color:#dc2626; font-weight:bold; margin-bottom:4px;">Bartaraf etilmagan</div>
                                <div style="padding: 4px 8px; border-radius: 6px; background: ${agingInfo.badgeBg}; color: ${agingInfo.badgeColor}; border: ${agingInfo.border || 'none'}; font-size: 0.75rem; font-weight: 900; display: inline-block;">
-                                   ${agingInfo.text}
+                                   ${escapeHtml(agingInfo.text)}
                                </div>
                                ${agingInfo.level === 'red' ? `
                                    <div style="margin-top: 6px;">

@@ -287,8 +287,8 @@ function renderTechTrainingForm() {
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;">
                         ${workers.map(w => `
                             <label style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                                <input type="checkbox" class="tech-worker-cb" value="${w.id}" data-name="${w.name}" data-pos="${w.position || 'Xodim'}" style="width: 18px; height: 18px;">
-                                <span>${w.name}</span>
+                                <input type="checkbox" class="tech-worker-cb" value="${w.id}" data-name="${escapeHtml(w.name)}" data-pos="${escapeHtml(w.position || 'Xodim')}" style="width: 18px; height: 18px;">
+                                <span>${escapeHtml(w.name)}</span>
                             </label>
                         `).join('')}
                     </div>
@@ -536,8 +536,8 @@ function viewTechTrainingDetails(recordId) {
     const attendeesHtml = techTrainingCurrentRecord.attendees.map(a => `
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);">
             <div>
-                <div style="font-weight: bold; color: white;">${a.name}</div>
-                <div style="font-size: 0.85em; color: rgba(255,255,255,0.6);">${a.position}</div>
+                <div style="font-weight: bold; color: white;">${escapeHtml(a.name)}</div>
+                <div style="font-size: 0.85em; color: rgba(255,255,255,0.6);">${escapeHtml(a.position)}</div>
             </div>
             <div>
                 ${a.signature

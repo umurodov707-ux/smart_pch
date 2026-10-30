@@ -56,10 +56,10 @@ function displaySearchResults(results, container) {
         container.innerHTML = '<div class="search-item"><div class="search-item-info"><span class="search-item-name">Hech narsa topilmadi</span></div></div>';
     } else {
         container.innerHTML = results.map(item => `
-            <div class="search-item" onclick="handleSearchClick('${item.type}', '${item.name}')">
+            <div class="search-item" onclick="handleSearchClick('${item.type}', '${escapeHtml(item.name)}')">
                 <i class="fas ${item.icon}"></i>
                 <div class="search-item-info">
-                    <span class="search-item-name">${item.name}</span>
+                    <span class="search-item-name">${escapeHtml(item.name)}</span>
                     <span class="search-item-meta">${item.meta}</span>
                 </div>
             </div>

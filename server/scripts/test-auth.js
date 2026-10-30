@@ -6,7 +6,13 @@ const http = require('http');
 
 const PORT = process.env.PORT || 7007;
 const USER = process.env.TEST_USER || 'admin';
-const PASS = process.env.TEST_PASS || 'admin123';
+const PASS = process.env.TEST_PASS;
+
+// Parol kodga yozilmaydi: TEST_PASS=... npm run test:auth
+if (!PASS) {
+    console.error('❌ TEST_PASS berilmagan. Masalan: TEST_PASS=parol npm run test:auth');
+    process.exit(1);
+}
 
 const body = JSON.stringify({ username: USER, password: PASS });
 

@@ -113,7 +113,7 @@ const EImzoHelper = {
                     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
                 " onmouseover="this.style.borderColor='#00c6ff'; this.style.transform='translateY(-3px)'; this.style.background='rgba(0, 198, 255, 0.05)'" 
                    onmouseout="this.style.borderColor='rgba(0, 198, 255, 0.2)'; this.style.transform='translateY(0)'; this.style.background='rgba(255,255,255,0.03)'">
-                    <div style="font-weight: 800; color: #fff; font-size: 1.1rem; letter-spacing: 0.5px;">${c.name}</div>
+                    <div style="font-weight: 800; color: #fff; font-size: 1.1rem; letter-spacing: 0.5px;">${escapeHtml(c.name)}</div>
                     <div style="font-size: 0.85rem; color: #00c6ff; margin-top: 8px; font-weight: 600;">
                         <i class="fas fa-building" style="margin-right: 5px;"></i> ${c.org || 'O\'ZBEKISTON TEMIR YO\'LLARI'}
                     </div>

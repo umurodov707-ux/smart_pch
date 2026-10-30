@@ -35,7 +35,7 @@ window.PletsModule = (function () {
                 ${renderTableHTML(data || [])}
             `;
         } catch (e) {
-            container.innerHTML = `<div style="color:#ef4444; padding:20px;">Xatolik: ${e.message}</div>`;
+            container.innerHTML = `<div style="color:#ef4444; padding:20px;">Xatolik: ${escapeHtml(e.message)}</div>`;
         }
     }
 

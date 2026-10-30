@@ -97,9 +97,9 @@ const SmartWorkflow = {
                     <div class="step-info">
                         <div class="step-role">${roleLabels[role] || role.toUpperCase()}</div>
                         ${event ? `
-                            <div class="step-user">${event.user_name}</div>
+                            <div class="step-user">${escapeHtml(event.user_name)}</div>
                             <div class="step-date">${new Date(event.date).toLocaleString()}</div>
-                            ${event.signature === 'REJECTED' ? `<div class="step-comment" style="color: #ef4444; font-size: 0.7rem; margin-top: 4px;">Sabab: ${event.comment || 'Izohsiz'}</div>` : ''}
+                            ${event.signature === 'REJECTED' ? `<div class="step-comment" style="color: #ef4444; font-size: 0.7rem; margin-top: 4px;">Sabab: ${escapeHtml(event.comment || 'Izohsiz')}</div>` : ''}
                         ` : `
                             <div class="step-status" style="${isRejected ? 'color:#ef4444' : ''}">${isRejected ? 'Rad etilgan' : (isCurrent ? 'Kutilmoqda...' : 'Navbat kutilmoqda')}</div>
                         `}

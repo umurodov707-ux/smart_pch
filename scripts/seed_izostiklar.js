@@ -3,11 +3,12 @@
  * Run once: node seed_izostiklar.js
  */
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, 'server', '.env') });
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+const ROOT = path.join(__dirname, '..');
+require('dotenv').config({ path: path.join(ROOT, 'server', '.env') });
+require('dotenv').config({ path: path.join(ROOT, '.env') });
 const sqlite3 = require('sqlite3').verbose();
 
-const dbPath = process.env.DB_PATH || path.join(__dirname, 'server', 'smart_pch.db');
+const dbPath = process.env.DB_PATH || path.join(ROOT, 'server', 'smart_pch.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) { console.error('DB Error:', err.message); process.exit(1); }
     console.log('Connected to DB:', dbPath);

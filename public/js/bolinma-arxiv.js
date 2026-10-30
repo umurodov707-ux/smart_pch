@@ -214,7 +214,7 @@ function renderArchiveHome(bolId) {
                         <div style="width: 80px; height: 80px; background: ${dept.color}15; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid ${dept.color}30;">
                             <i class="${dept.icon}" style="color: ${dept.color};"></i>
                         </div>
-                        <h3>${dept.name}</h3>
+                        <h3>${escapeHtml(dept.name)}</h3>
                         <span class="counts">Hujjatlar mavjud</span>
                     </div>
                 `).join('')}
@@ -319,7 +319,7 @@ window.loadBolinmaArchiveData = async function(deptId, tab, bolId, btnElement) {
             </div>`;
         }
     } catch (e) {
-        container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:50px;">Xatolik: ${e.message}</div>`;
+        container.innerHTML = `<div style="text-align:center; color:#ef4444; padding:50px;">Xatolik: ${escapeHtml(e.message)}</div>`;
     }
 };
 

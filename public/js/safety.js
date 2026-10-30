@@ -308,7 +308,7 @@ window.openSafetyWorkerList = function (bolinmaId) {
                     <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block;">Yo'riqnomadan o'tuvchi xodim</label>
                     <select id="briefing-worker" style="width: 100%; padding: 14px; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; border-radius: 12px; font-weight: 600;">
                         <option value="">-- Xodimni tanlang --</option>
-                        ${workers.map(w => `<option value="${w.id}">${w.full_name || w.name} (${w.position || w.role})</option>`).join('')}
+                        ${workers.map(w => `<option value="${w.id}">${escapeHtml(w.full_name || w.name)} (${escapeHtml(w.position || w.role)})</option>`).join('')}
                     </select>
                 </div>
 
@@ -781,8 +781,8 @@ async function renderWorkerList(bolinmaId) {
         return `
                                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; background: ${isSigned ? 'rgba(46, 204, 113, 0.05)' : 'transparent'};">
                                     <td style="padding: 12px; opacity: 0.7;">${index + 1}</td>
-                                    <td style="padding: 12px; font-weight: bold;">${w.full_name}</td>
-                                    <td style="padding: 12px; opacity: 0.8;">${w.position || '-'}</td>
+                                    <td style="padding: 12px; font-weight: bold;">${escapeHtml(w.full_name)}</td>
+                                    <td style="padding: 12px; opacity: 0.8;">${escapeHtml(w.position || '-')}</td>
                                     <td style="padding: 12px;">
                                         ${(() => {
                                             const todayObj = new Date();
@@ -813,7 +813,7 @@ async function renderWorkerList(bolinmaId) {
                                     </td>
                                     <td style="padding: 12px; text-align: right;">
                                         ${!isSigned ? `
-                                            <button onclick="openInstructionModal(${w.id}, '${w.full_name}')" 
+                                            <button onclick="openInstructionModal(${w.id}, '${escapeHtml(w.full_name)}')" 
                                                 style="background: linear-gradient(135deg, #3498db, #2980b9); border: none; color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
                                                 <i class="fas fa-pen-alt"></i> Imzo Qo'yish
                                             </button>

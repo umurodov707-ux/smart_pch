@@ -62,7 +62,7 @@ const ModernInfrastructure = {
                     <h3 style="color: #10b981; margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase;">Yangi infratuzilma obyekti</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <select id="i-bolinma" style="padding: 12px; background: rgba(0,0,10,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
-                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                            ${(window.subdivisions || []).map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}
                         </select>
                         <input type="text" id="i-name" placeholder="Obyekt nomi" style="padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
                         <select id="i-type" style="padding: 12px; background: rgba(0,0,10,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff;">
@@ -172,7 +172,7 @@ const ModernInfrastructure = {
                         <i class="fas ${this.getIcon(asset.asset_type)}"></i>
                     </div>
                     <div>
-                        <h4 style="margin: 0; color: #fff; font-size: 0.95rem;">${asset.name}</h4>
+                        <h4 style="margin: 0; color: #fff; font-size: 0.95rem;">${escapeHtml(asset.name)}</h4>
                         <div style="font-size: 0.8rem; color: #10b981; font-weight: 600;">KM: ${asset.km}</div>
                     </div>
                 </div>

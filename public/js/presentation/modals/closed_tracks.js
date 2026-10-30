@@ -88,7 +88,7 @@ const ModernClosedTracks = {
                         <div style="width: 12px; height: 12px; border-radius: 50%; background: ${isClosed ? '#ef4444' : '#10b981'}; box-shadow: 0 0 10px ${isClosed ? '#ef4444' : '#10b981'};"></div>
                     </div>
                     <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">
-                        ${track.details || 'Ma\'lumot yo\'q'}
+                        ${escapeHtml(track.details || 'Ma\'lumot yo\'q')}
                     </div>
                     ${canEdit ? `
                         <div style="margin-top: 10px; display: flex; gap: 10px;">
