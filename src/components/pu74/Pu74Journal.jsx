@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { createPortal } from 'react-dom';
 import {
   BookOpen, ChevronLeft, ChevronRight, Printer, ZoomIn, ZoomOut, Pencil, RefreshCw, Download, Send,
-  CircleCheckBig, Undo2, LockOpen, Lock, CalendarPlus, CloudOff,
+  CircleCheckBig, Undo2, LockOpen, Lock, CalendarPlus, CloudOff, DatabaseZap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import TEMPLATE from './pu74Template.json';
@@ -13,6 +13,7 @@ import {
 import { SheetView, buildLayout, BOOKMARK_W } from './SheetView';
 import useJournalStore, { loadLegacyEdits } from './useJournalStore';
 import { buildJournalXlsx } from './xlsxExport';
+import IntegrationPanel from './IntegrationPanel';
 import './pu74Journal.css';
 
 export const BRIGADES = [
@@ -83,6 +84,7 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
   const [notice, setNotice] = useState(null);     // {type, text}
   const [returnOpen, setReturnOpen] = useState(false);
   const [returnText, setReturnText] = useState('');
+  const [integrOpen, setIntegrOpen] = useState(false);
   const deskRef = useRef(null);
   const monthPicked = useRef(!!initialMonth);
 
@@ -388,6 +390,9 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
           >
             <Pencil size={15} /> {editing ? 'Tahrirlash yoqilgan' : 'Tahrirlash'}
           </button>
+          <button type="button" className="pu74j-btn" aria-pressed={integrOpen} disabled={phase !== 'ready' || !views} onClick={() => setIntegrOpen((o) => !o)}>
+            <DatabaseZap size={15} /> Bo‘limlardan to‘ldirish
+          </button>
           <button type="button" className="pu74j-btn" aria-label="Qayta yuklash" onClick={() => { loadModel(); store.reload(); }}><RefreshCw size={15} /></button>
         </div>
 
@@ -399,6 +404,25 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
           </span>
         )}
       </div>
+
+      {integrOpen && views && phase === 'ready' && (
+        <IntegrationPanel
+          brigadeId={B.id}
+          month={month}
+          user={user}
+          views={views}
+          model={model}
+          sheetsTpl={sheetsTpl}
+          styles={styles}
+          currentSheet={sheet}
+          canEdit={canEdit}
+          onClose={() => setIntegrOpen(false)}
+          onApply={(updater, count) => {
+            setEdits(updater);
+            setNotice({ type: 'ok', text: `${count} ta katak to‘ldirildi. Kerak bo‘lsa “Tahrirlash” orqali tuzating.` });
+          }}
+        />
+      )}
 
       <div className="pu74j-desk" ref={deskRef}>
         {loadError && (
