@@ -231,3 +231,92 @@
   .pu74j-print .pu74j-spine { background: #999; width: 1px; }
   .pu74j-print .pu74j-table td.head { background: #f3f3f3; }
 }
+
+/* ---------- oy, holat, izohlar ---------- */
+.pu74j-select {
+  min-height: 34px;
+  padding: 0 8px;
+  border-radius: 9px;
+  border: 0;
+  background: rgb(30 41 59);
+  color: rgb(226 232 240);
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 230px;
+}
+.pu74j-btn.primary { background: rgb(245 158 11); color: rgb(2 6 23); }
+.pu74j-btn.primary:hover { background: rgb(251 191 36); color: rgb(2 6 23); }
+.pu74j-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.pu74j-badge.st-draft { background: rgb(30 41 59); color: rgb(203 213 225); border-color: rgb(51 65 85); }
+.pu74j-badge.st-submitted { background: rgb(30 58 138 / 0.35); color: rgb(147 197 253); border-color: rgb(59 130 246 / 0.4); }
+.pu74j-badge.st-returned { background: rgb(146 64 14 / 0.3); color: rgb(253 186 116); border-color: rgb(249 115 22 / 0.4); }
+.pu74j-badge.st-approved { background: rgb(6 78 59 / 0.4); color: rgb(110 231 183); border-color: rgb(16 185 129 / 0.4); }
+.pu74j-badge.st-offline { background: rgb(69 26 3 / 0.5); color: rgb(252 211 77); border-color: rgb(245 158 11 / 0.4); }
+.pu74j-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: rgb(203 213 225);
+  background: rgb(15 23 42);
+  border: 1px solid rgb(30 41 59);
+}
+.pu74j-note.ok { color: rgb(110 231 183); border-color: rgb(16 185 129 / 0.35); background: rgb(6 78 59 / 0.2); }
+.pu74j-note.warn { color: rgb(253 186 116); border-color: rgb(249 115 22 / 0.35); background: rgb(124 45 18 / 0.2); }
+.pu74j-note.err { color: rgb(252 165 165); border-color: rgb(239 68 68 / 0.35); background: rgb(127 29 29 / 0.2); }
+.pu74j-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgb(15 23 42);
+  border: 1px solid rgb(30 41 59);
+  color: rgb(203 213 225);
+  font-size: 13px;
+}
+.pu74j-panel textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgb(51 65 85);
+  background: rgb(2 6 23);
+  color: rgb(226 232 240);
+  padding: 8px;
+  font: inherit;
+}
+.pu74j-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.pu74j-stamp {
+  position: absolute;
+  bottom: 18px;
+  width: 132px;
+  height: 132px;
+  border: 4px double #1f4fa3;
+  border-radius: 50%;
+  color: #1f4fa3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-14deg);
+  opacity: 0.8;
+  font: 800 14px system-ui, sans-serif;
+  letter-spacing: 0.5px;
+  text-align: center;
+  pointer-events: none;
+}
+.pu74j-stamp small { font-weight: 500; font-size: 11px; letter-spacing: 0; margin-top: 2px; }

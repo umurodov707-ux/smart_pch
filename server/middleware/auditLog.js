@@ -57,6 +57,10 @@ function sanitizeBody(body) {
     if (sanitized.employees && Array.isArray(sanitized.employees)) {
         sanitized.employees = `[Array of ${sanitized.employees.length} items truncated for performance]`;
     }
+    // PU-74 jurnali har saqlashda butun tahrirlar ro'yxatini yuboradi — logga faqat soni
+    if (sanitized.edits && typeof sanitized.edits === 'object') {
+        sanitized.edits = `[${Object.keys(sanitized.edits).length} ta katak]`;
+    }
 
     return sanitized;
 }

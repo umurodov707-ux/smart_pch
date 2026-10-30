@@ -338,6 +338,27 @@ const schema = [
             UNIQUE(bolinma_id, year_month)
         )`
     },
+    // PU-74 jurnali: brigada + oy bo'yicha tahrirlar va tasdiqlash holati
+    {
+        name: 'pu74_journals',
+        sql: (isPg) => `CREATE TABLE IF NOT EXISTS pu74_journals (
+            id ${isPg ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
+            brigade TEXT NOT NULL,
+            month TEXT NOT NULL,
+            edits TEXT,
+            status TEXT DEFAULT 'draft',
+            version INTEGER DEFAULT 1,
+            comment TEXT,
+            updated_by TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            submitted_by TEXT,
+            submitted_at TEXT,
+            approved_by TEXT,
+            approved_at TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(brigade, month)
+        )`
+    },
     // Audit Logs
     {
         name: 'audit_logs',
