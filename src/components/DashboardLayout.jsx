@@ -77,6 +77,7 @@ export default function DashboardLayout({ children }) {
     { path: '/dashboard/leave', label: "Ta'tillar boshqaruvi", icon: 'fas fa-calendar-alt' },
     { path: '/dashboard/izostiklar', label: 'Izostiklar', icon: 'fas fa-microchip' },
     { path: '/dashboard/metrology', label: 'Metrologiya', icon: 'fas fa-microscope' },
+    { path: '/dashboard/mechanics', label: 'Mexanika bo\'limi', icon: 'fas fa-truck-monster' },
     { path: '/dashboard/appeals', label: 'Raqamli Murojaat', icon: 'fas fa-headset' },
   ];
 

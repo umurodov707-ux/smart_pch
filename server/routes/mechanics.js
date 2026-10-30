@@ -54,15 +54,18 @@ router.delete('/vehicles/:id', (req, res) => {
 // Get waybills
 router.get('/waybills', (req, res) => {
     const query = `
-        SELECT w.*, v.name as vehicle_name, v.number as vehicle_number, e.full_name as driver_name 
+        SELECT w.*, 
+               COALESCE(v.name, 'Texnika') as vehicle_name, 
+               COALESCE(v.number, '---') as vehicle_number, 
+               COALESCE(e.full_name, 'Haydovchi') as driver_name 
         FROM waybills w
-        JOIN vehicles v ON w.vehicle_id = v.id
-        JOIN employees e ON w.driver_id = e.id
+        LEFT JOIN vehicles v ON w.vehicle_id = v.id
+        LEFT JOIN employees e ON w.driver_id = e.id
         ORDER BY w.date DESC
     `;
     db.all(query, [], (err, rows) => {
         if (err) return res.status(500).json({ message: err.message });
-        res.json(rows);
+        res.json(rows || []);
     });
 });
 
@@ -86,7 +89,7 @@ router.post('/waybills', (req, res) => {
 // Get all repair logs
 router.get('/repairs', (req, res) => {
     const { vehicle_id } = req.query;
-    let query = 'SELECT r.*, v.name as vehicle_name FROM repair_logs r JOIN vehicles v ON r.vehicle_id = v.id';
+    let query = 'SELECT r.*, COALESCE(v.name, "Texnika") as vehicle_name FROM repair_logs r LEFT JOIN vehicles v ON r.vehicle_id = v.id';
     let params = [];
     if (vehicle_id) {
         query += ' WHERE r.vehicle_id = ?';
@@ -95,7 +98,7 @@ router.get('/repairs', (req, res) => {
     query += ' ORDER BY r.date DESC';
     db.all(query, params, (err, rows) => {
         if (err) return res.status(500).json({ message: err.message });
-        res.json(rows);
+        res.json(rows || []);
     });
 });
 

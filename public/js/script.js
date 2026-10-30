@@ -10136,14 +10136,19 @@ function renderEconomySection(windowElement, bolinmaId) {
 // Redundant stubs removed as they are defined in their respective module files
 
 // F) Mechanics Section - Dashboard
+// F) Mechanics Section - Complete Remade Subdivision Dashboard
 function renderMechanicsSection(windowElement, bolinmaId) {
-    console.log('Rendering Mechanics Dashboard for', bolinmaId);
+    console.log('Rendering Remade Mechanics Dashboard for', bolinmaId);
+
+    // Save global safe bolinmaId reference to avoid HTML attribute single-quote syntax errors (e.g. 1-bo'linma)
+    window._currentMexanikaBolinmaId = bolinmaId || 'mexanika';
 
     // Initial load handling to prevent empty UI
     if (!window._mechanicsDataLoaded && typeof initMechanicsData === 'function') {
-        const loadingHtml = `<div id="mechanics-section-view" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:50px; color:#3498db;">
-            <i class="fas fa-cog fa-spin" style="font-size:3rem; margin-bottom:20px;"></i>
-            <h3 style="color:white;">Mexanika bo'limi yuklanmoqda...</h3>
+        const loadingHtml = `<div id="mechanics-section-view" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:50px 20px; color:#38bdf8; background: rgba(15, 23, 42, 0.7); border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <i class="fas fa-truck-monster fa-spin" style="font-size:3rem; margin-bottom:16px; color: #38bdf8; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));"></i>
+            <h3 style="color:white; font-size: 1.2rem; margin: 0; font-weight: 700;">Mexanika va Transport Bo'limi yuklanmoqda...</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 6px;">Iltimos, bir oz kuting</p>
         </div>`;
         const body = windowElement.querySelector('.department-body') || windowElement.querySelector('.window-content') || windowElement;
         const fileList = body.querySelector('.files-area-wrapper') || body.querySelector('.file-management');
@@ -10166,237 +10171,269 @@ function renderMechanicsSection(windowElement, bolinmaId) {
     const existingView = windowElement.querySelector('#mechanics-section-view');
     if (existingView) existingView.remove();
 
-    // Rolni aniqlash
-    const _curUser = (typeof currentUser !== 'undefined') ? currentUser : null;
-    const _userRole = _curUser ? _curUser.role : 'guest';
-    const isDeptOrAdmin = (_userRole === 'department' || _userRole === 'admin' || _userRole === 'subdivision' || !!bolinmaId);
-
-    // Get Data from Global Store
+    // Data filtering
     const data = window.waybillData || { vehicles: [], orders: [] };
-
-    // Shu bo'linmaga tegishli texnikalar
-    const deptVehicles = isDeptOrAdmin ? data.vehicles : data.vehicles.filter(v =>
-        !v.departmentId || v.departmentId === bolinmaId
+    let deptVehicles = (data.vehicles || []).filter(v => 
+        v.departmentId === bolinmaId || v.bolinma_id === bolinmaId
     );
-    const deptOrders = isDeptOrAdmin ? data.orders : data.orders.filter(o =>
-        o.deptName && o.deptName.includes(bolinmaId)
-    );
+    let isFallbackVehicles = false;
+    if (deptVehicles.length === 0) {
+        deptVehicles = data.vehicles && data.vehicles.length > 0 ? data.vehicles : [...(window.DEFAULT_FALLBACK_VEHICLES || [])];
+        isFallbackVehicles = true;
+    }
 
-    // Calculate Stats
+    let deptOrders = (data.orders || []);
+    if (bolinmaId && bolinmaId !== 'mexanika') {
+        deptOrders = deptOrders.filter(o => o.deptName && (o.deptName.includes(bolinmaId) || o.dept_name?.includes(bolinmaId)));
+    }
+
+    // Stats calculation
     const totalVehicles = deptVehicles.length;
+    const freeVehicles = deptVehicles.filter(v => v.status === 'free' || (!v.status && v.status !== 'busy')).length;
     const activeVehicles = deptVehicles.filter(v => v.status === 'busy').length;
-    const repairVehicles = deptVehicles.filter(v => v.status === 'repair').length;
-    const freeVehicles = deptVehicles.filter(v => v.status === 'free').length;
+    const repairVehicles = deptVehicles.filter(v => v.status === 'repair' || v.status === 'maintenance').length;
 
     const view = document.createElement('div');
     view.id = 'mechanics-section-view';
     view.className = 'department-section-view';
+    view.style.marginTop = '15px';
 
-    // ===== Texnikalar kartalari =====
-    let vehicleCardsHtml = '';
-    if (deptVehicles.length === 0) {
-        vehicleCardsHtml = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
-            <i class="fas fa-truck" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px; display: block;"></i>
-            <p>Texnikalar mavjud emas</p>
-        </div>`;
-    } else {
-        vehicleCardsHtml = deptVehicles.map(v => {
-            let statusColor = v.status === 'free' ? '#2ecc71' : (v.status === 'busy' ? '#e74c3c' : '#f1c40f');
-            let statusText = v.status === 'free' ? "Bo'sh" : (v.status === 'busy' ? "Ishda" : "Ta'mirda");
-            return `
-                <div style="background: #1e293b; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; transition: all 0.3s;" 
-                     onmouseover="this.style.borderColor='${statusColor}40'; this.style.transform='translateY(-3px)'" 
-                     onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-                        <div style="background: rgba(255,255,255,0.05); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-truck" style="color: white; font-size: 1.2rem;"></i>
-                        </div>
-                        ${isDeptOrAdmin ? `
-                        <button onclick="if(window.deleteVehicle) window.deleteVehicle('${v.id}')" style="background: rgba(239, 68, 68, 0.1); border: none; color: #ef4444; width: 30px; height: 30px; border-radius: 6px; cursor: pointer;" title="O'chirish">
-                            <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
-                        </button>` : ''}
-                    </div>
-                    <h5 style="margin: 0; color: white; font-size: 1.05rem;">${v.name}</h5>
-                    <p style="margin: 3px 0 10px 0; color: #94a3b8; font-family: monospace; font-size: 0.85rem;">${v.number}</p>
-                    <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span>Garaj:</span> <span style="color: #cbd5e1;">${v.garage || '---'}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Yoqilg'i:</span> <span style="color: #cbd5e1;">${v.fuelNorm} L/100km</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px;">
-                        <span style="color: ${statusColor}; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 5px;">
-                            <span style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%;"></span>
-                            ${statusText}
-                        </span>
-                        ${v.status === 'busy' && v.currentTask ? `<span style="font-size: 0.7rem; color: #94a3b8;">${v.currentTask}</span>` : ''}
-                    </div>
-                </div>`;
-        }).join('');
-    }
+    // Global tab switcher helper
+    window.switchMexanikaSubTab = function(tabName, btnEl) {
+        const parentView = btnEl.closest('#mechanics-section-view');
+        if (!parentView) return;
+        parentView.querySelectorAll('.mex-tab-btn').forEach(b => {
+            b.style.background = 'rgba(255, 255, 255, 0.05)';
+            b.style.color = '#94a3b8';
+            b.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        });
+        btnEl.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
+        btnEl.style.color = '#ffffff';
+        btnEl.style.borderColor = '#38bdf8';
 
-    // ===== Buyurtmalar jadvali (faqat department/admin uchun tasdiqlash tugmalari) =====
-    let ordersHtml = '';
-    if (deptOrders.length === 0) {
-        ordersHtml = `<tr><td colspan="6" style="padding: 30px; text-align: center; color: #64748b; font-style: italic;">Hali buyurtmalar yo'q</td></tr>`;
-    } else {
-        ordersHtml = deptOrders.map(o => `
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                <td style="padding: 15px 12px; color: #94a3b8;">${o.date}</td>
-                <td style="padding: 15px 12px; color: #38bdf8; font-weight: bold;">${o.deptName || "Noma'lum"}</td>
-                <td style="padding: 15px 12px; color: white;">${o.vehicleName}</td>
-                <td style="padding: 15px 12px; color: #94a3b8;">${o.task}</td>
-                <td style="padding: 15px 12px;">
-                    <span style="color: ${o.status === 'approved' ? '#2ecc71' : '#f39c12'}; display: flex; align-items: center; gap: 5px;">
-                        <i class="fas ${o.status === 'approved' ? 'fa-check' : 'fa-spinner fa-spin'}"></i>
+        parentView.querySelectorAll('.mex-tab-content').forEach(c => c.style.display = 'none');
+        const target = parentView.querySelector(`#mex-tab-content-${tabName}`);
+        if (target) target.style.display = 'block';
+    };
+
+    // Vehicle cards HTML
+    let vehicleCardsHtml = deptVehicles.map(v => {
+        let statusColor = v.status === 'free' ? '#2ecc71' : (v.status === 'busy' ? '#ef4444' : '#f59e0b');
+        let statusBg = v.status === 'free' ? 'rgba(46, 204, 113, 0.15)' : (v.status === 'busy' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)');
+        let statusText = v.status === 'free' ? "Bo'sh" : (v.status === 'busy' ? "Ishda" : "Ta'mirda");
+
+        return `
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid ${statusColor}40; border-radius: 16px; padding: 18px; position: relative; transition: all 0.25s ease;"
+                 onmouseover="this.style.borderColor='${statusColor}90'; this.style.transform='translateY(-3px)'" 
+                 onmouseout="this.style.borderColor='${statusColor}40'; this.style.transform='translateY(0)'">
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                        <i class="fas fa-truck-pickup" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                    </div>
+                    <span style="background: ${statusBg}; color: ${statusColor}; border: 1px solid ${statusColor}50; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; gap: 5px;">
+                        <span style="width: 6px; height: 6px; background: ${statusColor}; border-radius: 50%;"></span>
+                        ${statusText}
+                    </span>
+                </div>
+
+                <h4 style="margin: 0 0 2px 0; color: white; font-size: 1.1rem; font-weight: 700;">${v.name}</h4>
+                <p style="margin: 0 0 12px 0; color: #38bdf8; font-family: monospace; font-size: 0.85rem; font-weight: 600;">${v.number}</p>
+
+                <div style="background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; color: #94a3b8; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.04);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>Garaj №:</span> <span style="color: #e2e8f0; font-weight: 600;">${v.garage || '---'}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Yoqilg'i normasi:</span> <span style="color: #e2e8f0; font-weight: 600;">${v.fuelNorm || v.fuel_norm || 10} L/100km</span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button onclick="event.stopPropagation(); if(window.openWaybillWindow) window.openWaybillWindow(window._currentMexanikaBolinmaId)" 
+                        style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; padding: 7px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <i class="fas fa-file-invoice"></i> Yo'l Varaqasi
+                    </button>
+                    <button onclick="event.stopPropagation(); if(window.openPrintableTipovaya712) window.openPrintableTipovaya712('${v.id}')" 
+                        style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #c084fc; padding: 7px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <i class="fas fa-print"></i> Putovka 712
+                    </button>
+                </div>
+            </div>`;
+    }).join('');
+
+    // Orders table HTML
+    let ordersHtml = deptOrders.length === 0 ? 
+        `<tr><td colspan="6" style="padding: 25px; text-align: center; color: #64748b; font-style: italic; font-size: 0.85rem;">Mavjud buyurtmalar mavjud emas</td></tr>` :
+        deptOrders.map(o => `
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 12px 14px; color: #94a3b8; font-size: 0.82rem;">${o.date || '---'}</td>
+                <td style="padding: 12px 14px; color: #38bdf8; font-weight: 700; font-size: 0.85rem;">${o.deptName || o.dept_name || "Bo'linma"}</td>
+                <td style="padding: 12px 14px; color: white; font-weight: 600; font-size: 0.85rem;">${o.vehicleName || o.vehicle_name || 'Texnika'}</td>
+                <td style="padding: 12px 14px; color: #cbd5e1; font-size: 0.82rem;">${o.task}</td>
+                <td style="padding: 12px 14px;">
+                    <span style="background: ${o.status === 'approved' ? 'rgba(46, 204, 113, 0.15)' : 'rgba(243, 156, 18, 0.15)'}; color: ${o.status === 'approved' ? '#2ecc71' : '#f39c12'}; padding: 3px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 700;">
                         ${o.status === 'approved' ? 'Tasdiqlandi' : 'Kutilmoqda'}
                     </span>
                 </td>
-                <td style="padding: 15px 12px; text-align: right;">
-                    ${isDeptOrAdmin ? `<div style="display: flex; gap: 8px; justify-content: flex-end;">
-                        ${o.status !== 'approved' ? `<button onclick="approveOrder(${o.id})" style="background: #2ecc71; border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;"><i class="fas fa-check"></i> Tasdiqlash</button>` : ''}
-                        <button onclick="rejectOrder(${o.id})" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;"><i class="fas fa-times"></i></button>
-                    </div>` : `<span style="font-size: 0.8rem; color: #64748b;">${o.status === 'approved' ? '✅' : '⏳'}</span>`}
+                <td style="padding: 12px 14px; text-align: right;">
+                    ${o.status !== 'approved' ? `<button onclick="if(window.approveOrder) window.approveOrder(${o.id})" style="background: #2ecc71; border: none; color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 700;"><i class="fas fa-check"></i></button>` : ''}
                 </td>
             </tr>`).join('');
-    }
-
-    // ===== Tezkor harakatlar tugmalari =====
-    let quickActionsHtml = `
-        <button onclick="event.stopPropagation(); openWaybillWindow('${bolinmaId}')" 
-            style="background: linear-gradient(135deg, #8e44ad, #9b59b6); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-file-invoice" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Yo'l Varaqasi</span>
-        </button>
-        <button onclick="event.stopPropagation(); openOrderWindow()" 
-            style="background: linear-gradient(135deg, #f39c12, #e67e22); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-shipping-fast" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Transport Buyurtma</span>
-        </button>`;
-
-    if (isDeptOrAdmin) {
-        quickActionsHtml += `
-        <button onclick="event.stopPropagation(); openTechnicalMaintenanceWindow('${bolinmaId}')" 
-            style="background: linear-gradient(135deg, #3498db, #2980b9); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-wrench" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Texnik Xizmat (TO)</span>
-        </button>
-        <button onclick="event.stopPropagation(); openRepairJournal('${bolinmaId}')" 
-            style="background: linear-gradient(135deg, #e67e22, #d35400); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-tools" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Ta'mir Jurnali</span>
-        </button>
-        <button onclick="event.stopPropagation(); openSpareParts('${bolinmaId}')" 
-            style="background: linear-gradient(135deg, #16a085, #1abc9c); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-boxes" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Ehtiyot Qismlar</span>
-        </button>
-        <button onclick="event.stopPropagation(); openFuelReport()" 
-            style="background: linear-gradient(135deg, #ef4444, #b91c1c); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-gas-pump" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Yoqilg'i Hisoboti</span>
-        </button>
-        <button onclick="event.stopPropagation(); showTechnicalList('${bolinmaId}')" 
-            style="background: linear-gradient(135deg, #2c3e50, #34495e); border: none; padding: 20px; color: white; border-radius: 15px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);">
-            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-list-alt" style="font-size: 1.5rem;"></i>
-            </div>
-            <span style="font-size: 1rem; font-weight: bold;">Texnikalar Ro'yxati</span>
-        </button>`;
-    }
 
     view.innerHTML = `
-        <div style="padding: 20px; background: rgba(52,152,219,0.08); border: 1px solid rgba(52,152,219,0.3); border-radius: 15px; margin-bottom: 20px; border-left: 5px solid #3498db;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin: 0; color: #3498db; display: flex; align-items: center; gap: 12px; font-size: 1.3rem;">
-                    <i class="fas fa-cogs"></i>
-                    Mexanika Bo'limi ${isDeptOrAdmin ? '— Boshqaruv' : "— Texnikalar"}
-                </h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    ${isDeptOrAdmin ? `
+        <div style="padding: 22px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9)); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); backdrop-filter: blur(15px);">
+            
+            <!-- Main Header Banner -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h3 style="margin: 0; color: white; display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800;">
+                        <span style="background: rgba(56, 189, 248, 0.15); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                            <i class="fas fa-truck-monster" style="color: #38bdf8;"></i>
+                        </span>
+                        Mexanika va Transport Bo'limi
+                        <span style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3);">
+                            ${bolinmaId || 'PCH Garaj'}
+                        </span>
+                    </h3>
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button onclick="if(window.openAddVehicleModal) window.openAddVehicleModal()" 
-                        style="background: #2ecc71; border: none; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; font-size: 0.85rem;">
-                        <i class="fas fa-plus"></i> Yangi Texnika
-                    </button>` : ''}
-                    <span style="background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; color: #94a3b8; font-size: 0.85rem;">
-                        <i class="fas fa-calendar-alt"></i> ${new Date().toLocaleDateString()}
-                    </span>
+                        style="background: linear-gradient(135deg, #2ecc71, #27ae60); border: none; color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 6px; font-size: 0.82rem; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);">
+                        <i class="fas fa-plus-circle"></i> Texnika Qo'shish
+                    </button>
+                    <button onclick="if(window.openOrderWindow) window.openOrderWindow(window._currentMexanikaBolinmaId)" 
+                        style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 6px; font-size: 0.82rem;">
+                        <i class="fas fa-shipping-fast"></i> Buyurtma Berish
+                    </button>
                 </div>
             </div>
 
-            <!-- KPI -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">
-                <div style="background: linear-gradient(135deg, #2c3e50, #34495e); padding: 15px; border-radius: 12px; text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: white;">${totalVehicles}</div>
-                    <div style="color: #94a3b8; font-size: 0.8rem;">Jami</div>
+            <!-- Summary KPI Pill Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: white;">${totalVehicles}</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 600;">Jami Texnikalar</div>
                 </div>
-                <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); padding: 15px; border-radius: 12px; text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: white;">${freeVehicles}</div>
-                    <div style="color: #ecf0f1; font-size: 0.8rem;">Bo'sh</div>
+                <div style="background: rgba(46, 204, 113, 0.08); border: 1px solid rgba(46, 204, 113, 0.3); padding: 12px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #2ecc71;">${freeVehicles}</div>
+                    <div style="color: #2ecc71; font-size: 0.75rem; font-weight: 600;">Bo'sh (Tayyor)</div>
                 </div>
-                <div style="background: linear-gradient(135deg, #c0392b, #e74c3c); padding: 15px; border-radius: 12px; text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: white;">${activeVehicles}</div>
-                    <div style="color: #ecf0f1; font-size: 0.8rem;">Ishda</div>
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #ef4444;">${activeVehicles}</div>
+                    <div style="color: #ef4444; font-size: 0.75rem; font-weight: 600;">Ishda / Band</div>
                 </div>
-                <div style="background: linear-gradient(135deg, #d35400, #f39c12); padding: 15px; border-radius: 12px; text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: white;">${repairVehicles}</div>
-                    <div style="color: #fff; font-size: 0.8rem;">Ta'mirda</div>
+                <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #f59e0b;">${repairVehicles}</div>
+                    <div style="color: #f59e0b; font-size: 0.75rem; font-weight: 600;">Ta'mirda / TO</div>
                 </div>
             </div>
 
-            <!-- Tezkor harakatlar -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
-                ${quickActionsHtml}
+            <!-- Sub-Tab Navigation Bar -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; overflow-x: auto;">
+                <button class="mex-tab-btn" onclick="switchMexanikaSubTab('fleet', this)" style="background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; border: 1px solid #38bdf8; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-truck"></i> Texnikalar Parki
+                </button>
+                <button class="mex-tab-btn" onclick="switchMexanikaSubTab('waybills', this)" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-file-invoice"></i> Yo'l Varaqalar & Putovka 712
+                </button>
+                <button class="mex-tab-btn" onclick="switchMexanikaSubTab('repairs', this)" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-wrench"></i> TO & Ta'mir Jurnali
+                </button>
+                <button class="mex-tab-btn" onclick="switchMexanikaSubTab('parts', this)" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-boxes"></i> Ehtiyot Qismlar
+                </button>
+                <button class="mex-tab-btn" onclick="switchMexanikaSubTab('fuel', this)" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-gas-pump"></i> Yoqilg'i Hisobi
+                </button>
             </div>
 
-            <!-- Texnikalar kartalari -->
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                <h4 style="margin: 0 0 15px 0; color: white; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-truck-pickup" style="color: #3498db;"></i> Texnikalar
-                    <span style="background: rgba(52,152,219,0.2); padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; color: #3498db;">${totalVehicles} ta</span>
-                </h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;" id="mechanics-cards-container">
+            <!-- Tab Content 1: Fleet Grid -->
+            <div id="mex-tab-content-fleet" class="mex-tab-content" style="display: block;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
                     ${vehicleCardsHtml}
                 </div>
             </div>
 
-            <!-- Buyurtmalar jadvali -->
-            ${deptOrders.length > 0 || isDeptOrAdmin ? `
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px;">
-                <h4 style="margin: 0 0 15px 0; color: #f39c12; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-clipboard-list"></i> ${isDeptOrAdmin ? 'Kelgan Buyurtmalar' : "Mening Buyurtmalarim"}
-                    <span style="background: rgba(243,156,18,0.2); padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; color: #f39c12;">${deptOrders.length} ta</span>
-                </h4>
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 500px;">
-                        <thead>
-                            <tr style="color: #64748b; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <th style="padding: 10px;">Sana</th>
-                                <th style="padding: 10px;">Bo'linma</th>
-                                <th style="padding: 10px;">Texnika</th>
-                                <th style="padding: 10px;">Vazifa</th>
-                                <th style="padding: 10px;">Holat</th>
-                                <th style="padding: 10px; text-align: right;">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody>${ordersHtml}</tbody>
-                    </table>
+            <!-- Tab Content 2: Waybills & Putovka -->
+            <div id="mex-tab-content-waybills" class="mex-tab-content" style="display: none;">
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <button onclick="if(window.openWaybillWindow) window.openWaybillWindow(window._currentMexanikaBolinmaId)" 
+                        style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Yangi Yo'l Varaqasi
+                    </button>
+                    <button onclick="if(window.openPrintableTipovaya712) window.openPrintableTipovaya712()" 
+                        style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-print"></i> Tipovaya f. № 712 Chop Etish
+                    </button>
                 </div>
-            </div>` : ''}
+
+                <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 16px;">
+                    <h4 style="margin: 0 0 12px 0; color: white; font-size: 0.95rem;">Kelib tushgan buyurtmalar hamda varaqalar</h4>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                            <thead>
+                                <tr style="color: #64748b; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; text-transform: uppercase;">
+                                    <th style="padding: 10px 12px;">Sana</th>
+                                    <th style="padding: 10px 12px;">Bo'linma</th>
+                                    <th style="padding: 10px 12px;">Texnika</th>
+                                    <th style="padding: 10px 12px;">Vazifa</th>
+                                    <th style="padding: 10px 12px;">Holat</th>
+                                    <th style="padding: 10px 12px; text-align: right;">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody>${ordersHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 3: TO & Repairs -->
+            <div id="mex-tab-content-repairs" class="mex-tab-content" style="display: none;">
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <button onclick="if(window.openTechnicalMaintenanceWindow) window.openTechnicalMaintenanceWindow(window._currentMexanikaBolinmaId)" 
+                        style="background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-wrench"></i> Texnik Xizmat (TO-1/2/3)
+                    </button>
+                    <button onclick="if(window.openRepairJournal) window.openRepairJournal(window._currentMexanikaBolinmaId)" 
+                        style="background: linear-gradient(135deg, #ea580c, #f97316); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-tools"></i> Ta'mir Jurnalini Ochish
+                    </button>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; text-align: center; color: #94a3b8; font-size: 0.88rem;">
+                    <i class="fas fa-info-circle text-amber-400" style="margin-right: 6px;"></i> TO va ta'mir modullarini yuqoridagi tugmalar orqali oching.
+                </div>
+            </div>
+
+            <!-- Tab Content 4: Spare Parts -->
+            <div id="mex-tab-content-parts" class="mex-tab-content" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h4 style="margin: 0; color: white; font-size: 0.95rem;">Ehtiyot Qismlar Ombori</h4>
+                    <button onclick="if(window.openSpareParts) window.openSpareParts(window._currentMexanikaBolinmaId)" 
+                        style="background: linear-gradient(135deg, #0d9488, #14b8a6); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-boxes"></i> Ombor Modalini Ochish
+                    </button>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; text-align: center; color: #94a3b8; font-size: 0.88rem;">
+                    Ehtiyot qismlar zaxirasi va qoldiqlarini boshqarish uchun ombor modalini oching.
+                </div>
+            </div>
+
+            <!-- Tab Content 5: Fuel -->
+            <div id="mex-tab-content-fuel" class="mex-tab-content" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h4 style="margin: 0; color: white; font-size: 0.95rem;">Yoqilg'i Sarfi va Normasi</h4>
+                    <button onclick="if(window.openFuelReport) window.openFuelReport(window._currentMexanikaBolinmaId)" 
+                        style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-gas-pump"></i> Yoqilg'i Hisobotini Ochish
+                    </button>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; text-align: center; color: #94a3b8; font-size: 0.88rem;">
+                    Barcha texnikalarning bak qoldiqlari va 100km me'yoriy sarfi nazorati.
+                </div>
+            </div>
+
         </div>
     `;
 
@@ -10406,10 +10443,10 @@ function renderMechanicsSection(windowElement, bolinmaId) {
     else body.appendChild(view);
 }
 
-
 // Make functions globally accessible
 window.renderMechanicsSection = renderMechanicsSection;
 window.renderMexanikaSection = renderMechanicsSection;
+
 
 // --- MEHNAT SECTION ---
 function renderMehnatSection(windowElement, bolinmaId) {

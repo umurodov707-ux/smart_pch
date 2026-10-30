@@ -12,6 +12,7 @@ import IzostiklarPage from './pages/IzostiklarPage';
 import MetrologyPage from './pages/MetrologyPage';
 import AppealCenterPage from './pages/AppealCenterPage';
 import Pu74Page from './pages/Pu74Page';
+import MechanicsPage from './pages/MechanicsPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 
 // Protected Route wrapper component
@@ -85,6 +86,7 @@ function AppContent() {
                   shu sababli tugma bosilganda pastdagi "*" qoidasi
                   foydalanuvchini jimgina /dashboard ga qaytarib yuborardi. */}
               <Route path="/pu74" element={<Pu74Page />} />
+              <Route path="/mechanics" element={<MechanicsPage />} />
 
               {/* Menyudagi qolgan bo'limlar: React versiyasi hali yo'q,
                   lekin endi hech bo'lmasa aniq xabar ko'rsatiladi. */}

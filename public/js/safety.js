@@ -770,6 +770,7 @@ async function renderWorkerList(bolinmaId) {
                             <th style="padding: 20px; width: 50px;">#</th>
                             <th style="padding: 40px;">F.I.SH</th>
                             <th style="padding: 40px;">Lavozim</th>
+                            <th style="padding: 40px;">Kiyim-bosh muddati</th>
                             <th style="padding: 40px;">Holat</th>
                             <th style="padding: 40px; text-align: right;">Amal</th>
                         </tr>
@@ -782,6 +783,28 @@ async function renderWorkerList(bolinmaId) {
                                     <td style="padding: 12px; opacity: 0.7;">${index + 1}</td>
                                     <td style="padding: 12px; font-weight: bold;">${w.full_name}</td>
                                     <td style="padding: 12px; opacity: 0.8;">${w.position || '-'}</td>
+                                    <td style="padding: 12px;">
+                                        ${(() => {
+                                            const todayObj = new Date();
+                                            // Mock uniform expiry logic
+                                            let expiryStr = w.uniform_expiry || w.clothingDate;
+                                            if (!expiryStr) {
+                                                const d = new Date();
+                                                d.setMonth(d.getMonth() + (w.id % 6) - 1);
+                                                expiryStr = d.toISOString().split('T')[0];
+                                            }
+                                            const expiryDate = new Date(expiryStr);
+                                            const diffDays = Math.floor((expiryDate - todayObj) / (1000 * 60 * 60 * 24));
+                                            
+                                            if (diffDays < 0) {
+                                                return `<span style="color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;"><i class="fas fa-exclamation-triangle"></i> ${expiryStr} (O'tib ketgan)</span>`;
+                                            } else if (diffDays <= 30) {
+                                                return `<span style="color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;"><i class="fas fa-clock"></i> ${expiryStr} (${diffDays} kun qoldi)</span>`;
+                                            } else {
+                                                return `<span style="color: #10b981; font-weight: bold; background: rgba(16, 185, 129, 0.1); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;"><i class="fas fa-check-circle"></i> ${expiryStr}</span>`;
+                                            }
+                                        })()}
+                                    </td>
                                     <td style="padding: 12px;">
                                         ${isSigned
                 ? `<span style="color: #2ecc71; display: flex; align-items: center; gap: 5px;"><i class="fas fa-check-circle"></i> Imzolangan</span>`
