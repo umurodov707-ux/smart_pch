@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Printer, Download, Lock, Trash2, X, TriangleAlert, Send, ChevronLeft, Info } from 'lucide-react';
+import { Plus, Printer, Download, Lock, Trash2, X, TriangleAlert, Send, ChevronLeft, Info, Smartphone, ArrowUp, ArrowDown } from 'lucide-react';
 import api, { ApiError } from '../../utils/api';
 import {
   COLUMNS, DEFAULT_META, LINE_CATEGORIES, MARKAS, ORDINAT_COLUMNS, RAIL_TYPES,
@@ -8,6 +8,9 @@ import {
 import { BODY_ORDER, HEADER, TOTAL_COLS, headerCells, recordCells } from './layout.js';
 import { XS, buildXlsx } from './pu29Xlsx.js';
 import NORM_INFO from './normInfo.json';
+import SwitchSchematic from './SwitchSchematic.jsx';
+import MeasureWizard, { hasDraft } from './MeasureWizard.jsx';
+import { NODES, OTHER_KEYS, nodeDetail } from './switchSchema.js';
 
 const enc = encodeURIComponent;
 const today = () => {
@@ -73,6 +76,8 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
   const [msg, setMsg] = useState(null);
   const [pop, setPop] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [wizard, setWizard] = useState(false);
+  const [node, setNode] = useState(null);
   const saveTimers = useRef({});
   const base = `/api/pu29/${enc(bolinma)}/switches/${enc(sw.switch_number)}`;
 
@@ -164,8 +169,8 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
   const issues = useMemo(() => (latest ? recordIssues(latest.data, meta) : []), [latest, meta]);
 
   // Defektlar bo'limiga yuborish (faqat qizil, takrorlanmaydi)
-  const sendDefects = async () => {
-    const red = issues.filter((i) => i.level === 'red');
+  const sendDefects = async (data = latest && latest.data, date = latest && latest.date) => {
+    const red = recordIssues(data || {}, meta).filter((i) => i.level === 'red');
     if (!red.length) return;
     setBusy(true);
     try {
@@ -183,8 +188,8 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
           pk: meta.pk ? Number(meta.pk) || null : null,
           degree: 4,
           issue,
-          description: `${meta.station || ''} ${prefix}. PU-29 ${fmtDate(latest.date)}: ${i.value} (me’yor ${i.norm})`.trim(),
-          date: latest.date,
+          description: `${meta.station || ''} ${prefix}. PU-29 ${fmtDate(date)}: ${i.value} (me’yor ${i.norm})`.trim(),
+          date,
           status: 'active',
         });
         sent++;
@@ -192,6 +197,21 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
       setMsg({ type: 'ok', text: sent ? `${sent} ta nosozlik Defektlar bo‘limiga yuborildi${meta.km ? '' : ' (km ko‘rsatilmagan — PU-74 ga avtomatik tushishi uchun strelka km ni kiriting)'}` : 'Bu nosozliklar Defektlarda allaqachon bor' });
     } catch (e) { setMsg({ type: 'err', text: e.message }); } finally { setBusy(false); }
   };
+
+  // Telefon rejimidan kelgan o'lchovlar — yangi tekshiruv sifatida saqlanadi
+  const saveFromWizard = async (values, withDefects) => {
+    const date = today();
+    const e = await api.post(`${base}/entries`, { kind: 'check', date, data: values });
+    setEntries((l) => [e, ...l]);
+    setTab('journal');
+    onChanged && onChanged();
+    if (withDefects) await sendDefects(values, date);
+    else setMsg({ type: 'ok', text: 'Tekshiruv saqlandi' });
+  };
+
+  const prevRow = entries[1] ? rowOf(entries[1]) : null;
+  const nodeInfo = node ? (node === 'other' ? { id: 'other', title: 'Boshqa ko‘rsatkichlar', keys: OTHER_KEYS } : NODES.find((n) => n.id === node)) : null;
+  const details = nodeInfo && latest ? nodeDetail(nodeInfo, latest.data, prevRow && prevRow.data, meta) : [];
 
   // Excel
   const exportXlsx = async () => {
@@ -333,8 +353,13 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
           </select>
         </div>
         <div className="pu29-bar-r">
-          <button type="button" className="pu29-btn gold" disabled={busy} onClick={() => addEntry(tab === 'ordinat' ? 'ordinat' : 'check')}>
-            <Plus size={16} /> {tab === 'ordinat' ? 'O‘LCHOV QO‘SHISH' : 'TEKSHIRUV QO‘SHISH'}
+          {tab === 'journal' && (
+            <button type="button" className="pu29-btn gold" onClick={() => setWizard(true)}>
+              <Smartphone size={16} /> O‘lchov kiritish{hasDraft(bolinma, sw.switch_number) ? ' (qoralama)' : ''}
+            </button>
+          )}
+          <button type="button" className={`pu29-btn ${tab === 'ordinat' ? 'gold' : 'ghost'}`} disabled={busy} onClick={() => addEntry(tab === 'ordinat' ? 'ordinat' : 'check')}>
+            <Plus size={16} /> {tab === 'ordinat' ? 'O‘lchov qo‘shish' : 'Jadvalga qator'}
           </button>
           <button type="button" className="pu29-btn ghost" onClick={exportXlsx}><Download size={15} /> Excel</button>
           <button type="button" className="pu29-btn ghost" onClick={print}><Printer size={15} /> Chop etish</button>
@@ -382,13 +407,72 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
           </label>
         </div>
 
+        {tab === 'journal' && (
+          <div className="pu29-schema-wrap">
+            <div className="pu29-schema-box">
+              <div className="cap">SXEMA · {latest ? `oxirgi tekshiruv ${fmtDate(latest.date)}` : 'hali tekshirilmagan'}<span>nuqtani bosing</span></div>
+              <SwitchSchematic values={latest ? latest.data : {}} meta={meta} selected={node} onSelect={(id) => setNode((cur) => (cur === id ? null : id))} />
+              <div className="nodes">
+                {NODES.map((n) => {
+                  const d = latest ? nodeDetail(n, latest.data, null, meta) : [];
+                  const lv = d.some((x) => x.level === 'red') ? 'red' : d.some((x) => x.level === 'yellow') ? 'yellow' : d.length ? 'green' : '';
+                  return (
+                    <button key={n.id} type="button" className={`nd ${lv} ${node === n.id ? 'on' : ''}`} onClick={() => setNode(node === n.id ? null : n.id)}>
+                      <i>{n.no}</i>{n.title}
+                    </button>
+                  );
+                })}
+                <button type="button" className={`nd ${node === 'other' ? 'on' : ''}`} onClick={() => setNode(node === 'other' ? null : 'other')}><i>+</i>Boshqa</button>
+              </div>
+            </div>
+            <div className="pu29-node">
+              {nodeInfo ? (
+                <>
+                  <div className="t">{nodeInfo.no ? `${nodeInfo.no}. ` : ''}{nodeInfo.title}</div>
+                  {details.length ? (
+                    <table>
+                      <thead><tr><th>O‘lchov</th><th>{latest ? fmtDate(latest.date) : ''}</th><th>{prevRow ? fmtDate(prevRow.date) : 'oldingi'}</th></tr></thead>
+                      <tbody>
+                        {details.map((d) => (
+                          <tr key={d.key}>
+                            <td>{d.label}<small>{d.norm && `me’yor ${d.norm}`}</small></td>
+                            <td className={`v ${LEVEL_CLS[d.level] || ''}`}>
+                              {d.value ?? '—'}
+                              {d.trend === 'up' && <ArrowUp size={12} aria-label="oshgan" />}
+                              {d.trend === 'down' && <ArrowDown size={12} aria-label="kamaygan" />}
+                            </td>
+                            <td className="p">{d.prev ?? '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : <p className="muted">Bu joyda hali o‘lchov yo‘q.</p>}
+                </>
+              ) : (
+                <>
+                  <div className="t">Xulosa</div>
+                  {latest ? (
+                    <ul className="sum">
+                      <li className="r"><span>Xavfli</span><b>{issues.filter((i) => i.level === 'red').length}</b></li>
+                      <li className="y"><span>Ogohlantirish</span><b>{issues.filter((i) => i.level === 'yellow').length}</b></li>
+                      <li className="g"><span>O‘lchangan</span><b>{Object.keys(latest.data).length}</b></li>
+                      <li><span>Tekshiruvlar soni</span><b>{entries.length}</b></li>
+                    </ul>
+                  ) : <p className="muted">Birinchi tekshiruvni “O‘lchov kiritish” orqali kiriting — telefonda qulay.</p>}
+                  <p className="muted">Sxemadagi nuqtani bossangiz, o‘sha joyning o‘lchovlari va oldingi tekshiruv bilan farqi chiqadi.</p>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {tab === 'journal' && latest && (
           <div className={`pu29-issues no-print ${issues.some((i) => i.level === 'red') ? 'red' : issues.length ? 'yellow' : 'ok'}`}>
             <div className="h">
               {issues.length ? <TriangleAlert size={16} /> : <Info size={16} />}
               Oxirgi tekshiruv ({fmtDate(latest.date)}): {issues.length ? `${issues.filter((i) => i.level === 'red').length} ta xavfli, ${issues.filter((i) => i.level === 'yellow').length} ta ogohlantirish` : 'barcha o‘lchovlar me’yorda'}
               {issues.some((i) => i.level === 'red') && (
-                <button type="button" className="pu29-btn small" disabled={busy} onClick={sendDefects}><Send size={13} /> Defektlarga yuborish</button>
+                <button type="button" className="pu29-btn small" disabled={busy} onClick={() => sendDefects()}><Send size={13} /> Defektlarga yuborish</button>
               )}
             </div>
             {issues.length > 0 && (
@@ -415,7 +499,7 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
               <tbody>
                 {entries.map(renderBody)}
                 {!entries.length && !loading && (
-                  <tr><td colSpan={TOTAL_COLS + 1} className="empty">Tekshiruvlar yo‘q. “TEKSHIRUV QO‘SHISH” tugmasini bosing.</td></tr>
+                  <tr><td colSpan={TOTAL_COLS + 1} className="empty">Tekshiruvlar yo‘q. “O‘lchov kiritish” tugmasini bosing.</td></tr>
                 )}
                 {loading && <tr><td colSpan={TOTAL_COLS + 1} className="empty">Yuklanmoqda…</td></tr>}
               </tbody>
@@ -456,7 +540,7 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
                     </tr>
                   );
                 })}
-                {!ordinats.length && !loading && <tr><td colSpan={16} className="empty">O‘lchovlar yo‘q. “O‘LCHOV QO‘SHISH” tugmasini bosing.</td></tr>}
+                {!ordinats.length && !loading && <tr><td colSpan={16} className="empty">O‘lchovlar yo‘q. “O‘lchov qo‘shish” tugmasini bosing.</td></tr>}
               </tbody>
             </table>
             <p className="pu29-foot">Me’yoriy ordinatalar namunaviy (eski jurnaldagi kabi) — loyiha hujjati bo‘yicha tekshiring.</p>
@@ -473,6 +557,7 @@ export default function SwitchJournal({ bolinma, sw, switches, onSelect, onBack,
 
         {pop && <NormPopover id={pop.id} meta={meta} anchor={pop.anchor} onClose={() => setPop(null)} />}
       </div>
+      {wizard && <MeasureWizard bolinma={bolinma} sw={sw} meta={meta} onClose={() => setWizard(false)} onSave={saveFromWizard} />}
     </div>
   );
 }

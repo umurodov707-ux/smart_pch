@@ -106,3 +106,20 @@ test('Excel: kataklar, birlashtirish, ranglar', async () => {
   assert.equal(wb.sheets[0].cells['1,1'].v, 1520, 'son matni songa aylanadi');
   assert.equal(wb.sheets[0].cells['1,2'].v, 'Test & <x>');
 });
+
+test('sxema nuqtalari va telefon bosqichlari barcha maydonlarni qamrab oladi', async () => {
+  const { NODES, OTHER_KEYS, STEPS, worstLevel, nodeDetail, fieldInfo } = await import('../../src/components/pu29/switchSchema.js');
+  const all = new Set(CELLS.map((c) => c.key));
+  const inNodes = new Set([...NODES.flatMap((n) => n.keys), ...OTHER_KEYS]);
+  const inSteps = new Set(STEPS.flatMap((s) => s.keys));
+  assert.deepEqual([...all].filter((k) => !inNodes.has(k)), [], 'sxemada yo‘q maydon');
+  assert.deepEqual([...all].filter((k) => !inSteps.has(k)), [], 'telefon bosqichlarida yo‘q maydon');
+  assert.equal(inSteps.size, STEPS.flatMap((s) => s.keys).length, 'bosqichlarda takror yo‘q');
+  assert.ok([...inNodes].every((k) => all.has(k)));
+  assert.equal(worstLevel(['sh1', 'ur1'], { sh1: 1534, ur1: 4 }, A), 'red');
+  assert.equal(worstLevel(['sh1'], {}, A), '');
+  const d = nodeDetail(NODES[1], { sh1: 1527 }, { sh1: 1524 }, A);
+  assert.equal(d[0].trend, 'up');
+  assert.equal(d[0].level, 'green');
+  assert.match(fieldInfo('p1b').label, /yon yo‘l/);
+});
