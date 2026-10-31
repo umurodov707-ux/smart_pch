@@ -1,0 +1,72 @@
+# main ga birlashtirilganda serverni avtomatik yangilash.
+#
+# Bir marta sozlash (GitHub → Settings → Secrets and variables → Actions → New repository secret):
+#   VPS_HOST     — server manzili (IP yoki smartpch.uz)
+#   VPS_USER     — SSH foydalanuvchisi (masalan: smartpch yoki root)
+#   VPS_SSH_KEY  — shu foydalanuvchining SSH yopiq kaliti (to'liq matni)
+#   VPS_PORT     — (ixtiyoriy) SSH porti, odatda 22
+#   APP_DIR      — (ixtiyoriy) dastur papkasi, odatda /var/www/smartpch
+#
+# Qo'lda ishga tushirish: Actions → "Serverga yuklash" → Run workflow.
+name: Serverga yuklash
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Testlar (bazasiz, node:sqlite)
+        run: |
+          node --test server/scripts/test-audit.js server/scripts/test-bolinma-scope.js \
+            server/scripts/test-pu29.js server/scripts/test-pu74-journal.js \
+            tests/pu74/journal.test.mjs tests/pu29/norms.test.mjs
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      # secrets job darajasidagi if'da ishlatilmaydi — shuning uchun alohida tekshiruv
+      - name: Sozlamalar bormi
+        id: cfg
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          if [ -z "$HOST" ]; then
+            echo "::warning::VPS_HOST sozlanmagan — serverga yuklash o'tkazib yuborildi (deploy.yml boshidagi izohni o'qing)"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Serverda yangilash
+        if: steps.cfg.outputs.ok == 'true'
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          command_timeout: 20m
+          script: |
+            set -e
+            cd "${{ secrets.APP_DIR || '/var/www/smartpch' }}"
+            # serverdagi qo'lda o'zgartirilgan fayllar bo'lsa to'xtaydi (ustidan yozilmaydi)
+            git fetch origin main
+            git merge --ff-only origin/main
+            npm ci || npm install
+            npm run frontend:build
+            pm2 restart smart-pch-server --update-env || pm2 start ecosystem.config.js --env production
+            pm2 save
+            sleep 5
+            curl -fsS http://127.0.0.1:${PORT:-6878}/api/health || (pm2 logs smart-pch-server --lines 60 --nostream; exit 1)
