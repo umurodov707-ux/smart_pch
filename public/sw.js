@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-pch-v20261030.network.first.v6';
+const CACHE_NAME = 'smart-pch-v20261030.network.first.v7';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -13,7 +13,6 @@ const ASSETS_TO_CACHE = [
     '/css/responsive.css',
     '/css/ai-assistant.css',
     '/css/timesheet.css',
-    '/css/pu74.css',
     '/css/mexanika.css',
     '/css/landing.css',
     '/css/polished.css',
@@ -52,7 +51,7 @@ const ASSETS_TO_CACHE = [
     '/js/materials.js',
     '/js/metrology.js',
     '/js/defectoscope.js',
-    '/js/pu74.js',
+    '/js/pu74_redirect.js',
     '/js/pu28.js',
     '/js/pu29.js',
     '/js/pu80.js',

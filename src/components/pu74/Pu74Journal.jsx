@@ -357,7 +357,7 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
 
       {/* 2-qator: betlar, masshtab, tahrirlash */}
       <div className="pu74j-toolbar">
-        <div className="pu74j-group" role="group" aria-label="Betlar" style={{ maxWidth: '100%' }}>
+        <div className="pu74j-group nowrap" role="group" aria-label="Betlar">
           <button type="button" className="pu74j-btn" aria-label="Oldingi bet" disabled={sheet === 0} onClick={() => { setActive(null); setSheet((s) => Math.max(0, s - 1)); }}>
             <ChevronLeft size={16} />
           </button>

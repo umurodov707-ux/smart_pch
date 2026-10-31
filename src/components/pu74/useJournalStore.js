@@ -37,11 +37,18 @@ export async function loadLegacyEdits(file) {
     const remote = await api.get(`/api/storage/load/${encodeURIComponent(legacyKey(file))}`);
     if (remote && remote.edits && Object.keys(remote.edits).length) return remote.edits;
   } catch { /* yo'q */ }
+  // Eski oynadagi tahrirlar: "pu74_edits_<fayl>" yoki "pu74_edits_<bo'lim>_<fayl>" —
+  // eng ko'p katak to'ldirilgani olinadi
+  let best = {};
   try {
-    const local = JSON.parse(localStorage.getItem(legacyKey(file)) || '{}');
-    if (local && Object.keys(local).length) return local;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith('pu74_edits_') || !k.endsWith(file) || k.startsWith('pu74_edits_ts_')) continue;
+      const v = JSON.parse(localStorage.getItem(k) || '{}');
+      if (v && typeof v === 'object' && Object.keys(v).length > Object.keys(best).length) best = v;
+    }
   } catch { /* yo'q */ }
-  return {};
+  return best;
 }
 
 const isOffline = (e) => !(e instanceof ApiError) || e.status === 0 || (e.status === 404 && typeof e.body === 'string');
