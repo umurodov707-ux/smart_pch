@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-pch-v20261030.network.first.v7';
+const CACHE_NAME = 'smart-pch-v20261030.network.first.v8';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -16,7 +16,6 @@ const ASSETS_TO_CACHE = [
     '/css/mexanika.css',
     '/css/landing.css',
     '/css/polished.css',
-    '/css/pu29.css',
     '/css/premium-theme.css',
     // JS fayllari
     '/js/config.js',
@@ -53,7 +52,7 @@ const ASSETS_TO_CACHE = [
     '/js/defectoscope.js',
     '/js/pu74_redirect.js',
     '/js/pu28.js',
-    '/js/pu29.js',
+    '/js/pu29_redirect.js',
     '/js/pu80.js',
     '/js/track-defect.js',
     '/js/rahbar-visa.js',

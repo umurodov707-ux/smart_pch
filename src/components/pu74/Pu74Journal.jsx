@@ -5,6 +5,7 @@ import {
   CircleCheckBig, Undo2, LockOpen, Lock, CalendarPlus, CloudOff, DatabaseZap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { allowedBolinmalar } from '../../utils/bolinma';
 import TEMPLATE from './pu74Template.json';
 import {
   analyzeSheet, carryOverEdits, cellKey, computeWorkbook, currentMonth, editKey, fromSheetJS, monthLabel,
@@ -69,6 +70,14 @@ const fmtTime = (iso) => {
 export default function Pu74Journal({ modelLoader = defaultModelLoader, initialBrigade = 0, initialSheet = 2, initialMonth }) {
   const { user } = useAuth();
   const role = (user && user.role) || '';
+  const bolinmaOptions = useMemo(() => allowedBolinmalar(user), [user]);
+  const [bolinma, setBolinma] = useState(() => {
+    try { const s = localStorage.getItem('pu74_bolinma'); if (s && bolinmaOptions.includes(s)) return s; } catch { /* yo'q */ }
+    return bolinmaOptions[0] || '';
+  });
+  // foydalanuvchi ma'lumoti keyinroq yuklanadi — ro'yxat paydo bo'lganda birinchisini tanlaymiz
+  useEffect(() => { if (!bolinmaOptions.includes(bolinma)) setBolinma(bolinmaOptions[0] || ''); }, [bolinma, bolinmaOptions]);
+  useEffect(() => { try { if (bolinma) localStorage.setItem('pu74_bolinma', bolinma); } catch { /* ahamiyatsiz */ } }, [bolinma]);
   const [brigade, setBrigade] = useState(initialBrigade);
   const B = BRIGADES[brigade];
   const [month, setMonth] = useState(initialMonth || currentMonth());
@@ -88,7 +97,8 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
   const deskRef = useRef(null);
   const monthPicked = useRef(!!initialMonth);
 
-  const store = useJournalStore(B.id, month);
+  // Har bir bo'linmaning brigadalari va jurnallari alohida
+  const store = useJournalStore(`${encodeURIComponent(bolinma)}/${B.id}`, month);
   const { edits, setEdits, journal, phase, months } = store;
   const canEdit = phase === 'ready' && !!journal && !!journal.can_edit;
 
@@ -248,7 +258,7 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
     setEdits({});
   };
 
-  const editedCount = Object.keys(edits).length;
+  const editedCount = Object.keys(edits || {}).length;
   const st = journal ? STATUS[journal.status] || STATUS.draft : null;
   const monthOptions = useMemo(() => {
     const set = new Set(months.map((m) => m.month));
@@ -279,10 +289,25 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
   };
   const stamp = journal && journal.status === 'approved' ? { by: journal.approved_by, at: fmtTime(journal.approved_at).split(' ')[0] } : null;
 
+  if (!bolinma) {
+    return (
+      <div className="pu74j">
+        <div className="pu74j-note warn">{user ? 'Profilingizga bo‘linma biriktirilmagan — PU-74 jurnalini ko‘rish uchun administratorga murojaat qiling.' : 'Yuklanmoqda…'}</div>
+      </div>
+    );
+  }
+
   return (
     <div className={`pu74j${editing ? ' editing' : ''}`}>
       {/* 1-qator: brigada, oy, holat va amallar */}
       <div className="pu74j-toolbar">
+        {bolinmaOptions.length > 1 ? (
+          <select className="pu74j-select" value={bolinma} aria-label="Bo‘linma" onChange={(e) => { setBolinma(e.target.value); monthPicked.current = false; }}>
+            {bolinmaOptions.map((b) => <option key={b} value={b}>{b}</option>)}
+          </select>
+        ) : (
+          <span className="pu74j-badge st-own">{bolinma}</span>
+        )}
         <div className="pu74j-group" role="group" aria-label="Brigada">
           {BRIGADES.map((b, i) => (
             <button key={b.file} type="button" className="pu74j-btn" aria-pressed={i === brigade} onClick={() => { setBrigade(i); monthPicked.current = false; }}>
@@ -408,6 +433,7 @@ export default function Pu74Journal({ modelLoader = defaultModelLoader, initialB
       {integrOpen && views && phase === 'ready' && (
         <IntegrationPanel
           brigadeId={B.id}
+          bolinma={bolinma}
           month={month}
           user={user}
           views={views}

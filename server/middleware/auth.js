@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { scopeOf, canSee, canon } = require('./bolinmaScope');
 const db = require('../db');
 const { safeArray } = require('../utils/safe');
 
@@ -71,10 +72,13 @@ function attachUser(req, user) {
     };
 
     // Helpful function for IDOR checks
+    // Bo'linma nomlari turlicha yozilishi mumkin ("bolinma3" / "3-bo'linma") — bir xil hisoblanadi.
+    // Qoida middleware/bolinmaScope.js da: bo'linma faqat o'zinikini, admin hammasini.
     req.hasAccessToBolinma = (bId) => {
         if (req.user.role === 'admin') return true;
         if (!bId) return false;
-        return req.user.bolinmalar.includes(bId);
+        if (!canon(bId)) return req.user.bolinmalar.includes(bId);
+        return canSee(scopeOf(req.user), bId);
     };
 
     req.hasAccessToDepartment = (dId) => {

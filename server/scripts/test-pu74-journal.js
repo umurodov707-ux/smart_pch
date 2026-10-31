@@ -45,7 +45,8 @@ function call(handler, { params, body, user }) {
     });
 }
 
-const bolinma = { id: 1, username: 'brigadir', role: 'bolinma' };
+const bolinma = { id: 1, username: 'brigadir', role: 'bolinma', bolinmalar: ["1-bo'linma"] };
+const bolinma2 = { id: 4, username: 'brigadir2', role: 'bolinma', bolinmalar: ['bolinma2'] };
 const dept = { id: 2, username: 'yol_ustasi', role: 'department' };
 const admin = { id: 3, username: 'admin', role: 'admin' };
 
@@ -67,15 +68,15 @@ test('tahrirlarni tekshirish', () => {
 
 test('noto‘g‘ri brigada va oy', async () => {
     const s = await setup();
-    assert.strictEqual((await call(s.get, { params: { brigade: '../etc', month: '2026-10' }, user: admin })).status, 404);
-    assert.strictEqual((await call(s.get, { params: { brigade: '9-brigada', month: '2026-10' }, user: admin })).status, 404);
-    assert.strictEqual((await call(s.get, { params: { brigade: '1-brigada', month: '2026-13' }, user: admin })).status, 400);
-    assert.strictEqual((await call(s.get, { params: { brigade: '1-brigada', month: '2026-11' }, user: admin })).status, 404);
+    assert.strictEqual((await call(s.get, { params: { bolinma: "1-bo'linma", brigade: '../etc', month: '2026-10' }, user: admin })).status, 404);
+    assert.strictEqual((await call(s.get, { params: { bolinma: "1-bo'linma", brigade: '9-brigada', month: '2026-10' }, user: admin })).status, 404);
+    assert.strictEqual((await call(s.get, { params: { bolinma: "1-bo'linma", brigade: '1-brigada', month: '2026-13' }, user: admin })).status, 400);
+    assert.strictEqual((await call(s.get, { params: { bolinma: "1-bo'linma", brigade: '1-brigada', month: '2026-11' }, user: admin })).status, 404);
 });
 
 test('to‘liq jarayon: ochish, saqlash, versiya, topshirish, qaytarish, tasdiqlash, qayta ochish', async () => {
     const s = await setup();
-    const P = { brigade: '1-brigada', month: '2026-11' };
+    const P = { bolinma: "1-bo'linma", brigade: '1-brigada', month: '2026-11' };
 
     let r = await call(s.save, { params: P, body: { edits: { '2_6_10': 36 } }, user: bolinma });
     assert.strictEqual(r.status, 201);
@@ -131,17 +132,40 @@ test('to‘liq jarayon: ochish, saqlash, versiya, topshirish, qaytarish, tasdiql
     // noto'g'ri holatdan o'tish
     assert.strictEqual((await call(s.setStatus, { params: P, body: { action: 'approve' }, user: admin })).status, 409);
 
-    r = await call(s.list, { params: { brigade: '1-brigada' }, user: bolinma });
+    r = await call(s.list, { params: { bolinma: "1-bo'linma", brigade: '1-brigada' }, user: bolinma });
     assert.deepStrictEqual(r.data.months.map((m) => m.month), ['2026-11']);
 });
 
 test('ikki kishi bir vaqtda yangi oy ochsa', async () => {
     const s = await setup();
-    const P = { brigade: '2-brigada', month: '2026-12' };
+    const P = { bolinma: "1-bo'linma", brigade: '2-brigada', month: '2026-12' };
     const [a, b] = await Promise.all([
         call(s.save, { params: P, body: { edits: { '1_1_1': 1 } }, user: bolinma }),
         call(s.save, { params: P, body: { edits: { '1_1_1': 2 } }, user: bolinma }),
     ]);
     const codes = [a.status, b.status].sort();
     assert.ok(codes[0] === 201 && (codes[1] === 409 || codes[1] === 200 || codes[1] === 201), codes.join(','));
+});
+
+test('har bir bo‘linma faqat o‘z jurnalini ko‘radi', async () => {
+    const s = await setup();
+    const P1 = { bolinma: "1-bo'linma", brigade: '1-brigada', month: '2026-11' };
+    const P2 = { bolinma: "2-bo'linma", brigade: '1-brigada', month: '2026-11' };
+    assert.strictEqual((await call(s.save, { params: P1, body: { edits: { '2_6_10': 36 } }, user: bolinma })).status, 201);
+    // 2-bo'linma 1-bo'linma jurnalini ko'ra ham, yoza ham olmaydi
+    assert.strictEqual((await call(s.get, { params: P1, user: bolinma2 })).status, 403);
+    assert.strictEqual((await call(s.save, { params: P1, body: { edits: {}, version: 1 }, user: bolinma2 })).status, 403);
+    assert.strictEqual((await call(s.list, { params: { bolinma: "1-bo'linma", brigade: '1-brigada' }, user: bolinma2 })).status, 403);
+    assert.strictEqual((await call(s.setStatus, { params: P1, body: { action: 'submit' }, user: bolinma2 })).status, 403);
+    // 2-bo'linmaning "1-brigada"si — alohida jurnal (eski 'bolinma2' yozuvli foydalanuvchi ham kiradi)
+    assert.strictEqual((await call(s.get, { params: P2, user: bolinma2 })).status, 404);
+    let r = await call(s.save, { params: P2, body: { edits: { '2_6_10': 12 } }, user: bolinma2 });
+    assert.strictEqual(r.status, 201);
+    assert.strictEqual(r.data.bolinma, "2-bo'linma");
+    r = await call(s.get, { params: P1, user: bolinma });
+    assert.deepStrictEqual(r.data.edits, { '2_6_10': 36 }, '1-bo‘linma jurnali o‘zgarmadi');
+    // tekshiruvchi (department) va admin hammasini ko'radi
+    assert.strictEqual((await call(s.get, { params: P2, user: dept })).status, 200);
+    assert.strictEqual((await call(s.get, { params: P1, user: admin })).status, 200);
+    assert.strictEqual((await call(s.get, { params: { ...P1, bolinma: '../x' }, user: admin })).status, 400);
 });

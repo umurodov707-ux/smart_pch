@@ -1,0 +1,1070 @@
+{
+ "otstuplenie_group": {
+  "title_ru": "Отклонения от нормы (Ширина колеи и уровень)",
+  "title_uz": "Normadan chetlanishlar (Koliya kengligi va balandlik farqi)",
+  "full_uz": "Strelka perevodi bo'ylab koliya kengligi va balandlik farqi (uroven)ning normadan chetlanishi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1516 – 1546 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1512–1516 / 1546–1548 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 / > 1548 мм"
+   }
+  ],
+  "note_uz": "PTEga ko'ra, koliya kengligining nominal o'lchami 1520 mm. Balandlik farqi (uroven) chetlanishi ±6 mm dan oshmasligi kerak."
+ },
+ "strel_group": {
+  "title_ru": "Стрелочные переводы (ННК)",
+  "title_uz": "Qo'zg'almas nazorat o'lchov nuqtalari (ННК)",
+  "full_uz": "Strelka perevodining qo'zg'almas nazorat nuqtalarida koliya kengligini o'lchash (jami 7 ta nuqta).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1516 – 1546 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1512–1516 / 1546–1548 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 / > 1548 мм"
+   }
+  ],
+  "note_uz": "ННК — Недвижимые Наблюдательные Колеи. Geometriya barqarorligini nazorat qilish uchun belgilangan kesimlarda o'lchashlar o'tkaziladi."
+ },
+ "rasstoyanie_group": {
+  "title_ru": "Критические расстояния (С-К, К-У)",
+  "title_uz": "Kritik masofalar (S-K, K-U)",
+  "full_uz": "Serdechnik va kontrrels (S-K) hamda kontrrels va usovik (K-U) orasidagi masofalar.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "С-К: ≥ 1472 мм | К-У: ≤ 1435 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "С-К < 1472 мм или К-У > 1435 мм"
+   }
+  ],
+  "note_uz": "PTE bo'yicha: S-K masofasi 1472 mm dan kam bo'lmasligi, K-U esa 1435 mm dan ko'p bo'lmasligi shart. Buzilganda harakat to'xtatiladi."
+ },
+ "jelob_group": {
+  "title_ru": "Ширина желоба",
+  "title_uz": "Jeloblar kengligi",
+  "full_uz": "Kontrrels, krestovina, toriq (gorlo) va ostriyak ildizi (koren) zonalaridagi jelob kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "40 – 45 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "38–39 / 46–48 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 38 / > 48 мм"
+   }
+  ],
+  "note_uz": "Jeloblar o'lchami g'ildirak juftliklarining serdechnikka urilmasdan xavfsiz o'tishini ta'minlaydi."
+ },
+ "iznos_group": {
+  "title_ru": "Вертикальный и боковой износ",
+  "title_uz": "Vertikal va yon yeyilish",
+  "full_uz": "Metall qismlarning (serdechnik, usovik, ostriyak va ramaviy relslar) yeyilish darajasi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": "Metall qismlarning cheklangan yeyilish darajasi 4 mm ni tashkil etadi."
+ },
+ "uravnit_group": {
+  "title_ru": "Уравнительный стык",
+  "title_uz": "Uravnitel (muvozanatlovchi) stik",
+  "full_uz": "Tirqishsiz yo'lning ulanish joyidagi uravnitel (muvozanatlovchi) stik parametrlari.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Прим. / Ulanish",
+    "value": "1520 ± 1 мм (по книге)"
+   },
+   {
+    "color": "green",
+    "label": "Острие / Ostriya",
+    "value": "1524 ± 1 мм (по книге)"
+   },
+   {
+    "color": "green",
+    "label": "Зазор / Tirqish",
+    "value": "в пределах ±50 мм"
+   },
+   {
+    "color": "green",
+    "label": "Длина / Uzunlik",
+    "value": "5160 ± 10 мм"
+   }
+  ],
+  "note_uz": "Rels qamchilarining harorat ta'sirida uzayishi yoki qisqarishini kompensatsiya qilish uchun xizmat qiladi."
+ },
+ "date": {
+  "title_ru": "Дата промера",
+  "title_uz": "O'lchov sanasi",
+  "full_uz": "Strelka perevodini ko'rikdan o'tkazish yoki o'lchash sanasi.",
+  "norms": [],
+  "note_uz": "Asosiy yo'llar oyiga kamida 2 marta, qabul qilish-jo'nash yo'llari esa oyiga 1 marta tekshiriladi."
+ },
+ "ur_sh": {
+  "title_ru": "Уровень / Шаблон",
+  "title_uz": "Uroven / Shablon",
+  "full_uz": "Ur — Uroven (relslarning balandlik farqi), Sh — Shablon (koliya kengligi).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Уровень / Uroven",
+    "value": "0 – ±6 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "±6 – ±10 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> ±10 мм"
+   }
+  ],
+  "note_uz": "Koliya kengligi rels boshi dumalash yuzasidan 16 mm pastroqda o'lchanadi."
+ },
+ "pr_bk": {
+  "title_ru": "Прямой / Боковой",
+  "title_uz": "To'g'ri / Yon yo'nalish",
+  "full_uz": "Pr — To'g'ri yo'nalish (asosiy yo'l), Bk — Yon yo'nalish (burilish yo'li).",
+  "norms": [],
+  "note_uz": "Ko'rsatkichlar har bir harakat yo'nalishi uchun alohida o'lchanadi."
+ },
+ "styk_ram": {
+  "title_ru": "Стык рамных рельсов",
+  "title_uz": "Ramaviy relslar stigi",
+  "full_uz": "Ramaviy relsning birlashgan stik joyidagi koliya kengligi (old chegarasi).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Гл. путь 1/11, 1/9 (Норма)",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Гл. путь (Внимание)",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": "Nominal 1520 mm. Ruxsat: +4 / −2 mm. Yashil: 1518–1524 mm."
+ },
+ "u_ostriya": {
+  "title_ru": "У острия остряка",
+  "title_uz": "Ostriyak uchi yonida",
+  "full_uz": "Ostriyak uchi boshlanishida koliya kengligi. Poyezdning izdan chiqishini oldini olishda eng muhim nuqta.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Гл. + Приём. (1/11, 1/9) Норма",
+    "value": "1524 +4/−2 мм → 1522–1528 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание",
+    "value": "1518–1521 / 1529–1532 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 / > 1548 мм"
+   }
+  ],
+  "note_uz": "Nominal 1524 mm. Ruxsat: +4 / −2 mm. Yashil: 1522–1528 mm."
+ },
+ "koren": {
+  "title_ru": "Корень остряка",
+  "title_uz": "Ostriyak ildizi (koreni)",
+  "full_uz": "Ostriyaklar ildizida (birikish joyi) koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": "Nominal 1520 mm. Ruxsat: +4 / −2 mm. To'g'ri va yon yo'nalishlar bo'yicha."
+ },
+ "koren_pryam": {
+  "title_ru": "Корень — Прямой",
+  "title_uz": "Ostriyak ildizi — To'g'ri",
+  "full_uz": "Ostriyak ildizida to'g'ri yo'nalish bo'yicha koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "koren_bok": {
+  "title_ru": "Корень — Боковой",
+  "title_uz": "Ostriyak ildizi — Yon",
+  "full_uz": "Ostriyak ildizida yon yo'nalish bo'yicha koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "per_krivaya": {
+  "title_ru": "В середине переводной кривой",
+  "title_uz": "Perevod egri chizig'i o'rtasida",
+  "full_uz": "Egri burilish qismi (birlashtiruvchi yo'l) o'rtasida koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Гл. + Приём. 1/11 (Норма)",
+    "value": "1520 +10/−2 мм → 1518–1530 мм"
+   },
+   {
+    "color": "green",
+    "label": "Приём. 1/9 (Норма)",
+    "value": "1521 +10/−2 мм → 1519–1531 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание",
+    "value": "1514–1517 / 1531–1534 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 / > 1548 мм"
+   }
+  ],
+  "note_uz": "Ruxsat etilgan chetlanish: +10 / −2 mm nominaldan (kitob bo'lim 4). Eng keng ruxsat etilgan nuqta."
+ },
+ "v_krest_ne": {
+  "title_ru": "В крестовине",
+  "title_uz": "Krestovinada",
+  "full_uz": "Krestovina zonasida (relslar kesishish qismi) koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Гл. путь 1/11 (Норма)",
+    "value": "1520 +3/−3 мм → 1517–1523 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание",
+    "value": "1513–1516 / 1524–1527 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 / > 1548 мм"
+   },
+   {
+    "color": "green",
+    "label": "Приём. 1/9, 1/6 БОК. (Норма)",
+    "value": "1524 +3/−3 мм → 1521–1527 мм"
+   }
+  ],
+  "note_uz": "Ruxsat: +3 / −3 mm nominaldan. Gl. 1/11: 1517–1523; qabul 1/9, 1/6 yon: 1521–1527 mm."
+ },
+ "krest_pryam": {
+  "title_ru": "Крестовина — Прямой",
+  "title_uz": "Krestovina — To'g'ri",
+  "full_uz": "Krestovinada to'g'ri yo'nalish bo'yicha koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +3/−3 мм → 1517–1523 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1513–1516 / 1524–1527 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1513 / > 1527 мм (ПТЭ: < 1512 / > 1548)"
+   }
+  ],
+  "note_uz": ""
+ },
+ "krest_bok": {
+  "title_ru": "Крестовина — Боковой",
+  "title_uz": "Krestovina — Yon",
+  "full_uz": "Krestovinada yon yo'nalish bo'yicha koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +3/−3 мм (1524 +3/−3 мм на приём-отпр. 1/9, 1/6)"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1513–1516 / 1524–1527 мм (1517–1520 / 1528–1531 мм)"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 / > 1548 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "ser_nnk": {
+  "title_ru": "В середине переводной кривой (ННК)",
+  "title_uz": "Perevod egri chizig'i o'rtasida (ННК)",
+  "full_uz": "Qo'zg'almas nazorat o'lchov nuqtalarining o'rta qismida koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "per_styk": {
+  "title_ru": "В переднем стыке крестовины (ННК)",
+  "title_uz": "Krestovina oldingi stigida (ННК)",
+  "full_uz": "Krestovina old stigi (ННК) o'lchov nuqtasida koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "v_gorle": {
+  "title_ru": "В горле крестовины (ННК)",
+  "title_uz": "Krestovina torig'ida (gorlovina) (ННК)",
+  "full_uz": "Usoviklar kesishuvining eng tor joyida koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "ost_serd": {
+  "title_ru": "В острие сердечника (ННК)",
+  "title_uz": "Serdechnik o'tkir uchida (ННК)",
+  "full_uz": "Krestovina serdechigining o'tkir uchi ro'parasida koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "ugon_serd": {
+  "title_ru": "Угон сердечника (1338 мм)",
+  "title_uz": "Serdechnikning bo'ylama surilishi (1338 mm)",
+  "full_uz": "Usovikning tashqi qirrasidan serdechnikning oldingi qirrasigacha bo'lgan 1338 mm o'lchami.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1338 ± 3 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1335 мм или > 1341 мм"
+   }
+  ],
+  "note_uz": "G'ildirak grebinining serdechnikka urilishini oldini oladigan eng muhim o'lcham hisoblanadi."
+ },
+ "zad_styk": {
+  "title_ru": "В заднем стыке крестовины (ННК)",
+  "title_uz": "Krestovina orqa stigida (ННК)",
+  "full_uz": "Krestovinaning orqa stik birlashish joyida koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "zad_pryam": {
+  "title_ru": "Задний стык — Прямой (ННК)",
+  "title_uz": "Orqa stik — To'g'ri (ННК)",
+  "full_uz": "Krestovina orqa stigida to'g'ri yo'nalish bo'yicha koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "zad_bok": {
+  "title_ru": "Задний стык — Боковой (ННК)",
+  "title_uz": "Orqa stik — Yon (ННК)",
+  "full_uz": "Krestovina orqa stigida yon yo'nalish bo'yicha koliya kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 +4/−2 мм → 1518–1524 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "1514–1517 / 1525–1528 мм"
+   },
+   {
+    "color": "red",
+    "label": "Xavfli",
+    "value": "< 1514 / > 1528 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "serd_kontr": {
+  "title_ru": "Расстояние Сердечник — Контррельс",
+  "title_uz": "Serdechnik — Kontrrels masofasi",
+  "full_uz": "Serdechnikning ishchi qirrasi va kontrrels boshining ishchi qirrasi orasidagi masofa.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "≥ 1472 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1472 мм (Движение закрывается!)"
+   }
+  ],
+  "note_uz": "PTEga ko'ra: masofa 1472 mm dan kam bo'lmasligi shart. Kichik bo'lsa, g'ildirak serdechnik uchiga uriladi."
+ },
+ "kontr_usov": {
+  "title_ru": "Расстояние Контррельс — Усовик",
+  "title_uz": "Kontrrels — Usovik masofasi",
+  "full_uz": "Kontrrels boshining ishchi qirrasi va usovik ishchi qirrasi orasidagi masofa.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "≤ 1435 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 1435 мм (Движение закрывается!)"
+   }
+  ],
+  "note_uz": "PTEga ko'ra: masofa 1435 mm dan oshmasligi kerak. Oshsa, g'ildirak qisilib qolish xavfi tug'iladi."
+ },
+ "v_kontr": {
+  "title_ru": "Желоб в контррельсе",
+  "title_uz": "Kontrreldagi jelob kengligi",
+  "full_uz": "Yo'l relsi va kontrrels orasidagi jelob kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "40 – 45 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "38–39 / 46–48 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 38 / > 48 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "v_krest": {
+  "title_ru": "Желоб в крестовине",
+  "title_uz": "Krestovinadagi jelob kengligi",
+  "full_uz": "Krestovinadagi jeloblar kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "40 – 45 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "38–39 / 46–48 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 38 / > 48 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "v_gorle2": {
+  "title_ru": "Желоб в горле крестовины",
+  "title_uz": "Krestovina torig'idagi (gorlo) jelob",
+  "full_uz": "Krestovynaning toriq (gorlo) qismidagi jelob kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "40 – 45 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "38–39 / 46–48 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 38 / > 48 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "v_korne": {
+  "title_ru": "Желоб в корне остряка",
+  "title_uz": "Ostriyak ildizidagi (koren) jelob",
+  "full_uz": "Ostriyak ildiz (koren) qismidagi jelob kengligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "40 – 45 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "38–39 / 46–48 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 38 / > 48 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "iznos_serd": {
+  "title_ru": "Вертикальный износ сердечника",
+  "title_uz": "Serdechnikning vertikal yeyilishi",
+  "full_uz": "Krestovina serdechigining uning kengligi 40 mm bo'lgan kesimdagi vertikal yeyilishi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "iznos_usov": {
+  "title_ru": "Вертикальный износ усовиков",
+  "title_uz": "Usoviklarning vertikal yeyilishi",
+  "full_uz": "Krestovina usoviklarining vertikal yeyilishi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "bok_ostr": {
+  "title_ru": "Боковой износ остряков",
+  "title_uz": "Ostriyaklarning yon yeyilishi",
+  "full_uz": "Ostriyaklarning yon tomondan yeyilish miqdori.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "bok_kriv": {
+  "title_ru": "Боковой износ остряка — Кривой",
+  "title_uz": "Ostriyak yon yeyilishi — Egri",
+  "full_uz": "Egri (burilish) yo'nalishidagi ostriyakning yon yeyilishi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "bok_pryam": {
+  "title_ru": "Боковой износ остряка — Прямой",
+  "title_uz": "Ostriyak yon yeyilishi — To'g'ri",
+  "full_uz": "To'g'ri yo'nalishdagi ostriyakning yon yeyilishi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "bok_ram": {
+  "title_ru": "Боковой износ рамного рельса",
+  "title_uz": "Ramaviy relsning yon yeyilishi",
+  "full_uz": "Ramaviy relslarning yon tomondan yeyilish miqdori.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 4 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "4 – 6 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "> 6 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "chip": {
+  "title_ru": "Выкрашивание остряка / сердечника",
+  "title_uz": "Ostriyak yoki serdechnik parchalanishi (chipping)",
+  "full_uz": "Ostriyak yoki krestovina serdechigi metall bosh qismining parchalanish uzunligi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Главный / Asosiy",
+    "value": "0 – 149 мм"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "150 – 199 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "Главный >= 200 мм | Приемо-отпр. >= 300 мм | Прочие >= 400 мм (Движение закрывается!)"
+   }
+  ],
+  "note_uz": "PTEga ko'ra: parchalanish uzunligi asosiy yo'llarda 200 mm, qabul qilish-jo'nashda 300 mm, boshqalarida 400 mm dan oshmasligi kerak."
+ },
+ "ponijenie": {
+  "title_ru": "Понижение остряка против рамного рельса",
+  "title_uz": "Ostriyakning ramaviy relsdan pastligi",
+  "full_uz": "Ostriyakning ramaviy relsga nisbatan pastligi (ostriyak boshi kengligi 50 mm bo'lgan kesimda o'lchanadi) 2 mm va undan ortiq bo'lishiga yo'l qo'yilmaydi.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "< 2 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "≥ 2 мм (Движение закрывается!)"
+   }
+  ],
+  "note_uz": "Pastlik 2 mm yoki undan ko'p bo'lsa, g'ildirak grebinining ostriyak ustiga chiqib ketishi va poyezdning izdan chiqish xavfi yuzaga keladi."
+ },
+ "otstavanie": {
+  "title_ru": "Отставание остряка от рамного рельса",
+  "title_uz": "Ostriyakning ramaviy relsdan ajralishi",
+  "full_uz": "Ostriyak va ramaviy rels orasidagi birinchi tyagada o'lchanadigan tirqish. 4 mm dan oshmasligi kerak.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "0 – 3 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "≥ 4 мм (Движение закрывается!)"
+   }
+  ],
+  "note_uz": "Tirqish 4 mm va undan ortiq bo'lsa, harakat davomida g'ildirak grebini ostriyak va ramaviy rels orasiga kirib ketishi mumkin."
+ },
+ "kor": {
+  "title_ru": "Контроль остряка и рамного рельса (КОР)",
+  "title_uz": "Ostriyaklarni ramaviy relslarga mahkamlash (КОР)",
+  "full_uz": "Ostriyaklarni ramaviy relslarga mahkamlash (KOR) va strelka perevod detallarining texnik holati.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "Исправно / Soz"
+   }
+  ],
+  "note_uz": "Murvatlar, boltlar, ulovchi tyagalar va tirgak qurilmalari darz ketish yoki bo'shashishlarga tekshiriladi."
+ },
+ "shag": {
+  "title_ru": "Шаг остряка",
+  "title_uz": "Ostriyak qadami (kattaligi)",
+  "full_uz": "Ramaviy relsning ishchi qirrasi va uzoqlashtirilgan ostriyakning ishchi bo'lmagan qirrasi orasidagi masofa. Kamida 152 mm bo'lishi kerak.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "≥ 152 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 152 мм"
+   }
+  ],
+  "note_uz": "Qadam kichikroq bo'lganda, g'ildirak o'zining ichki tomoni bilan uzoqlashtirilgan ostriyakka tegib ketishi mumkin."
+ },
+ "prileganie": {
+  "title_ru": "Плотность прилегания",
+  "title_uz": "Yopishish zichligi",
+  "full_uz": "Ostriyaklarning ramaviy relslarga va tayanch boshmoqlariga yopishish (zich turish) holati.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "Плотное / Zich yopishgan"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "Неприлегание / Zich yopishmagan (зазор > 4 мм)"
+   }
+  ],
+  "note_uz": ""
+ },
+ "gruz": {
+  "title_ru": "Грузонапряженность",
+  "title_uz": "Yuk intensivligi",
+  "full_uz": "Yiliga bir kilometrga to'g'ri keladigan yuk hajmi (million tonna brutto hisobida).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Марка 1/11 (Норма)",
+    "value": "≤ 60 млн. т"
+   },
+   {
+    "color": "green",
+    "label": "Марка 1/9 (Норма)",
+    "value": "≤ 50 млн. т"
+   },
+   {
+    "color": "green",
+    "label": "Марка 1/6 (Норма)",
+    "value": "≤ 30 млн. т"
+   },
+   {
+    "color": "red",
+    "label": "Превышение нормы / Xavfli",
+    "value": "> нормы для соответствующей марки"
+   }
+  ],
+  "note_uz": ""
+ },
+ "brusya": {
+  "title_ru": "Дефекты брусьев",
+  "title_uz": "Strelka bruslari (shpalalar) kamchiliklari",
+  "full_uz": "Yog'och yoki temir-beton strelka bruslarining holati.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "Исправно / Soz"
+   },
+   {
+    "color": "yellow",
+    "label": "Внимание / Diqqat",
+    "value": "Кустовая гнилость, трещины / Chirish, yorilishlar"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "Негодные брусья / Yaroqsiz (требуется замена)"
+   }
+  ],
+  "note_uz": ""
+ },
+ "prim_1520": {
+  "title_ru": "Примыкание (1520 ± 1 мм)",
+  "title_uz": "Ulanish joyi (1520 ± 1 mm)",
+  "full_uz": "Uravnitel stikning ulanish zonasida koliya kengligi (nominal 1520 mm).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1520 ± 1 мм (по книге)"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 или > 1548 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "ostrie_1524": {
+  "title_ru": "Острие (1524 ± 1 мм)",
+  "title_uz": "Ostriye (1524 ± 1 mm)",
+  "full_uz": "Uravnitel stikning ostriya zonasida koliya kengligi (nominal 1524 mm).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "1524 ± 1 мм (по книге)"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "< 1512 или > 1548 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "pm50": {
+  "title_ru": "Зазор ±50 мм",
+  "title_uz": "Stik tirqishi (zazor ±50 mm)",
+  "full_uz": "Ulanish joyidagi uravnitel stik tirqishi (zazor). Ruxsat etilgan chetlanish ±50 mm.",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "в пределах ±50 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "выход за пределы ±50 мм"
+   }
+  ],
+  "note_uz": ""
+ },
+ "d5160": {
+  "title_ru": "Длина плети (5160 мм)",
+  "title_uz": "Rels uzunligi (5160 mm)",
+  "full_uz": "Uravnitel relsning nominal uzunligi (5160 mm).",
+  "norms": [
+   {
+    "color": "green",
+    "label": "Норма / Norma",
+    "value": "5160 ± 10 мм"
+   },
+   {
+    "color": "red",
+    "label": "Опасно / Xavfli",
+    "value": "выход за пределы ±10 мм"
+   }
+  ],
+  "note_uz": ""
+ }
+}
