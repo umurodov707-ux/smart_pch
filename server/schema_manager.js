@@ -175,6 +175,22 @@ const schema = [
             UNIQUE(bolinma_id, switch_number)
         )`
     },
+    // Kunlik hisobotlarning har bir yuborilishi (tarix: kim, qachon, nimani yubordi)
+    {
+        name: 'report_versions',
+        sql: (isPg) => `CREATE TABLE IF NOT EXISTS report_versions (
+            id ${isPg ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
+            report_id INTEGER NOT NULL,
+            version INTEGER NOT NULL,
+            bolinma_id TEXT,
+            structuredData TEXT,
+            user_id INTEGER,
+            username TEXT,
+            action TEXT,
+            comment TEXT,
+            created_at TEXT
+        )`
+    },
     // PU-29: tekshiruvlar va ordinata o'lchovlari (har bir strelka uchun)
     {
         name: 'pu29_entries',
@@ -849,6 +865,12 @@ async function initSchema(db) {
     // PU-29: strelka ma'lumotlari (stansiya, marka, rels turi ...)
     await addColumn('pu29_pages', 'meta', 'TEXT');
     await addColumn('pu29_pages', 'updated_at', 'TEXT');
+    // Kunlik hisobot: versiya va dispetcher ko'rib chiqishi
+    await addColumn('reports', 'version', 'INTEGER');
+    await addColumn('reports', 'updated_at', 'TEXT');
+    await addColumn('reports', 'review_comment', 'TEXT');
+    await addColumn('reports', 'reviewed_by', 'TEXT');
+    await addColumn('reports', 'reviewed_at', 'TEXT');
 
     // Eski ilova kalit-qiymat omboriga yozib qo'ygan shaxsiy ma'lumotlarni tozalash.
     // Bular (boshqa foydalanuvchining profili, foydalanuvchilar ro'yxati, token) endi

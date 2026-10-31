@@ -109,6 +109,7 @@ const RECORD_ROUTES = {
     '/api/okno': [[/^\/(\d+)\//, 'okno_planning']],
     '/api/materials': [[/^\/acts\/(\d+)\//, 'material_acts']],
     '/api/murojaat': [[/^\/(\d+)(?:\/|$)/, 'murojaat']],
+    '/api/reports': [[/^\/(\d+)\//, 'reports']],
     '/api/pu80': [[/^\/tools\/(\d+)/, 'department_tools']],
     '/api/tasks': [[/^\/(\d+)$/, 'tasks']],
     '/api/infrastructure': [[/^\/warnings\/(\d+)/, 'digital_warnings']],

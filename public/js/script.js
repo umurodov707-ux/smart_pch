@@ -544,11 +544,12 @@ async function loadReportsFromServer() {
         const reports = await SmartUtils.fetchAPI('/reports/today');
         if (reports) {
             reports.forEach(r => {
-                subdivisionReports[r.bolinma_id] = {
+                // server "1-bo'linma" ko'rinishida qaytaradi, bu yerda kalit "bolinma1"
+                subdivisionReports[r.bolinma_key || r.bolinma_id] = {
                     text: r.content,
                     time: r.time,
                     date: r.date,
-                    status: 'received'
+                    status: r.status || 'submitted'
                 };
             });
             // Update UI if on dispatcher dashboard

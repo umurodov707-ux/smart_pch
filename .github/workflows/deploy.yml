@@ -29,7 +29,7 @@ jobs:
           node-version: 22
       - name: Testlar (bazasiz, node:sqlite)
         run: |
-          node --test server/scripts/test-audit.js server/scripts/test-bolinma-scope.js \
+          node --test server/scripts/test-audit.js server/scripts/test-bolinma-scope.js server/scripts/test-daily-reports.js \
             server/scripts/test-pu29.js server/scripts/test-pu74-journal.js \
             tests/pu74/journal.test.mjs tests/pu29/norms.test.mjs
 

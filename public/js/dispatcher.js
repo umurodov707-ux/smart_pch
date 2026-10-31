@@ -18,8 +18,26 @@
         { id: 'bolinma10', name: '10-bo\'linma', manager: 'Davletov Sh.' }
     ];
 
+    // Mahalliy (Toshkent) sana. Ilgari toISOString() — UTC — ishlatilib, 00:00–05:00 da
+    // "bugun" kechagi kun bo'lib qolardi.
+    function localToday() {
+        const d = new Date();
+        const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+    window.dispatcherLocalToday = localToday;
+
+    // Bo'linma kaliti: "1-bo'linma", "bolinma1", "1-bo‘linma" → "bolinma1".
+    // Ilgari server bilan mijoz turli nomlarni ishlatib, yuborilgan hisobot "Kutilmoqda" ko'rinardi.
+    function toKey(id) {
+        const s = String(id || '').toLowerCase().replace(/[‘’ʻʼ`]/g, "'");
+        const m = /^(?:bolinma\s*-?\s*(\d+)|(\d+)\s*-?\s*bo'?linma)$/.exec(s.trim());
+        return m ? `bolinma${Number(m[1] || m[2])}` : String(id || '');
+    }
+    window.dispatcherKey = toKey;
+
     // --- GLOBAL DISPATCHER STATE ---
-    window.selectedDispatcherDate = new Date().toISOString().split('T')[0];
+    window.selectedDispatcherDate = localToday();
     window.dispatcherState = {
         attendanceRows: [],
         dayWarnRows: [],
@@ -37,7 +55,9 @@
 
     // Draft Persistence Helper
     function getDraftKey() {
-        const bid = window.currentUser?.bolinmalar?.[0] || 'global';
+        let u = window.currentUser || window.Auth?.currentUser;
+        if (!u) { try { u = JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch (e) { u = null; } }
+        const bid = toKey(u?.bolinmalar?.[0] || u?.username) || 'global';
         return `dispatcher_draft_${bid}_${window.selectedDispatcherDate}`;
     }
 
@@ -1147,7 +1167,7 @@
             
             // Clear existing reports
             for (let key in window.subdivisionReports) { delete window.subdivisionReports[key]; }
-            reports.forEach(r => { window.subdivisionReports[r.bolinma_id] = r; });
+            reports.forEach(r => { window.subdivisionReports[r.bolinma_key || toKey(r.bolinma_id)] = r; });
             
             // 1. Reset state
             Object.keys(window.dispatcherState).forEach(k => {
@@ -1157,7 +1177,7 @@
             // 2. Load from Server (if user is bolinma and report exists)
             let loadedFromServer = false;
             if (window.currentUser && window.currentUser.role === 'bolinma') {
-                const bid = window.currentUser.bolinmalar?.[0];
+                const bid = toKey(window.currentUser.bolinmalar?.[0] || window.currentUser.username);
                 if (bid && window.subdivisionReports[bid]) {
                     const sd = window.subdivisionReports[bid].structuredData;
                     if (sd) {
@@ -1216,8 +1236,9 @@
         }
 
         if (window.currentUser.role === 'bolinma') {
-            const bid = window.currentUser.bolinmalar?.[0];
-            if (!bid) return '<div style="padding:40px; text-align:center; color:#fff;">Sizga biriktirilgan bo\'linma topilmadi.</div>';
+            // kalit apostrofsiz bo'lishi shart: u onclick="...('${bid}')" ichiga yoziladi
+            const bid = toKey(window.currentUser.bolinmalar?.[0] || window.currentUser.username);
+            if (!/^bolinma\d+$/.test(bid)) return '<div style="padding:40px; text-align:center; color:#fff;">Sizga biriktirilgan bo\'linma topilmadi.</div>';
             return renderSubdivisionReportSendView(bid);
         }
 
@@ -1230,11 +1251,15 @@
     window.renderDispatcherListView = function() {
         const allReps = Object.values(window.subdivisionReports);
         const analytics = {
-            maxTemp: allReps.reduce((max, r) => {
-                const mt = r.structuredData?.tempData?.length > 0
-                    ? Math.max(...r.structuredData.tempData.map(t => parseFloat(t.temp))) : 0;
-                return Math.max(max, mt);
-            }, 45.2),
+            // Rels harorati "rail" maydonida (ilgari "temp" o'qilib NaN chiqardi; 45.2° qotirilgan edi)
+            maxTemp: (() => {
+                const vals = allReps.flatMap(r => (r.structuredData?.tempData || []).map(t => parseFloat(t.rail ?? t.temp))).filter(Number.isFinite);
+                return vals.length ? Math.max(...vals) : null;
+            })(),
+            attTotal: allReps.reduce((s, r) => s + (r.structuredData?.attendance || []).reduce((a, x) => a + (parseInt(x.total) || 0), 0), 0),
+            attFact: allReps.reduce((s, r) => s + (r.structuredData?.attendance || []).reduce((a, x) => a + (parseInt(x.fact) || 0), 0), 0),
+            oynaCount: allReps.reduce((s, r) => s + (r.structuredData?.oynaData?.length || 0), 0),
+            warnCount: allReps.reduce((s, r) => s + (r.structuredData?.dayWarnRows?.length || 0) + (r.structuredData?.generalWarnRows?.length || 0), 0),
             activeWarnings: allReps.reduce((s, r) => s + (r.structuredData?.warningForm?.zayavka ? 1 : 0), 0),
             pendingDefects: allReps.reduce((s, r) => s + (r.structuredData?.defektData?.length || 0), 0),
             activePersonnel: allReps.reduce((s, r) => s + (r.structuredData?.spravkaData?.length || 0), 0),
@@ -1259,7 +1284,7 @@
                             <input type="date" value="${window.selectedDispatcherDate}" onchange="window.setDispatcherGlobalDate(this.value)" 
                                    style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor: pointer; z-index: 2;">
                         </div>
-                        <button onclick="window.selectedDispatcherDate = new Date().toISOString().split('T')[0]; window.refreshDispatcherData();" style="padding: 8px 20px; background: #fff; color: #020617; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Bugun</button>
+                        <button onclick="window.selectedDispatcherDate = window.dispatcherLocalToday(); window.refreshDispatcherData();" style="padding: 8px 20px; background: #fff; color: #020617; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Bugun</button>
                     </div>
                     <div style="color: #94a3b8; font-weight: 600; font-size: 0.9rem;">
                         <span style="margin-right: 15px;">Navbatchi dispetcher</span>
@@ -1275,8 +1300,8 @@
                             <div style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Kontingent (fakt / reja)</div>
                             <i class="fas fa-users" style="color: #3b82f6; opacity: 0.8;"></i>
                          </div>
-                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.activePersonnel} / 26</div>
-                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Yo'q: 0</div>
+                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.attFact} / ${analytics.attTotal}</div>
+                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Yo'q: ${Math.max(0, analytics.attTotal - analytics.attFact)}</div>
                     </div>
                     <!-- Warnings Card -->
                     <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #ef444455; border-bottom: 3px solid #ef4444;">
@@ -1284,8 +1309,8 @@
                             <div style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Faol ogohlantirishlar</div>
                             <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
                          </div>
-                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.activeWarnings}</div>
-                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Bugun qo'shildi: ${analytics.activeWarnings}</div>
+                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.warnCount}</div>
+                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Hisobotlardagi ogohlantirishlar</div>
                     </div>
                     <!-- Oynalar Card -->
                     <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
@@ -1293,8 +1318,8 @@
                             <div style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Oynalar (Bajarildi / Jami)</div>
                             <i class="fas fa-window-restore" style="color: #10b981;"></i>
                          </div>
-                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">0 / 0</div>
-                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Kelishilgan: 0</div>
+                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.oynaCount}</div>
+                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Hisobotlardagi ish oynalari</div>
                     </div>
                     <!-- Temp Card -->
                     <div style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
@@ -1302,8 +1327,8 @@
                             <div style="color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">Rels harorati</div>
                             <i class="fas fa-thermometer-half" style="color: #f59e0b;"></i>
                          </div>
-                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.maxTemp} °C</div>
-                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">Kunlik maks: ${analytics.maxTemp} °C</div>
+                         <div style="font-size: 2.2rem; font-weight: 900; color: #0f172a;">${analytics.maxTemp == null ? '—' : analytics.maxTemp + ' °C'}</div>
+                         <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 5px;">${analytics.maxTemp == null ? 'O‘lchov kiritilmagan' : 'Kunlik maksimum'}</div>
                     </div>
                 </div>
 
@@ -1556,7 +1581,7 @@
                                     </div>
                                     <div>
                                         <h3 style="margin: 0; color: #fff; font-weight: 900; font-size: 1.5rem;">Hisobotni yakunlash</h3>
-                                        <p style="margin: 8px 0 0 0; color: #94a3b8; font-weight: 600; font-size: 1rem;">Ma'lumotlar butunligi AI tomonidan tekshirildi.</p>
+                                        <p style="margin: 8px 0 0 0; color: #94a3b8; font-weight: 600; font-size: 1rem;">Yuborilgach dispetcher ko'rib chiqadi: qabul qiladi yoki izoh bilan qaytaradi.</p>
                                     </div>
                                 </div>
                                 <button onclick="window.submitDetailedReport('${bolinmaId}')" style="padding: 20px 48px; background: linear-gradient(135deg, #3b82f6, #1e40af); color: #fff; border: none; border-radius: 16px; font-weight: 950; cursor: pointer; transition: 0.3s; font-size: 1.1rem; letter-spacing:1px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 40px rgba(59,130,246,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(59, 130, 246, 0.3)'">
@@ -2167,6 +2192,7 @@
                 method: 'POST',
                 body: JSON.stringify({
                     bolinma_id: bolinmaId,
+                    date: window.selectedDispatcherDate, // ilgari server bunga qaramay "bugun" (UTC) yozardi
                     content: `Kunlik tezkor hisobot (${window.selectedDispatcherDate})`,
                     structuredData: structuredData
                 })
@@ -2176,19 +2202,12 @@
                 // Clear draft after successful submission
                 if (window.clearStateDraft) window.clearStateDraft();
                 
-                // BROADCAST SUBMISSION TO ALL (Real-time monitoring)
-                if (window.AppSocket && window.AppSocket.connected) {
-                    window.AppSocket.emit('report_submitted', {
-                        bolinma_id: bolinmaId,
-                        date: window.selectedDispatcherDate,
-                        manager: window.currentUser?.fullname || bolinmaId
-                    });
-                }
+                // "Yangi hisobot" xabarini endi server o'zi yuboradi (faqat dispetcher va shu bo'linmaga)
 
                 overlay.innerHTML = `
                     <i class="fas fa-check-circle" style="font-size: 6rem; color: #10b981;"></i>
                     <h2 style="margin-top: 30px; font-weight: 800; text-align: center; color: #fff; font-size: 2rem;">Hisobot Muvaffaqiyatli Yuborildi!</h2>
-                    <p style="color: #94a3b8; text-align: center; font-size: 1.1rem; margin-bottom: 40px;">Barcha tuzilgan ma'lumotlar markaziy bazaga saqlandi va tasdiqlandi.</p>
+                    <p style="color: #94a3b8; text-align: center; font-size: 1.1rem; margin-bottom: 40px;">Ma'lumotlar saqlandi. Dispetcher ko'rib chiqqach holati shu yerda ko'rinadi.</p>
                     <div style="display: flex; gap: 20px;">
                         <button onclick="this.parentElement.parentElement.remove(); window.location.reload();" style="padding: 15px 40px; background: #334155; color: #fff; border: 1px solid #475569; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'">
                             <i class="fas fa-arrow-left"></i> Qaytish
@@ -2558,7 +2577,7 @@
                 </div>
 
                 <div style="font-size: 0.75rem; color: #334155; margin-top:32px; text-align:right; border-top:1px solid #cbd5e1; padding-top:16px; font-weight: 500;">
-                    <i class="fas fa-fingerprint"></i> Smart PCH-16 Tizimi tomonidan tasdiqlandi. Sana: ${new Date().toLocaleString('uz-UZ')}
+                    Chop etilgan: ${new Date().toLocaleString('uz-UZ')}
                 </div>
             </div>
         `;
@@ -2923,6 +2942,15 @@
             }
         }
     };
+
+    // Dispetcher hisobotni ko'rib chiqdi — bo'linmaga xabar
+    const onReviewed = (data) => {
+        if (!data) return;
+        const txt = data.status === 'accepted' ? 'Hisobotingiz qabul qilindi' : `Hisobot qaytarildi: ${data.comment || ''}`;
+        SmartUtils.showToast(txt, data.status === 'accepted' ? 'success' : 'warning');
+        if (window.refreshDispatcherData) window.refreshDispatcherData();
+    };
+    (window.AppSocket || window.socket)?.on?.('report_reviewed', onReviewed);
 
     // INITIALIZE GLOBAL SOCKET LISTENERS
     if (window.AppSocket) {
