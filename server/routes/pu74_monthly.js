@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { safeParse } = require('../utils/safeJson');
 
 /**
  * GET /api/pu74_monthly
@@ -23,9 +24,9 @@ router.get('/', (req, res) => {
         if (row) {
             res.json({
                 success: true,
-                data: JSON.parse(row.document_data || '{}'),
+                data: safeParse(row.document_data, {}),
                 status: row.status,
-                signed_by: JSON.parse(row.signed_by || '[]'),
+                signed_by: safeParse(row.signed_by, []),
                 updated_at: row.updated_at
             });
         } else {

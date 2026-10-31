@@ -1,6 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { emitScoped } = require('../utils/emit');
+const { safeParse } = require('../utils/safeJson');
+const { isAdmin } = require('../middleware/roles');
+const { scopeOf, canSee } = require('../middleware/bolinmaScope');
+
+// Imzolash yo'li serverda belgilanadi. Ilgari mijoz yo'lni o'zi yuborardi —
+// bo'linma ['bolinma'] yuborib hujjatni o'zi to'liq "tasdiqlab" qo'yishi mumkin edi.
+// 'rahbar' — alohida rol yo'q, shu bosqichni admin imzolaydi.
+const DEFAULT_PATH = ['bolinma', 'xodimlar', 'iqtisod', 'rahbar'];
+
+/** doc_id "3-bo'linma_2026_5" ko'rinishida — bo'linma qismi foydalanuvchiga tegishlimi */
+function docAllowed(user, docId) {
+    const head = String(docId || '').split('_')[0];
+    return canSee(scopeOf(user), head);
+}
 
 /**
  * Universal Workflow API
@@ -15,7 +30,7 @@ router.get('/:doc_type/:doc_id', (req, res) => {
         if (!row) return res.json({ status: 'not_started' });
         
         try {
-            row.workflow_path = JSON.parse(row.workflow_path || '[]');
+            row.workflow_path = safeParse(row.workflow_path, []);
             row.history = JSON.parse(row.history || '[]');
         } catch (e) {
             console.error('JSON parse error in workflow:', e);
@@ -27,11 +42,16 @@ router.get('/:doc_type/:doc_id', (req, res) => {
 
 // 2. Submit document to workflow (Initialization)
 router.post('/submit', (req, res) => {
-    const { doc_type, doc_id, workflow_path } = req.body;
-    
-    if (!doc_type || !doc_id || !workflow_path || !Array.isArray(workflow_path)) {
+    const { doc_type, doc_id } = req.body;
+    if (!doc_type || !doc_id) {
         return res.status(400).json({ message: 'Ma\'lumotlar to\'liq emas' });
     }
+    if (!docAllowed(req.user, doc_id)) {
+        return res.status(403).json({ message: 'Bu bo‘linma hujjatiga ruxsat yo‘q' });
+    }
+    // Faqat admin boshqa yo'l belgilashi mumkin
+    const workflow_path = isAdmin(req.user) && Array.isArray(req.body.workflow_path) && req.body.workflow_path.length
+        ? req.body.workflow_path.map(String) : DEFAULT_PATH;
 
     const query = `
         INSERT INTO document_workflow (doc_type, doc_id, workflow_path, current_step_index, status, history)
@@ -52,14 +72,15 @@ router.post('/submit', (req, res) => {
 // 3. Sign / Advance workflow
 router.post('/sign', (req, res) => {
     const { doc_type, doc_id, signature, comment } = req.body;
+    if (!docAllowed(req.user, doc_id)) return res.status(403).json({ message: 'Bu bo‘linma hujjatiga ruxsat yo‘q' });
     const user = req.user || {}; // Assuming Auth middleware provides user
 
     db.get('SELECT * FROM document_workflow WHERE doc_type = ? AND doc_id = ?', [doc_type, doc_id], (err, workflow) => {
         if (err) return res.status(500).json({ message: err.message });
         if (!workflow) return res.status(404).json({ message: 'Workflow topilmadi' });
 
-        const path = JSON.parse(workflow.workflow_path || '[]');
-        const history = JSON.parse(workflow.history || '[]');
+        const path = safeParse(workflow.workflow_path, []);
+        const history = safeParse(workflow.history, []);
         const currentIndex = workflow.current_step_index;
         const requiredRole = path[currentIndex];
 
@@ -102,7 +123,7 @@ router.post('/sign', (req, res) => {
             
             const io = req.app.get('io');
             if (io) {
-                io.emit('workflow_update', {
+                emitScoped(io, String(doc_id || '').split('_')[0], 'workflow_update', {
                     doc_type,
                     doc_id,
                     status: newStatus,
@@ -123,14 +144,15 @@ router.post('/sign', (req, res) => {
 // 4. Reject / Return workflow
 router.post('/reject', (req, res) => {
     const { doc_type, doc_id, comment } = req.body;
+    if (!docAllowed(req.user, doc_id)) return res.status(403).json({ message: 'Bu bo‘linma hujjatiga ruxsat yo‘q' });
     const user = req.user || {};
 
     db.get('SELECT * FROM document_workflow WHERE doc_type = ? AND doc_id = ?', [doc_type, doc_id], (err, workflow) => {
         if (err) return res.status(500).json({ message: err.message });
         if (!workflow) return res.status(404).json({ message: 'Workflow topilmadi' });
 
-        const path = JSON.parse(workflow.workflow_path || '[]');
-        const history = JSON.parse(workflow.history || '[]');
+        const path = safeParse(workflow.workflow_path, []);
+        const history = safeParse(workflow.history, []);
         const currentIndex = workflow.current_step_index;
         const requiredRole = path[currentIndex];
 
@@ -167,7 +189,7 @@ router.post('/reject', (req, res) => {
             
             const io = req.app.get('io');
             if (io) {
-                io.emit('workflow_update', {
+                emitScoped(io, String(doc_id || '').split('_')[0], 'workflow_update', {
                     doc_type,
                     doc_id,
                     status: 'rejected',

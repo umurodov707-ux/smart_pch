@@ -16,7 +16,7 @@ import { readXlsx } from './readXlsx.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const TEMPLATE = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/components/pu74/pu74Template.json'), 'utf8'));
-const fileBytes = (b) => fs.readFileSync(path.join(ROOT, 'public', `${b}-brigada.xlsx`));
+const fileBytes = (b) => fs.readFileSync(path.join(ROOT, 'server', 'templates', 'pu74', `${b}-brigada.xlsx`));
 const cache = new Map();
 async function model(b = 1) {
   if (!cache.has(b)) cache.set(b, await readXlsx(fileBytes(b)));

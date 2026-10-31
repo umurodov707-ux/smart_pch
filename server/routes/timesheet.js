@@ -1,36 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { safeParse } = require('../utils/safeJson');
 
-// Helper to resolve subdivision ID for user
-function getSubdivisionId(user) {
-    if (!user) return null;
-    const role = String(user.role).toLowerCase();
-    const username = String(user.username || '').toLowerCase();
-    
-    if (role === 'admin') return null;
-    
-    // 1. Username pattern
-    if (username.includes('bolinma') || username.includes("bo'linma")) {
-        const numMatch = username.match(/\d+/);
-        if (numMatch) return `${numMatch[0]}-bo'linma`;
-    }
-    
-    // 2. Explicit bolinmalar array
-    if (user.bolinmalar && user.bolinmalar.length > 0) {
-        const raw = user.bolinmalar[0];
-        const numMatch = String(raw).match(/\d+/);
-        if (numMatch) return `${numMatch[0]}-bo'linma`;
-        return String(raw).replace(/‘/g, "'");
-    }
-    
-    if (role === 'bolinma' || role === 'subdivision') {
-        const numMatch = username.match(/\d+/);
-        return numMatch ? `${numMatch[0]}-bo'linma` : '1-bo\'linma';
-    }
-    
-    return null;
-}
+const { bolinmaFilter, resolveBolinma, NONE } = require('../middleware/bolinmaScope');
 
 // Get timesheet for a month/bolinma
 router.get('/:year/:month', (req, res) => {
@@ -40,20 +13,11 @@ router.get('/:year/:month', (req, res) => {
     let query = 'SELECT * FROM timesheet_records WHERE year = ? AND month = ?';
     let params = [year, month];
 
-    let targetBolinmaId = bolinma_id;
-    const subId = getSubdivisionId(req.user);
-    if (subId) {
-        targetBolinmaId = subId;
-    } else if (targetBolinmaId && targetBolinmaId !== 'all') {
-        const numMatch = String(targetBolinmaId).match(/\d+/);
-        if (numMatch && (targetBolinmaId.startsWith('bolinma') || targetBolinmaId.includes('bo\'linma') || targetBolinmaId.includes('bo‘linma'))) {
-            targetBolinmaId = `${numMatch[0]}-bo'linma`;
-        }
-    }
-
-    if (targetBolinmaId && targetBolinmaId !== 'all') {
-        query += ' AND bolinma_id = ?';
-        params.push(targetBolinmaId);
+    // Bo'linma faqat o'z tabelini ko'radi (bolinmaScope.js)
+    const bf = bolinmaFilter(req.user, bolinma_id);
+    if (bf) {
+        query += ' AND ' + bf.sql;
+        params.push(...bf.params);
     }
 
     db.all(query, params, (err, rows) => {
@@ -62,7 +26,7 @@ router.get('/:year/:month', (req, res) => {
         // Convert to a flat object for the frontend
         const data = {};
         rows.forEach(row => {
-            const rowData = JSON.parse(row.data || '{}');
+            const rowData = safeParse(row.data, {}) || {};
             Object.assign(data, rowData);
         });
         res.json(data);
@@ -81,16 +45,9 @@ router.post('/save', (req, res) => {
     
     const dataStr = JSON.stringify(data);
     
-    let targetBolinma = bolinma_id || 'all';
-    const subId = getSubdivisionId(req.user);
-    if (subId) {
-        targetBolinma = subId;
-    } else if (targetBolinma && targetBolinma !== 'all') {
-        const numMatch = String(targetBolinma).match(/\d+/);
-        if (numMatch && (targetBolinma.startsWith('bolinma') || targetBolinma.includes('bo\'linma') || targetBolinma.includes('bo‘linma'))) {
-            targetBolinma = `${numMatch[0]}-bo'linma`;
-        }
-    }
+    // Bo'linma faqat o'z tabeliga yozadi
+    const targetBolinma = resolveBolinma(req.user, bolinma_id) || 'all';
+    if (targetBolinma === NONE) return res.status(403).json({ message: 'Profilingizga bo‘linma biriktirilmagan' });
 
     db.run(
         `INSERT INTO timesheet_records (bolinma_id, year, month, data) 

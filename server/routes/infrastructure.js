@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { emitScoped } = require('../utils/emit');
+const { scopeOf, canSee } = require('../middleware/bolinmaScope');
 
 // --- Infrastructure Status Routes ---
 
@@ -25,6 +27,12 @@ router.get('/status', (req, res) => {
 router.post('/status/update', (req, res) => {
     // Authenticated users can update status
     const { id, status, details } = req.body;
+    if (!id) return res.status(400).json({ message: 'id kerak' });
+    // Ilgari istalgan foydalanuvchi istalgan bo'linma ob'ekti holatini o'zgartira olardi
+    db.get('SELECT bolinma_id FROM infrastructure_status WHERE id = ?', [id], (e0, row) => {
+    if (e0) return res.status(500).json({ message: 'Ma’lumotlar bazasida xatolik' });
+    if (!row) return res.status(404).json({ message: 'Ob’ekt topilmadi' });
+    if (!canSee(scopeOf(req.user), row.bolinma_id)) return res.status(403).json({ message: 'Bu bo‘linma ma’lumotlariga ruxsat yo‘q' });
     db.run(
         'UPDATE infrastructure_status SET status = ?, details = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
         [status, details, id],
@@ -33,11 +41,12 @@ router.post('/status/update', (req, res) => {
             
             // Real-time update via Socket.io
             const io = req.app.get('io');
-            if (io) io.emit('infrastructure_update', { id, status, details });
+            emitScoped(io, row.bolinma_id, 'infrastructure_update', { id, status, details });
             
             res.json({ success: true });
         }
     );
+    });
 });
 
 // --- Digital Warnings Routes ---

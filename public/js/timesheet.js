@@ -385,7 +385,7 @@ async function renderTimesheetTable() {
                                     <div class="stamp-serial">ERI: ${signatures.rahbar_serial}</div>
                                 </div>
                             </div>
-                        ` : (window.Auth.currentUser.role === 'admin' || window.Auth.currentUser.role === 'director' || window.Auth.currentUser.role === 'rahbar') ? `
+                        ` : (window.Auth.currentUser.role === 'admin') ? `
                             <div style="text-align: center;">
                                 <p style="font-size: 0.85rem; color: #000 !important; margin-bottom: 15px;">Direktor tasdig'i uchun:</p>
                                 <button onclick="signTimesheet('rahbar')" class="sign-btn director" ${!signatures.iqtisod_name ? 'disabled title="Oldin Iqtisod bo\'limi tasdiqlashi kerak"' : ''} style="width: 100%; margin-top: 0;">

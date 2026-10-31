@@ -1,4 +1,5 @@
 const express = require('express');
+const roles = require('../middleware/roles');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
@@ -150,7 +151,7 @@ router.post('/upload', authMiddleware, handleUpload(upload.single('file')), asyn
 // Tasdiqlashni kutayotgan fayllar
 router.get('/pending', authMiddleware, (req, res) => {
     // Multi level visibility: Adminga 'dept_approved' va 'pending', Bo'limlarga faqat 'pending'
-    const isAdmin = ['admin', 'director', 'rahbar'].includes(req.user.role);
+    const isAdmin = roles.isAdmin(req.user);
     const query = isAdmin
         ? "SELECT f.*, u.username as uploader FROM files f LEFT JOIN users u ON f.uploaded_by = u.id WHERE f.status IN ('pending', 'dept_approved')"
         : "SELECT f.*, u.username as uploader FROM files f LEFT JOIN users u ON f.uploaded_by = u.id WHERE f.status = 'pending' AND f.bolinma_id = ?";
@@ -170,8 +171,13 @@ router.patch('/approve/:id', authMiddleware, (req, res) => {
         return res.status(400).json({ message: 'Noto\'g\'ri status' });
     }
 
+    // Bo'linma o'z faylini o'zi tasdiqlay olmaydi (1-bosqich — bo'lim, 2-bosqich — admin)
+    if (roles.isBolinma(req.user)) {
+        return res.status(403).json({ message: 'Faylni bo‘lim yoki rahbariyat tasdiqlaydi' });
+    }
+
     if (status === 'approved') {
-        const isAdmin = ['admin', 'director', 'rahbar'].includes(req.user.role);
+        const isAdmin = roles.isAdmin(req.user);
         if (!isAdmin) {
             status = 'dept_approved'; // 1st level
         } else {
@@ -184,7 +190,7 @@ router.patch('/approve/:id', authMiddleware, (req, res) => {
         if (err) return res.status(500).json({ message: err.message });
         if (!file) return res.status(404).json({ message: 'Fayl topilmadi' });
 
-        const isAdmin = ['admin', 'director', 'rahbar'].includes(req.user.role);
+        const isAdmin = roles.isAdmin(req.user);
         if (!isAdmin && !req.hasAccessToBolinma(file.bolinma_id)) {
             return res.status(403).json({ message: 'Ushbu faylni tasdiqlashga ruxsat yo\'q' });
         }
@@ -204,7 +210,7 @@ router.patch('/approve/:id', authMiddleware, (req, res) => {
 // Bo'lim bo'yicha tasdiqlangan fayllar
 router.get('/list/:bolinma_id', authMiddleware, (req, res) => {
     // IDOR: ilgari istalgan foydalanuvchi istalgan bo'linma fayllarini ko'ra olardi
-    const isViewer = ['admin', 'director', 'rahbar', 'dispetcher'].includes(req.user.role);
+    const isViewer = roles.isAdmin(req.user);
     if (!isViewer && !req.hasAccessToBolinma(req.params.bolinma_id)) {
         return res.status(403).json({ message: 'Ushbu bo\'linma fayllariga ruxsat yo\'q' });
     }
@@ -227,7 +233,7 @@ router.get('/download/:id', authMiddleware, (req, res) => {
         if (err) return res.status(500).json({ message: 'Ma\'lumotlar bazasida xatolik' });
         if (!row) return res.status(404).json({ message: 'Fayl topilmadi' });
 
-        const isViewer = ['admin', 'director', 'rahbar', 'dispetcher'].includes(req.user.role);
+        const isViewer = roles.isAdmin(req.user);
         if (!isViewer && row.uploaded_by !== req.user.id && !req.hasAccessToBolinma(row.bolinma_id)) {
             return res.status(403).json({ message: 'Ushbu faylga ruxsat yo\'q' });
         }

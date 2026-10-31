@@ -16,6 +16,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { emitScoped } = require('../utils/emit');
 const { safeObject } = require('../utils/safe');
 const { canonBolinma } = require('./pu29');
 const { scopeOf, canSee } = require('../middleware/bolinmaScope');
@@ -86,7 +87,7 @@ function rowToJournal(row, role) {
     };
 }
 
-function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '..', 'public'), now = () => new Date() } = {}) {
+function createPu74JournalService(db, { templateDir = path.join(__dirname, '..', 'templates', 'pu74'), now = () => new Date() } = {}) {
     const q = {
         get: (sql, params) => new Promise((resolve, reject) => db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)))),
         all: (sql, params) => new Promise((resolve, reject) => db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows || [])))),
@@ -95,7 +96,7 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
 
     function brigadeExists(brigade) {
         if (!BRIGADE_RE.test(brigade)) return false;
-        return fs.existsSync(path.join(publicDir, `${brigade}.xlsx`));
+        return fs.existsSync(path.join(templateDir, `${brigade}.xlsx`));
     }
 
     const userName = (req) => (req.user && (req.user.username || String(req.user.id))) || 'nomaʼlum';
@@ -208,7 +209,7 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
                 }
                 const saved = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 const io = req.app && req.app.get && req.app.get('io');
-                if (io) io.emit('pu74_journal_updated', { bolinma: p.bolinma, brigade: p.brigade, month: p.month, version: Number(saved.version) });
+                if (io) emitScoped(io, p.bolinma, 'pu74_journal_updated', { bolinma: p.bolinma, brigade: p.brigade, month: p.month, version: Number(saved.version) });
                 res.json(rowToJournal(saved, role(req)));
             } catch (e) { fail(res, e); }
         },

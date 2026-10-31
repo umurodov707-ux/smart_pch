@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { isAdmin, inDepartment, isDispatcher } = require('../middleware/roles');
 
 // --- ELECTRICITY ---
 
@@ -44,6 +45,13 @@ router.post('/electricity', (req, res) => {
 router.put('/electricity/:id/status', (req, res) => {
     const { status, rejection_reason } = req.body; // 'approved' or 'rejected'
     const { id } = req.params;
+    // Ilgari bo'linma o'z ko'rsatkichini o'zi tasdiqlay olardi
+    if (!inDepartment(req.user, 'metrologiya')) {
+        return res.status(403).json({ message: 'Faqat metrologiya bo‘limi tasdiqlaydi' });
+    }
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+        return res.status(400).json({ message: 'Noto‘g‘ri holat' });
+    }
 
     db.run('UPDATE metrology_electricity SET status = ?, rejection_reason = ? WHERE id = ?',
         [status, rejection_reason || null, id], function (err) {

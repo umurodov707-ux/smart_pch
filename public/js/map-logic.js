@@ -61,8 +61,8 @@ function updateMapMarkers() {
 function updateSubdivisionLocations() {
     if (typeof subdivisions === 'undefined') return;
     subdivisions.forEach(sub => {
-        sub.location.lat += (Math.random() - 0.5) * 0.01;
-        sub.location.lng += (Math.random() - 0.5) * 0.01;
+        /* sub.location.lat: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
+        /* sub.location.lng: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
         sub.location.lat = Math.max(36, Math.min(45, sub.location.lat));
         sub.location.lng = Math.max(56, Math.min(73, sub.location.lng));
     });

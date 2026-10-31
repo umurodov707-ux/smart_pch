@@ -8,7 +8,7 @@ import {
 
 export default function MechanicsPage() {
   const { user } = useAuth();
-  const isAdminOrDept = user?.role === 'admin' || user?.role === 'department' || user?.role === 'subdivision';
+  const isAdminOrDept = user?.role === 'admin' || user?.role === 'department';
 
   const [vehicles, setVehicles] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -86,11 +86,8 @@ export default function MechanicsPage() {
         api.get('/api/mechanics/maintenance').catch(() => [])
       ]);
 
-      const vList = Array.isArray(vData) && vData.length > 0 ? vData : [
-        { id: 1, name: 'AGMU-722 Drezina', number: '01 777 PCH', garage_number: '14', fuel_type: 'Dizel', fuel_norm: 12.5, status: 'free' },
-        { id: 2, name: 'Traktor Belarus 82.1', number: '01 234 PCH', garage_number: '05', fuel_type: 'Dizel', fuel_norm: 8.0, status: 'busy' },
-        { id: 3, name: 'ZIL-131 Avtokran', number: '01 555 PCH', garage_number: '02', fuel_type: 'Benzin', fuel_norm: 25.0, status: 'repair' }
-      ];
+      // Ilgari texnika bo'lmasa 3 ta soxta mashina ko'rsatilardi (ularga buyurtma ham berilardi)
+      const vList = Array.isArray(vData) ? vData : [];
 
       setVehicles(vList);
       setOrders(Array.isArray(oData) ? oData : []);

@@ -2,94 +2,20 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Helper to resolve subdivision ID for user
-function getSubdivisionId(user) {
-    if (!user) return null;
-    const role = String(user.role).toLowerCase();
-    const username = String(user.username || '').toLowerCase();
-    
-    if (role === 'admin') return null;
-    
-    // 1. Username pattern
-    if (username.includes('bolinma') || username.includes("bo'linma") || username.includes('sex') || username.includes("bo'lim") || username.includes('bolim')) {
-        const numMatch = username.match(/\d+/);
-        if (numMatch) {
-            return username.includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
-        }
-    }
-    
-    // 2. Explicit bolinmalar array
-    if (user.bolinmalar && user.bolinmalar.length > 0) {
-        const raw = user.bolinmalar[0];
-        const numMatch = String(raw).match(/\d+/);
-        if (numMatch) {
-            return String(raw).toLowerCase().includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
-        }
-        return raw;
-    }
-
-    // 2b. Departments containing a bo'linma/bo'lim/sex
-    if (user.departments && user.departments.length > 0) {
-        const d0 = user.departments[0];
-        const d0Low = String(d0).toLowerCase();
-        if (d0Low.includes('bo\'linma') || d0Low.includes('bolinma') || d0Low.includes('bo\'lim') || d0Low.includes('bolim') || d0Low.includes('sex')) {
-            const numMatch = String(d0).match(/\d+/);
-            if (numMatch) {
-                return d0Low.includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
-            }
-            return d0;
-        }
-    }
-    
-    if (role === 'bolinma' || role === 'subdivision') {
-        const numMatch = username.match(/\d+/);
-        return numMatch ? `${numMatch[0]}-bo'linma` : '1-bo\'linma';
-    }
-    
-    return null;
-}
+const { bolinmaFilter, scopeOf, canSee } = require('../middleware/bolinmaScope');
 
 // Get all employees (with optional filters)
 router.get('/employees', (req, res) => {
-    // Auto-fix subdivision users' bolinmalar if empty
-    try {
-        db.serialize(() => {
-            for (let i = 1; i <= 10; i++) {
-                db.run(
-                    `UPDATE users SET bolinmalar = ? WHERE username = ? AND (bolinmalar IS NULL OR bolinmalar = '' OR bolinmalar = '[]')`,
-                    [JSON.stringify([`${i}-bo'linma`]), `bolinma${i}`]
-                );
-            }
-        });
-    } catch (dbErr) {
-        console.error('Database migration/auto-fix failed:', dbErr.message);
-    }
-
     const { bolinma_id, department_id, status, search } = req.query;
     let query = 'SELECT * FROM employees';
     let conditions = [];
     let params = [];
 
-    // Enforce subdivision filter if applicable
-    const subId = getSubdivisionId(req.user);
-    const activeBolinma = subId || (bolinma_id !== 'all' ? bolinma_id : null);
-    if (activeBolinma) {
-        const numMatch = String(activeBolinma).match(/\d+/);
-        if (numMatch) {
-            const num = numMatch[0];
-            if (String(activeBolinma).toLowerCase().includes('sex')) {
-                conditions.push("(bolinma_id LIKE ? OR bolinma_id LIKE ?)");
-                params.push(`${num}-sex%`);
-                params.push(`sex${num}%`);
-            } else {
-                conditions.push("(bolinma_id LIKE ? OR bolinma_id LIKE ?)");
-                params.push(`${num}-bo'linma%`);
-                params.push(`bolinma${num}%`);
-            }
-        } else {
-            conditions.push("bolinma_id = ?");
-            params.push(activeBolinma);
-        }
+    // Bo'linma: o'zinikidan tashqari hech narsa ko'rinmaydi (bolinmaScope.js)
+    const bf = bolinmaFilter(req.user, bolinma_id);
+    if (bf) {
+        conditions.push(bf.sql);
+        params.push(...bf.params);
     }
 
     if (department_id) {
@@ -189,7 +115,6 @@ router.patch('/employees/:id/vacation', (req, res) => {
 
 // Get employee statistics
 router.get('/stats', (req, res) => {
-    const subId = getSubdivisionId(req.user);
     let query = `
         SELECT 
             COUNT(*) as total,
@@ -199,24 +124,10 @@ router.get('/stats', (req, res) => {
         FROM employees
     `;
     let params = [];
-    const activeBolinma = subId || (req.query.bolinma_id !== 'all' ? req.query.bolinma_id : null);
-    if (activeBolinma) {
-        const numMatch = String(activeBolinma).match(/\d+/);
-        if (numMatch) {
-            const num = numMatch[0];
-            if (String(activeBolinma).toLowerCase().includes('sex')) {
-                query += " WHERE (bolinma_id LIKE ? OR bolinma_id LIKE ?)";
-                params.push(`${num}-sex%`);
-                params.push(`sex${num}%`);
-            } else {
-                query += " WHERE (bolinma_id LIKE ? OR bolinma_id LIKE ?)";
-                params.push(`${num}-bo'linma%`);
-                params.push(`bolinma${num}%`);
-            }
-        } else {
-            query += " WHERE bolinma_id = ?";
-            params.push(activeBolinma);
-        }
+    const bf = bolinmaFilter(req.user, req.query.bolinma_id);
+    if (bf) {
+        query += ' WHERE ' + bf.sql;
+        params.push(...bf.params);
     }
 
     db.get(query, params, (err, row) => {
@@ -232,11 +143,21 @@ router.post('/import-exodim', (req, res) => {
         return res.status(400).json({ message: 'Invalid data format' });
     }
 
+    // Bo'linma faqat o'z xodimlarini import qila oladi; "avval tozalash" ham faqat o'z doirasida.
+    // Ilgari clearFirst istalgan foydalanuvchi uchun BUTUN employees jadvalini o'chirardi.
+    const scope = scopeOf(req.user);
+    const foreign = employees.find((e) => !canSee(scope, (e && (e.department || e.bolinma_id)) || null));
+    if (foreign) {
+        return res.status(403).json({ message: 'Faqat o‘z bo‘linmangiz xodimlarini import qilishingiz mumkin' });
+    }
+
     db.serialize(() => {
         db.run('BEGIN TRANSACTION');
 
         if (clearFirst) {
-            db.run('DELETE FROM employees');
+            const bf = bolinmaFilter(req.user, null);
+            if (bf) db.run(`DELETE FROM employees WHERE ${bf.sql}`, bf.params);
+            else db.run('DELETE FROM employees');
         }
 
         const stmt = db.prepare(`

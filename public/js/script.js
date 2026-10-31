@@ -1231,9 +1231,10 @@ function initSubdivisionFeatures(idArg) {
                 // Weather
                 const weatherRes = await fetch('/api/weather?lat=39.7681&lon=64.4556');
                 if (weatherRes.ok) {
-                    const wData = await weatherRes.json();
-                    if (document.getElementById('dash-weather-temp')) document.getElementById('dash-weather-temp').innerText = '+' + Math.round(wData.main.temp) + '°C';
-                    if (document.getElementById('dash-weather-city')) document.getElementById('dash-weather-city').innerText = 'Buxoro (' + wData.weather[0].description + ')';
+                    const wData = await weatherRes.json().catch(() => null);
+                    // ob-havo javobi kutilgan ko'rinishda bo'lmasa (kalit yo'q va h.k.) qolgan bloklar to'xtab qolmasin
+                    if (wData && wData.main && document.getElementById('dash-weather-temp')) document.getElementById('dash-weather-temp').innerText = '+' + Math.round(wData.main.temp) + '°C';
+                    if (wData && Array.isArray(wData.weather) && wData.weather[0] && document.getElementById('dash-weather-city')) document.getElementById('dash-weather-city').innerText = 'Buxoro (' + wData.weather[0].description + ')';
                 }
 
                 // Inline Tasks for Dashboard
@@ -1609,7 +1610,7 @@ function renderHomepageMonitoring() {
     let monitorData = window.monitoringData[bolinmaId];
     if (!monitorData) {
         monitorData = {
-            temp: Math.floor(Math.random() * (55 - 20) + 20),
+            temp: null, // o'lchanmagan (ilgari tasodifiy 20-55°C ko'rsatilardi)
             defects: 0,
             wearV: 0.0,
             wearH: 0.0,
@@ -1638,7 +1639,7 @@ function renderHomepageMonitoring() {
                 <div style="display: flex; justify-content: space-between;">
                     <span style="color: rgba(255,255,255,0.7);">Rels Harorati:</span>
                     <span style="color: ${monitorData.temp > 50 ? '#e74c3c' : (monitorData.temp > 40 ? '#f1c40f' : '#2ecc71')}; font-weight: bold;">
-                        +${monitorData.temp}°C
+                        ${monitorData.temp == null ? '—' : '+' + monitorData.temp + '°C'}
                     </span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
@@ -2277,8 +2278,8 @@ function updateMapMarkers() {
 function updateSubdivisionLocations() {
     subdivisions.forEach(sub => {
         // Kichik o'zgarishlar kiritish (harakatlanayotgandek ko'rinish)
-        sub.location.lat += (Math.random() - 0.5) * 0.01;
-        sub.location.lng += (Math.random() - 0.5) * 0.01;
+        /* sub.location.lat: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
+        /* sub.location.lng: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
 
         // Chegaralarni belgilash
         sub.location.lat = Math.max(36, Math.min(45, sub.location.lat));
@@ -3485,8 +3486,13 @@ function showMainSystem() {
     }
 
     // Foydalanuvchi ma'lumotlarini yangilash
-    document.getElementById('userName').textContent = currentUser.name;
-    document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+    // full_name bo'sh hisoblarda ilgari shu yerda yiqilib, tizim ishga tushmasdi
+    const displayName = String((currentUser && (currentUser.name || currentUser.full_name || currentUser.username)) || 'Foydalanuvchi');
+    if (currentUser && !currentUser.name) currentUser.name = displayName;
+    const nameEl = document.getElementById('userName');
+    if (nameEl) nameEl.textContent = displayName;
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
 
     // Tizimni ishga tushirish
     initializeSystem();
@@ -5840,10 +5846,9 @@ function renderEmployeeManagement(window, bolinmaId) {
                                         `;
 
             // Edit Button Permission Check
-            const canEdit = currentUser.role === 'admin' ||
-                currentUser.role === 'xodimlar' ||
-                (currentUser.role === 'department' && currentUser.departments.includes('xodimlar')) ||
-                (currentUser.role === 'bolinma' && currentUser.departments.includes('xodimlar'));
+            // Rollar: admin | department (bo'limi departments ichida) | bolinma
+            const depts = Array.isArray(currentUser.departments) ? currentUser.departments : [];
+            const canEdit = currentUser.role === 'admin' || depts.includes('xodimlar');
 
             const editBtn = canEdit ? `
                                             <button class="action-btn edit" onclick="editEmployeeStats('${bolinmaId}', ${worker.id})">
@@ -6985,8 +6990,8 @@ function updateSmartMonitoring(section, departmentId) {
     if (!data) {
         // Initialize default random data for this department if not exists
         data = {
-            temp: Math.floor(Math.random() * (55 - 20) + 20),
-            defects: Math.floor(Math.random() * 4),
+            temp: null, // o'lchanmagan (ilgari tasodifiy 20-55°C ko'rsatilardi)
+            defects: 0,
             wearV: 0.0,
             wearH: 0.0,
             bruto: 12.5
@@ -7000,8 +7005,8 @@ function updateSmartMonitoring(section, departmentId) {
     const fillEl = section.querySelector('.gauge-fill');
     const statusEl = section.querySelector('.temperature-card .status-text');
 
-    if (tempEl) tempEl.textContent = `+${data.temp}°C`;
-    if (fillEl) fillEl.style.width = `${((data.temp - 20) / (60 - 20)) * 100}%`;
+    if (tempEl) tempEl.textContent = data.temp == null ? '— (kiritilmagan)' : `+${data.temp}°C`;
+    if (fillEl) fillEl.style.width = data.temp == null ? '0%' : `${Math.max(0, Math.min(100, ((data.temp - 20) / (60 - 20)) * 100))}%`;
 
     if (statusEl) {
         if (data.temp > 50) {
@@ -7057,7 +7062,7 @@ function openSmartMonitoringEdit(deptId) {
         // Auto-initialize if missing
         if (!data) {
             data = {
-                temp: Math.floor(Math.random() * (55 - 20) + 20),
+                temp: null, // o'lchanmagan (ilgari tasodifiy 20-55°C ko'rsatilardi)
                 defects: 0,
                 wearV: 0.0,
                 wearH: 0.0,
@@ -7067,7 +7072,7 @@ function openSmartMonitoringEdit(deptId) {
         }
 
         document.getElementById('edit-dept-id').value = deptId;
-        document.getElementById('edit-rail-temp').value = data.temp;
+        document.getElementById('edit-rail-temp').value = data.temp == null ? '' : data.temp;
         document.getElementById('edit-defect-count').value = data.defects;
         document.getElementById('edit-wear-v').value = data.wearV;
         document.getElementById('edit-wear-h').value = data.wearH;
@@ -7188,17 +7193,9 @@ function updateMexanikaMonitor(departmentId) {
     window.querySelector('h2').innerHTML = `<i class="fas fa-cog"></i> ${deptName} Monitoringi`;
 
     // Ma'lumotlarni localStorage'dan olish yoki standart yaratish
-    const seed = departmentId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    let technics = JSON.parse(localStorage.getItem('mex_technics_' + departmentId));
-    if (!technics) {
-        technics = [
-            { name: 'Ekskavator Komatsu', ref: 'EX-' + (200 + (seed % 100)), status: seed % 3 === 0 ? 'Ta\'mir' : 'Faol', fuel: 70 + (seed % 30), insurance: '2024-12-' + (10 + (seed % 15)), inspection: '2024-06-' + (5 + (seed % 20)) },
-            { name: 'Buldozer CAT', ref: 'BD-' + (100 + (seed % 50)), status: 'Faol', fuel: 40 + (seed % 50), insurance: '2025-01-' + (15 + (seed % 10)), inspection: '2024-07-' + (10 + (seed % 15)) },
-            { name: 'Avtokran XCMG', ref: 'CR-' + (300 + (seed % 80)), status: seed % 4 === 0 ? 'Zaxira' : 'Faol', fuel: 90 - (seed % 20), insurance: '2024-11-' + (20 + (seed % 10)), inspection: '2024-05-' + (12 + (seed % 18)) },
-            { name: 'Samosval HOWO', ref: 'TR-' + (500 + (seed % 120)), status: 'Faol', fuel: 65 + (seed % 25), insurance: '2024-10-' + ('0' + (1 + (seed % 9))).slice(-2), inspection: '2024-08-' + (22 + (seed % 8)) }
-        ];
-        localStorage.setItem('mex_technics_' + departmentId, JSON.stringify(technics));
-    }
+    // Ilgari ro'yxat bo'sh bo'lsa tasodifiy raqamli 4 ta soxta texnika yaratilib saqlanardi
+    let technics = [];
+    try { technics = JSON.parse(localStorage.getItem('mex_technics_' + departmentId)) || []; } catch (e) { technics = []; }
 
     // Texnika jadvalini to'ldirish (sug'urta va ko'rik bilan)
     const panel = window.querySelector('#mex-monitor');
@@ -7228,7 +7225,7 @@ function updateMexanikaMonitor(departmentId) {
                                                     <td style="padding: 10px;">${escapeHtml(t.name)}</td>
                                                     <td style="padding: 10px;">${t.ref}</td>
                                                     <td style="padding: 10px;"><span class="status-badge" style="background: ${t.status === 'Faol' ? '#2ecc71' : (t.status === 'Ta\'mir' ? '#e67e22' : '#3498db')}">${t.status}</span></td>
-                                                    <td style="padding: 10px;">${t.fuel}%</td>
+                                                    <td style="padding: 10px;">${t.fuel == null ? '—' : t.fuel + '%'}</td>
                                                     <td style="padding: 10px; font-size: 0.85rem; color: ${new Date(t.insurance) < new Date() ? '#e74c3c' : '#bdc3c7'}">${t.insurance}</td>
                                                     <td style="padding: 10px; font-size: 0.85rem;">${t.inspection}</td>
                                                     <td style="padding: 10px; text-align: center; display: flex; justify-content: center; gap: 5px;">
@@ -7261,8 +7258,8 @@ function updateMexanikaMonitor(departmentId) {
     const maintenanceList = window.querySelector('#mex-maintenance ul');
     maintenanceList.innerHTML = technics.slice(0, 3).map(t => `
                                     <li style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
-                                        <span>${escapeHtml(t.name)} ${t.ref} (${(technics.indexOf(t) + seed) % 2 === 0 ? 'Moy almashtirish' : 'Profilaktika'})</span>
-                                        <span style="color: #ffd700;">${new Date(t.inspection).toLocaleDateString()}</span>
+                                        <span>${escapeHtml(t.name)} ${escapeHtml(t.ref || '')} (ko‘rik)</span>
+                                        <span style="color: #ffd700;">${t.inspection ? new Date(t.inspection).toLocaleDateString() : '—'}</span>
                                     </li>
                                 `).join('');
     if (technics.length === 0) maintenanceList.innerHTML = '<li style="padding: 10px; text-align: center; color: rgba(255,255,255,0.5);">Ma\'lumot yo\'q</li>';
@@ -7337,7 +7334,7 @@ function saveNewTechnic(deptId) {
         name,
         ref,
         status,
-        fuel: Math.floor(Math.random() * 100),
+        fuel: null, // kiritilmagan (ilgari tasodifiy)
         insurance: insurance || 'Noma\'lum',
         inspection: inspection || 'Noma\'lum'
     });
@@ -7396,7 +7393,7 @@ function editTechnic(index, deptId) {
                                             </div>
                                             <div>
                                                 <label style="display: block; font-size: 0.8rem; margin-bottom: 5px;">Yoqilg'i (%):</label>
-                                                <input type="number" id="edit-t-fuel" value="${t.fuel}" min="0" max="100" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; color: white;">
+                                                <input type="number" id="edit-t-fuel" value="${t.fuel == null ? '' : t.fuel}" min="0" max="100" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; color: white;">
                                             </div>
                                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                                 <div>
@@ -8354,7 +8351,7 @@ function loadAdminBolinmalarList() {
                                             </div>
                                             <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                                                 <span style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">Bo'limlar: 8</span>
-                                                <span style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">Fayllar: ${Math.floor(Math.random() * 20) + 5}</span>
+                                                <span style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">Fayllar: —</span>
                                             </div>
                                         </div>
                                     `;
@@ -8530,15 +8527,15 @@ function updatePositions() {
     // Poyezdlarni harakatlantirish
     trainsData.forEach((train, index) => {
         if (train.status === 'moving') {
-            train.lat += (Math.random() - 0.5) * 0.02;
-            train.lng += (Math.random() - 0.5) * 0.02;
+            /* train.lat: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
+            /* train.lng: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
         }
     });
 
     // Xodimlarni harakatlantirish
     workersData.forEach((worker, index) => {
-        worker.lat += (Math.random() - 0.5) * 0.01;
-        worker.lng += (Math.random() - 0.5) * 0.01;
+        /* worker.lat: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
+        /* worker.lng: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
 
         // Yangi pozitsiyani yo'lga qo'shish
         workerRoutes[worker.id].push([worker.lat, worker.lng]);
@@ -8695,7 +8692,7 @@ function getRoadSidebarHTML(bolinmaId) {
     let monitorData = window.monitoringData[bolinmaId];
     if (!monitorData) {
         monitorData = {
-            temp: Math.floor(Math.random() * (55 - 20) + 20),
+            temp: null, // o'lchanmagan (ilgari tasodifiy 20-55°C ko'rsatilardi)
             defects: 0,
             wearV: 0.0,
             wearH: 0.0,
@@ -8726,7 +8723,7 @@ function getRoadSidebarHTML(bolinmaId) {
             <div class="mini-stat-row">
                 <span class="mini-stat-label">Rels Harorati:</span>
                 <span class="mini-stat-value" style="color: ${monitorData.temp > 50 ? '#e74c3c' : (monitorData.temp > 40 ? '#f1c40f' : '#2ecc71')}">
-                    +${monitorData.temp}°C
+                    ${monitorData.temp == null ? '—' : '+' + monitorData.temp + '°C'}
                 </span>
             </div>
             <div class="mini-stat-row">
@@ -8809,7 +8806,7 @@ function editRoadManagement(bolinmaId) {
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
              <div>
                 <label class="road-form-label">Harorat (°C)</label>
-                <input type="number" id="input-temp" class="road-input" value="${monitorData.temp}">
+                <input type="number" id="input-temp" class="road-input" value="${monitorData.temp == null ? '' : monitorData.temp}">
              </div>
              <div>
                 <label class="road-form-label">Nuqsonlar (soni)</label>

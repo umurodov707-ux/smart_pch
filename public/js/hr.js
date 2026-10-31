@@ -215,10 +215,10 @@ function checkHRSubdivisionUser() {
         // 4. Force check for roles that are inherently subdivision roles
         if (!isSubdivisionUser && (role === 'bolinma' || role === 'subdivision')) {
             isSubdivisionUser = true;
+            // Raqami noma'lum bo'lsa boshqa bo'linmaga (ilgari "1-bo'linma") bog'lanmaydi
             const numMatch = username.match(/\d+/);
-            const num = numMatch ? numMatch[0] : '1';
-            userBolinma = `${num}-bo'linma`;
-            userBolinmalar = [userBolinma, `bolinma${num}`, num];
+            userBolinma = numMatch ? `${numMatch[0]}-bo'linma` : '';
+            userBolinmalar = numMatch ? [userBolinma, `bolinma${numMatch[0]}`, numMatch[0]] : [];
         }
         
         console.log('[HR-CHECK] Natija:', { isSubdivisionUser, userBolinma, userBolinmalar, role, username });
@@ -1204,7 +1204,7 @@ function renderEmployeeTable(filterText = '', filterDept = '') {
 
     const { isSubdivisionUser } = checkHRSubdivisionUser();
     const currentUser = window.Auth?.currentUser || window.currentUser;
-    const canEdit = !isSubdivisionUser || currentUser?.role === 'master' || currentUser?.role === 'admin';
+    const canEdit = !isSubdivisionUser || currentUser?.role === 'admin';
 
     return `
         <table class="employee-table">

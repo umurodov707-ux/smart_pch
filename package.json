@@ -18,7 +18,8 @@
     "test:security": "node server/scripts/test-security.js",
     "test:pu74": "node --test server/scripts/test-pu74-journal.js tests/pu74/journal.test.mjs",
     "test:pu29": "node --test server/scripts/test-pu29.js tests/pu29/norms.test.mjs",
-    "test:bolinma": "node --test server/scripts/test-bolinma-scope.js"
+    "test:bolinma": "node --test server/scripts/test-bolinma-scope.js",
+    "test:audit": "node --test server/scripts/test-audit.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

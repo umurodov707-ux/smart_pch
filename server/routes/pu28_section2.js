@@ -111,7 +111,7 @@ router.put('/:id/resolve', (req, res) => {
         const dateReplaced = date_replaced || new Date().toISOString().split('T')[0];
 
         db.run(
-            'UPDATE pu28_section2_records SET resolved_status = "replaced", date_replaced = ?, work_photo = ?, face_photo = ? WHERE id = ?',
+            "UPDATE pu28_section2_records SET resolved_status = 'replaced', date_replaced = ?, work_photo = ?, face_photo = ? WHERE id = ?",
             [dateReplaced, workPhoto || null, facePhoto || null, id],
             function (err) {
                 if (err) {

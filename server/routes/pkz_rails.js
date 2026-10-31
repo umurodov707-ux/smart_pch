@@ -8,7 +8,7 @@ module.exports = function(db, requireRole) {
     };
 
     // GET — Bir bo'linmaning barcha PKZ relslarini olish
-    router.get('/:bolinmaId', requireRole(['admin', 'bolinma', 'department', 'subdivision', 'dispatcher']), async (req, res) => {
+    router.get('/:bolinmaId', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { bolinmaId } = req.params;
         try {
             const isPg = db.isPostgres;
@@ -32,7 +32,7 @@ module.exports = function(db, requireRole) {
     });
 
     // GET SUMMARY — KPI uchun umumiy hisobot
-    router.get('/:bolinmaId/summary', requireRole(['admin', 'bolinma', 'department', 'subdivision', 'dispatcher']), async (req, res) => {
+    router.get('/:bolinmaId/summary', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { bolinmaId } = req.params;
         try {
             const isPg = db.isPostgres;
@@ -65,7 +65,7 @@ module.exports = function(db, requireRole) {
     });
 
     // POST — Yangi yozuv qo'shish
-    router.post('/', requireRole(['admin', 'bolinma', 'department', 'subdivision', 'dispatcher']), async (req, res) => {
+    router.post('/', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { bolinma_id, km, pk, side, rail_type, length, quantity, status, notes } = req.body;
 
         if (!bolinma_id || !km) {
@@ -101,7 +101,7 @@ module.exports = function(db, requireRole) {
     });
 
     // PUT — Yozuvni yangilash
-    router.put('/:id', requireRole(['admin', 'bolinma', 'department', 'subdivision', 'dispatcher']), async (req, res) => {
+    router.put('/:id', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { id } = req.params;
         const { km, pk, side, rail_type, length, quantity, status, notes } = req.body;
 
@@ -133,7 +133,7 @@ module.exports = function(db, requireRole) {
     });
 
     // DELETE — Yozuvni o'chirish
-    router.delete('/:id', requireRole(['admin', 'bolinma', 'department', 'subdivision', 'dispatcher']), async (req, res) => {
+    router.delete('/:id', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { id } = req.params;
         try {
             const isPg = db.isPostgres;

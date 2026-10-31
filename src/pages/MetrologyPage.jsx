@@ -19,6 +19,8 @@ import {
     ReferenceLine, LineChart, Line, Legend
 } from 'recharts';
 
+import { allowedBolinmalar, userBolinmalar } from '../utils/bolinma';
+
 export default function MetrologyPage() {
   const toast = useToast();
     const { token, user: authUser } = useAuth();
@@ -53,9 +55,15 @@ export default function MetrologyPage() {
     };
 
     useEffect(() => {
-        const user = authUser || JSON.parse(localStorage.getItem('currentUser') || '{}');
-        const role = (user.role === 'admin' || user.bolinmalar?.[0] === 'admin') ? 'admin' : 'subdivision';
-        const bId = user.bolinmalar?.[0] || '1-bolinma';
+        let user = authUser;
+        if (!user) { try { user = JSON.parse(localStorage.getItem('currentUser') || '{}'); } catch { user = {}; } }
+        // admin va metrologiya bo'limi — tasdiqlovchi; qolganlar — o'z bo'linmasi.
+        // Ilgari bo'linmasi yo'q har kim jim turib "1-bolinma" ma'lumotlarini ko'rardi.
+        const depts = Array.isArray(user.departments) ? user.departments : [];
+        const own = allowedBolinmalar(user);
+        const isReviewer = user.role === 'admin' || (user.role === 'department' && depts.includes('metrologiya') && userBolinmalar(user).length === 0);
+        const role = isReviewer ? 'admin' : 'subdivision';
+        const bId = own[0] || '';
         setUserRole(role);
         setBolinmaId(bId);
         

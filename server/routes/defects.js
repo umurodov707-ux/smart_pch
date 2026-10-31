@@ -47,7 +47,7 @@ router.post('/', (req, res) => {
 // Mark as fixed (inactive)
 router.put('/:id/fix', (req, res) => {
     const { id } = req.params;
-    db.run('UPDATE defects SET status = "fixed" WHERE id = ?', [id], function (err) {
+    db.run("UPDATE defects SET status = 'fixed' WHERE id = ?", [id], function (err) {
         if (err) return res.status(500).json({ message: 'Update failed' });
         res.json({ message: 'Defect marked as fixed' });
     });

@@ -82,7 +82,7 @@ window.Auth = {
 
             // Save token and user details
             localStorage.setItem('jwtToken', data.token);
-            this.currentUser = { ...data.user, name: data.user.full_name };
+            this.currentUser = { ...data.user, name: data.user.full_name || data.user.username || 'Foydalanuvchi' };
             localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
 
             return { success: true };
@@ -133,7 +133,8 @@ window.Auth = {
         if (!this.currentUser) {
             const saved = localStorage.getItem('currentUser');
             if (saved) {
-                this.currentUser = JSON.parse(saved);
+                try { this.currentUser = JSON.parse(saved); } catch (e) { this.currentUser = null; localStorage.removeItem('currentUser'); }
+                if (this.currentUser && !this.currentUser.name) this.currentUser.name = this.currentUser.full_name || this.currentUser.username || 'Foydalanuvchi';
             }
         }
         // Also check if token exists
@@ -520,7 +521,7 @@ window.Auth = {
                 const avatarEl = document.getElementById('userAvatar');
                 if (avatarEl) {
                     if (this.currentUser.avatar) {
-                        avatarEl.innerHTML = `<img src="${this.currentUser.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        avatarEl.innerHTML = `<img src="${String(this.currentUser.avatar).replace(/["<>]/g, '')}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
                     } else {
                         avatarEl.textContent = this.currentUser.name[0].toUpperCase();
                     }
@@ -560,7 +561,7 @@ window.handleGoogleLogin = async function(response) {
 
         if (res.ok) {
             localStorage.setItem('jwtToken', data.token);
-            window.Auth.currentUser = { ...data.user, name: data.user.full_name };
+            window.Auth.currentUser = { ...data.user, name: data.user.full_name || data.user.username || 'Foydalanuvchi' };
             localStorage.setItem('currentUser', JSON.stringify(window.Auth.currentUser));
             
             SmartUtils.showToast("Google orqali kirdingiz!", "success");

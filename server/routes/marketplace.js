@@ -5,7 +5,7 @@ const db = require('../db');
 // GET /api/marketplace - Get all active items
 router.get('/', (req, res) => {
     const { type, bolinma_id } = req.query;
-    let query = 'SELECT * FROM marketplace_items WHERE status = "active"';
+    let query = "SELECT * FROM marketplace_items WHERE status = 'active'";
     let params = [];
 
     if (type) {

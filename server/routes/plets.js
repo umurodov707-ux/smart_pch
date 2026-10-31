@@ -24,7 +24,7 @@ module.exports = function(db, requireRole, adminOnly) {
     });
 
     // 1. Get Details & Diagnostics (Real) - MUST BE FIRST
-    router.get('/details/:id', requireRole(['admin', 'bolinma', 'subdivision', 'department', 'dispatcher']), async (req, res) => {
+    router.get('/details/:id', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id)) return sendError(res, 400, "Noto'g'ri ID ko'rsatildi");
         try {
@@ -56,7 +56,7 @@ module.exports = function(db, requireRole, adminOnly) {
     });
 
     // 2. Fetch plets for a subdivision
-    router.get('/:bolinmaId', requireRole(['admin', 'bolinma', 'department', 'subdivision', 'dispatcher']), async (req, res) => {
+    router.get('/:bolinmaId', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { bolinmaId } = req.params;
         try {
             const query = bolinmaId === 'all' ? 
@@ -72,7 +72,7 @@ module.exports = function(db, requireRole, adminOnly) {
     });
 
     // 3. Save new plet
-    router.post('/', requireRole(['admin', 'bolinma', 'subdivision', 'department', 'dispatcher']), async (req, res) => {
+    router.post('/', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { bolinma_id, plet_number, start_km, start_pk, end_km, end_pk, length, install_date, neutral_temp, buffer_rails, status } = req.body;
         if (!bolinma_id || !plet_number) return sendError(res, 400, "Majburiy maydonlar to'ldirilmadi");
 
@@ -91,7 +91,7 @@ module.exports = function(db, requireRole, adminOnly) {
     });
 
     // 4. Update plet
-    router.put('/:id', requireRole(['admin', 'bolinma', 'subdivision', 'department', 'dispatcher']), async (req, res) => {
+    router.put('/:id', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { id } = req.params;
         const { plet_number, start_km, start_pk, end_km, end_pk, length, install_date, neutral_temp, buffer_rails, status, history } = req.body;
 
@@ -112,7 +112,7 @@ module.exports = function(db, requireRole, adminOnly) {
     });
 
     // 5. Delete Plet
-    router.delete('/:id', requireRole(['admin', 'bolinma', 'subdivision', 'department', 'dispatcher']), async (req, res) => {
+    router.delete('/:id', requireRole(['admin', 'bolinma', 'department']), async (req, res) => {
         const { id } = req.params;
         try {
             await dbRun(`DELETE FROM plets_advanced WHERE id = ?`, [id]);

@@ -11,7 +11,7 @@ module.exports = function(db, requireRole) {
         res.status(statusCode).json({ error: message });
     };
 
-    router.get('/summary', requireRole(['admin', 'department', 'dispatcher']), async (req, res) => {
+    router.get('/summary', requireRole(['admin', 'department']), async (req, res) => {
         try {
             const isPg = db.isPostgres;
             

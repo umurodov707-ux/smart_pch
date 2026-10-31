@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { safeParse } = require('../utils/safeJson');
 const authMiddleware = require('../middleware/auth');
 const { validate } = require('../middleware/validator');
 
@@ -26,7 +27,7 @@ router.get('/', authMiddleware, (req, res) => {
         
         const formatted = rows.map(r => ({
             ...r,
-            structuredData: r.structuredData ? JSON.parse(r.structuredData) : null
+            structuredData: safeParse(r.structuredData, null)
         }));
         res.json(formatted);
     });
@@ -89,7 +90,7 @@ router.get('/history', authMiddleware, (req, res) => {
         if (err) return res.status(500).json({ message: 'Database error' });
         const formatted = rows.map(r => ({
             ...r,
-            structuredData: r.structuredData ? JSON.parse(r.structuredData) : null
+            structuredData: safeParse(r.structuredData, null)
         }));
         res.json(formatted);
     });

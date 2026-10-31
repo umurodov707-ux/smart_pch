@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { bolinmaFilter } = require('../middleware/bolinmaScope');
 
 // Get all sand analysis reports
 router.get('/', (req, res) => {
@@ -40,9 +41,10 @@ router.get('/stats', (req, res) => {
     const { bolinma_id } = req.query;
     let query = 'SELECT risk_level, COUNT(*) as count FROM sand_analysis_reports';
     const params = [];
-    if (bolinma_id) {
-        query += ' WHERE bolinma_id = ?';
-        params.push(bolinma_id);
+    const bf = bolinmaFilter(req.user, bolinma_id);
+    if (bf) {
+        query += ' WHERE ' + bf.sql;
+        params.push(...bf.params);
     }
     query += ' GROUP BY risk_level';
 

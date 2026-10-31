@@ -173,28 +173,22 @@ window.AdminDashboard = {
         this.loadStats();
         this.loadRecentActivity();
         
-        // Simulating live AI action counter
-        setInterval(() => {
-            const counter = document.getElementById('admin-ai-actions');
-            if (counter) {
-                let current = parseInt(counter.innerText.replace(/,/g, ''));
-                counter.innerText = (current + Math.floor(Math.random() * 3)).toLocaleString();
-            }
-        }, 5000);
+        // (ilgari bu yerda hisoblagich har 5 soniyada tasodifiy oshirilardi — olib tashlandi)
     },
 
     loadStats: async function () {
         try {
             const workers = await SmartUtils.fetchAPI('/hr/stats').catch(() => ({ totalEmployees: 0 }));
             // Get defects count dynamically if possible
-            let defectCount = 12;
+            let defectCount = '—';
             if (window.trackDefectsManager && window.trackDefectsManager.getStats) {
                 const ds = await window.trackDefectsManager.getStats();
-                defectCount = ds.pendingTalon || 12;
+                defectCount = ds.pendingTalon ?? '—';
             }
 
             const empEl = document.getElementById('admin-stat-employees');
-            if(empEl) empEl.textContent = workers.totalEmployees || Math.floor(Math.random() * 50 + 100);
+            // /hr/stats { total } qaytaradi; ilgari totalEmployees o'qilib, doim tasodifiy 100-150 chiqardi
+            if(empEl) empEl.textContent = (workers && (workers.total ?? workers.totalEmployees)) ?? '—';
             
             const defEl = document.getElementById('admin-stat-defects');
             if(defEl) defEl.textContent = defectCount;

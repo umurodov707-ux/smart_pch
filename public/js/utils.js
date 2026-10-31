@@ -597,6 +597,14 @@ SmartUtils.startServerWatchdog = function () {
 // ==========================================
 // 🚀 ENTERPRISE DATABASE SYNC SYSTEM
 // ==========================================
+// Serverga sinxronlanmaydigan shaxsiy kalitlar (server/routes/storage.js bilan bir xil)
+SmartUtils.isPrivateKey = function (key) {
+    const list = ['currentUser', 'jwtToken', 'smart_pch_users', 'smartpch_view_mode', 'smart_offline_reqs',
+        'lastWeatherData', 'lastWeatherLocation', 'lastWeatherFetchTime', 'pu74_view', 'pu74_bolinma',
+        'pu29_bolinma', 'active_masofa_id', 'last_promer_info', 'theme'];
+    return list.includes(key) || /token|password|parol|session|currentuser|_draft/i.test(String(key));
+};
+
 (function initDatabaseSync() {
     const originalSetItem = localStorage.setItem.bind(localStorage);
     let syncTimeout = null;
@@ -606,8 +614,9 @@ SmartUtils.startServerWatchdog = function () {
     localStorage.setItem = function (key, value) {
         originalSetItem(key, value);
 
-        // Skip synchronizing authentication tokens or UI state
-        if (key === 'jwtToken' || key === 'lastWeatherData') return;
+        // Shaxsiy/sessiya kalitlari serverga yuborilmaydi (server ham qabul qilmaydi).
+        // Ilgari "currentUser" ham yuborilib, boshqa foydalanuvchining brauzeriga tushardi.
+        if (SmartUtils.isPrivateKey(key)) return;
 
         let parsedVal;
         try { parsedVal = JSON.parse(value); } catch (e) { parsedVal = value; }
@@ -644,7 +653,7 @@ SmartUtils.startServerWatchdog = function () {
                 let changedCount = 0;
                 
                 for (let key in res.data) {
-                    if (key === 'jwtToken') continue;
+                    if (SmartUtils.isPrivateKey(key)) continue;
                     
                     const serverVal = res.data[key];
                     const serverStr = typeof serverVal === 'object' ? JSON.stringify(serverVal) : String(serverVal);

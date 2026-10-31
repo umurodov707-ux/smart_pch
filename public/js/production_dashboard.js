@@ -25,7 +25,7 @@
         modal.style.boxShadow = '0 0 80px rgba(0,0,0,0.8)';
         modal.style.background = '#0f172a';
 
-        const canSwitch = window.currentUser && (window.currentUser.role === 'admin' || window.currentUser.role === 'dispatcher');
+        const canSwitch = window.currentUser && (window.currentUser.role === 'admin' || window.currentUser.role === 'department');
 
         modal.innerHTML = `
         <div class="window-header" style="background: rgba(15, 23, 42, 0.9); border-bottom: 2px solid var(--accent-gold); padding: 20px 30px; display:flex; justify-content:space-between; align-items:center;">

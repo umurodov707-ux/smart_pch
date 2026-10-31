@@ -86,6 +86,11 @@ const db = {
      * Executes a query and returns all rows
      */
     all: function(sql, params = [], callback) {
+        if (typeof params === 'function') { callback = params; params = []; }
+        // Callback berilmasa Promise qaytariladi (ilgari PostgreSQL'da so'rov osilib qolardi)
+        if (typeof callback !== 'function') {
+            return new Promise((resolve, reject) => this.all(sql, params, (e, r) => (e ? reject(e) : resolve(r || []))));
+        }
         const query = this._convertQuery(sql);
         if (this.isPostgres) {
             this._pgPool.query(query, params)
@@ -100,6 +105,10 @@ const db = {
      * Executes a query and returns the first row
      */
     get: function(sql, params = [], callback) {
+        if (typeof params === 'function') { callback = params; params = []; }
+        if (typeof callback !== 'function') {
+            return new Promise((resolve, reject) => this.get(sql, params, (e, r) => (e ? reject(e) : resolve(r))));
+        }
         const query = this._convertQuery(sql);
         if (this.isPostgres) {
             this._pgPool.query(query, params)
@@ -114,6 +123,7 @@ const db = {
      * Executes a query (INSERT, UPDATE, DELETE)
      */
     run: function(sql, params = [], callback) {
+        if (typeof params === 'function') { callback = params; params = []; }
         let query = this._convertQuery(sql);
         if (this.isPostgres) {
             // PostgreSQL compatibility: automatically append RETURNING id for INSERT queries if not present

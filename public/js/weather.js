@@ -36,9 +36,13 @@ async function loadWeatherData() {
         const now = Date.now();
 
         if (cached && lastFetch && lastLoc === locationName && (now - lastFetch < 15 * 60 * 1000)) {
-            weatherData = JSON.parse(cached);
-            renderWeather(locationName);
-            return;
+            let parsed = null;
+            try { parsed = JSON.parse(cached); } catch (e) { localStorage.removeItem('lastWeatherData'); }
+            if (parsed && parsed.current && parsed.current.main) {
+                weatherData = parsed;
+                renderWeather(locationName);
+                return;
+            }
         }
 
         weatherContainer.innerHTML = `<div class="weather-loading"><i class="fas fa-spinner fa-spin"></i> ${locationName} havosi yuklanmoqda...</div>`;
@@ -48,6 +52,7 @@ async function loadWeatherData() {
         if (!response.ok) throw new Error('API Error');
 
         const data = await response.json();
+        if (!data || !data.main) throw new Error('Ob-havo ma’lumoti yo‘q');
         weatherData = {
             current: data,
             hourly: [],
@@ -68,15 +73,10 @@ async function loadWeatherData() {
 }
 
 function useFallbackWeather() {
-    weatherData = {
-        current: {
-            main: { temp: 8, feels_like: 5, humidity: 70, pressure: 1015 },
-            wind: { speed: 12, deg: 320 },
-            weather: [{ description: 'qisman bulutli', icon: '02d', main: 'Clouds' }],
-            dt: Math.floor(Date.now() / 1000)
-        }
-    };
-    renderWeather();
+    // Ilgari bu yerda o'ylab topilgan "+8°C" haqiqiy ob-havo sifatida ko'rsatilardi
+    weatherData = null;
+    const container = document.querySelector('.weather-container');
+    if (container) container.innerHTML = '<div class="weather-loading"><i class="fas fa-cloud"></i> Ob-havo ma’lumoti hozircha yo‘q</div>';
 }
 
 function renderWeather(locName) {

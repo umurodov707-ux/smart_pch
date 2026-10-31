@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { safeParse } = require('../utils/safeJson');
 
 // Default seed data per bolinma_id
 const defaultIzostiklar = {
@@ -75,11 +76,11 @@ router.get('/:bolinma_id', (req, res) => {
                 // Re-fetch to get proper IDs
                 db.all('SELECT * FROM izostiklar WHERE bolinma_id = ?', [bolinma_id], (err2, newRows) => {
                     if (err2) return res.status(500).json({ message: err2.message });
-                    res.json(newRows.map(r => ({ ...r, history: r.history ? JSON.parse(r.history) : [] })));
+                    res.json(newRows.map(r => ({ ...r, history: safeParse(r.history, []) || [] })));
                 });
             });
         } else {
-            res.json(rows.map(r => ({ ...r, history: r.history ? JSON.parse(r.history) : [] })));
+            res.json(rows.map(r => ({ ...r, history: safeParse(r.history, []) || [] })));
         }
     });
 });
