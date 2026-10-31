@@ -17,6 +17,7 @@
 const fs = require('fs');
 const path = require('path');
 const { safeObject } = require('../utils/safe');
+const { canonBolinma } = require('./pu29');
 
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const BRIGADE_RE = /^\d{1,2}-brigada$/;
@@ -67,6 +68,7 @@ function sanitizeEdits(input) {
 
 function rowToJournal(row, role) {
     return {
+        bolinma: row.bolinma_id,
         brigade: row.brigade,
         month: row.month,
         edits: safeObject(row.edits),
@@ -98,8 +100,24 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
     const userName = (req) => (req.user && (req.user.username || String(req.user.id))) || 'nomaʼlum';
     const role = (req) => (req.user && req.user.role) || '';
 
+    /** Bo'linma o'z jurnalini ko'radi; admin va bo'limlar (tekshiruvchilar) hammasini */
+    function canAccess(req, bolinma) {
+        const u = req.user || {};
+        if (u.role === 'admin' || u.role === 'department') return true;
+        return (u.bolinmalar || []).some((b) => canonBolinma(b) === bolinma);
+    }
+
     function validate(req, res) {
         const { brigade, month } = req.params;
+        const bolinma = canonBolinma(req.params.bolinma);
+        if (!bolinma) {
+            res.status(400).json({ message: 'Noto‘g‘ri bo‘linma' });
+            return null;
+        }
+        if (!canAccess(req, bolinma)) {
+            res.status(403).json({ message: 'Bu bo‘linma jurnaliga ruxsat yo‘q' });
+            return null;
+        }
         if (!brigadeExists(brigade)) {
             res.status(404).json({ message: 'Brigada topilmadi' });
             return null;
@@ -108,7 +126,7 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
             res.status(400).json({ message: 'Oy YYYY-MM ko‘rinishida bo‘lishi kerak' });
             return null;
         }
-        return { brigade, month };
+        return { bolinma, brigade, month };
     }
 
     const fail = (res, err) => {
@@ -126,8 +144,8 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
             if (!p) return;
             try {
                 const rows = await q.all(
-                    'SELECT brigade, month, status, version, updated_by, updated_at, approved_by, approved_at FROM pu74_journals WHERE brigade = ? ORDER BY month DESC',
-                    [p.brigade],
+                    'SELECT brigade, month, status, version, updated_by, updated_at, approved_by, approved_at FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? ORDER BY month DESC',
+                    [p.bolinma, p.brigade],
                 );
                 res.json({ months: rows.map((r) => ({ ...r, version: Number(r.version) || 1 })) });
             } catch (e) { fail(res, e); }
@@ -138,7 +156,7 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
             const p = validate(req, res);
             if (!p) return;
             try {
-                const row = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                const row = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 if (!row) return res.status(404).json({ message: 'Bu oy uchun jurnal ochilmagan' });
                 res.json(rowToJournal(row, role(req)));
             } catch (e) { fail(res, e); }
@@ -159,18 +177,18 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
             const who = userName(req);
             const ts = now().toISOString();
             try {
-                const row = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                const row = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 if (!row) {
                     try {
                         await q.run(
-                            'INSERT INTO pu74_journals (brigade, month, edits, status, version, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            [p.brigade, p.month, json, 'draft', 1, who, ts],
+                            'INSERT INTO pu74_journals (bolinma_id, brigade, month, edits, status, version, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                            [p.bolinma, p.brigade, p.month, json, 'draft', 1, who, ts],
                         );
                     } catch (e) {
                         // bir vaqtda ikki kishi ochgan bo'lsa
                         return res.status(409).json({ message: 'Jurnal boshqa foydalanuvchi tomonidan ochildi, qayta yuklang' });
                     }
-                    const created = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                    const created = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                     return res.status(201).json(rowToJournal(created, role(req)));
                 }
                 if (!canEdit(row.status, role(req))) {
@@ -181,16 +199,16 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
                     return res.status(409).json({ message: 'Jurnalni boshqa foydalanuvchi o‘zgartirdi', journal: rowToJournal(row, role(req)) });
                 }
                 const result = await q.run(
-                    'UPDATE pu74_journals SET edits = ?, version = version + 1, updated_by = ?, updated_at = ? WHERE brigade = ? AND month = ? AND version = ?',
-                    [json, who, ts, p.brigade, p.month, row.version],
+                    'UPDATE pu74_journals SET edits = ?, version = version + 1, updated_by = ?, updated_at = ? WHERE bolinma_id = ? AND brigade = ? AND month = ? AND version = ?',
+                    [json, who, ts, p.bolinma, p.brigade, p.month, row.version],
                 );
                 if (result && result.changes === 0) {
-                    const fresh = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                    const fresh = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                     return res.status(409).json({ message: 'Jurnalni boshqa foydalanuvchi o‘zgartirdi', journal: rowToJournal(fresh, role(req)) });
                 }
-                const saved = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                const saved = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 const io = req.app && req.app.get && req.app.get('io');
-                if (io) io.emit('pu74_journal_updated', { brigade: p.brigade, month: p.month, version: Number(saved.version) });
+                if (io) io.emit('pu74_journal_updated', { bolinma: p.bolinma, brigade: p.brigade, month: p.month, version: Number(saved.version) });
                 res.json(rowToJournal(saved, role(req)));
             } catch (e) { fail(res, e); }
         },
@@ -207,7 +225,7 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
                 return res.status(400).json({ message: 'Qaytarish sababini yozing' });
             }
             try {
-                const row = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                const row = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 if (!row) return res.status(404).json({ message: 'Bu oy uchun jurnal ochilmagan' });
                 if (!t.from.includes(row.status)) {
                     return res.status(409).json({ message: `Hozirgi holatda (${row.status}) bu amalni bajarib bo‘lmaydi`, journal: rowToJournal(row, role(req)) });
@@ -219,12 +237,12 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
                 if (action === 'submit') { set.push('submitted_by = ?', 'submitted_at = ?'); params.push(who, ts); }
                 if (action === 'approve') { set.push('approved_by = ?', 'approved_at = ?'); params.push(who, ts); }
                 if (action === 'reopen') { set.push('approved_by = NULL', 'approved_at = NULL'); }
-                params.push(p.brigade, p.month, row.status);
-                const result = await q.run(`UPDATE pu74_journals SET ${set.join(', ')} WHERE brigade = ? AND month = ? AND status = ?`, params);
+                params.push(p.bolinma, p.brigade, p.month, row.status);
+                const result = await q.run(`UPDATE pu74_journals SET ${set.join(', ')} WHERE bolinma_id = ? AND brigade = ? AND month = ? AND status = ?`, params);
                 if (result && result.changes === 0) {
                     return res.status(409).json({ message: 'Holat boshqa foydalanuvchi tomonidan o‘zgartirildi, qayta yuklang' });
                 }
-                const saved = await q.get('SELECT * FROM pu74_journals WHERE brigade = ? AND month = ?', [p.brigade, p.month]);
+                const saved = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 res.json(rowToJournal(saved, role(req)));
             } catch (e) { fail(res, e); }
         },

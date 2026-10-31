@@ -2,15 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { GitFork, Plus, RefreshCw, Search, Trash2, ChevronRight, LayoutGrid } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { allowedBolinmalar, pu29Wide } from '../utils/bolinma';
 import SwitchJournal, { fmtDate } from '../components/pu29/SwitchJournal';
 import { LINE_CATEGORIES, RAIL_TYPES, liveStats, normalizeCategory, recordIssues, recordStatus } from '../components/pu29/norms.js';
 import '../components/pu29/pu29.css';
 
-const ALL_BOLINMALAR = Array.from({ length: 10 }, (_, i) => `${i + 1}-bo'linma`);
-const canon = (b) => {
-  const m = /(\d{1,3})/.exec(String(b || ''));
-  return m ? `${Number(m[1])}-bo'linma` : null;
-};
 const STATUS = {
   ok: { label: 'Soz', cls: 'ok' },
   warning: { label: 'Ogohlantirish', cls: 'warning' },
@@ -21,16 +17,11 @@ const fmtNum = (v) => (v === null || v === undefined ? '—' : String(Math.round
 
 export default function Pu29Page() {
   const { user } = useAuth();
-  const own = useMemo(() => {
-    let b = user && user.bolinmalar;
-    if (typeof b === 'string') { try { b = JSON.parse(b); } catch { b = []; } }
-    return (Array.isArray(b) ? b : []).map(canon).filter(Boolean);
-  }, [user]);
-  const wide = user && (user.role === 'admin' || (Array.isArray(user.departments) && user.departments.includes('ishlab-chiqarish')));
-  const options = wide || !own.length ? [...new Set([...own, ...ALL_BOLINMALAR])] : own;
+  // Har bir bo'linma faqat o'z strelkalarini ko'radi (server ham shuni tekshiradi)
+  const options = useMemo(() => allowedBolinmalar(user, pu29Wide), [user]);
   const [bolinma, setBolinma] = useState(() => {
     try { const s = localStorage.getItem('pu29_bolinma'); if (s && options.includes(s)) return s; } catch { /* yo'q */ }
-    return options[0];
+    return options[0] || '';
   });
   const [switches, setSwitches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,9 +31,12 @@ export default function Pu29Page() {
   const [adding, setAdding] = useState(false);
   const [newNo, setNewNo] = useState('');
 
-  useEffect(() => { try { localStorage.setItem('pu29_bolinma', bolinma); } catch { /* ahamiyatsiz */ } }, [bolinma]);
+  // foydalanuvchi ma'lumoti keyinroq yuklanadi — ro'yxat paydo bo'lganda birinchisini tanlaymiz
+  useEffect(() => { if (!options.includes(bolinma)) setBolinma(options[0] || ''); }, [bolinma, options]);
+  useEffect(() => { try { if (bolinma) localStorage.setItem('pu29_bolinma', bolinma); } catch { /* ahamiyatsiz */ } }, [bolinma]);
 
   const load = useCallback(async (quiet) => {
+    if (!bolinma) { setLoading(false); return; }
     if (!quiet) setLoading(true);
     setError('');
     try {
@@ -99,6 +93,14 @@ export default function Pu29Page() {
 
   const current = selected ? enriched.find((s) => s.switch_number === selected) : null;
 
+  if (!bolinma) {
+    return (
+      <div className="pu29">
+        <div className="pu29-msg err">{user ? 'Profilingizga bo‘linma biriktirilmagan — PU-29 jurnalini ko‘rish uchun administratorga murojaat qiling.' : 'Yuklanmoqda…'}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="pu29">
       <div className="pu29-head no-print">
@@ -110,9 +112,11 @@ export default function Pu29Page() {
           </div>
         </div>
         <div className="pu29-head-r">
-          <select className="pu29-select" value={bolinma} onChange={(e) => setBolinma(e.target.value)} aria-label="Bo‘linma">
-            {options.map((b) => <option key={b} value={b}>{b}</option>)}
-          </select>
+          {options.length > 1 ? (
+            <select className="pu29-select" value={bolinma} onChange={(e) => setBolinma(e.target.value)} aria-label="Bo‘linma">
+              {options.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          ) : bolinma ? <span className="pu29-own">{bolinma}</span> : null}
           <button type="button" className="pu29-icon" aria-label="Yangilash" onClick={() => load()}><RefreshCw size={16} className={loading ? 'spin' : ''} /></button>
         </div>
       </div>

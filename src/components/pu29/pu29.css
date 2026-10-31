@@ -11,6 +11,7 @@
 .pu29-select, .pu29-filters select {
   min-height: 36px; padding: 0 10px; border-radius: 10px; border: 1px solid #1e293b; background: #0f172a; color: #e2e8f0; font-size: 13px; font-weight: 600;
 }
+.pu29-own { min-height: 36px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 10px; border: 1px solid rgb(251 191 36 / 0.3); color: var(--gold); font-weight: 800; font-size: 13px; }
 .pu29-icon { width: 36px; height: 36px; border-radius: 10px; border: 1px solid #1e293b; background: #0f172a; color: #94a3b8; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .pu29-icon:hover { color: #e2e8f0; }
 .pu29 .spin { animation: pu29spin 1s linear infinite; }

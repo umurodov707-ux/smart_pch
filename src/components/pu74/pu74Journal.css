@@ -262,6 +262,7 @@
 .pu74j-badge.st-submitted { background: rgb(30 58 138 / 0.35); color: rgb(147 197 253); border-color: rgb(59 130 246 / 0.4); }
 .pu74j-badge.st-returned { background: rgb(146 64 14 / 0.3); color: rgb(253 186 116); border-color: rgb(249 115 22 / 0.4); }
 .pu74j-badge.st-approved { background: rgb(6 78 59 / 0.4); color: rgb(110 231 183); border-color: rgb(16 185 129 / 0.4); }
+.pu74j-badge.st-own { background: rgb(245 158 11 / 0.1); color: rgb(251 191 36); border-color: rgb(245 158 11 / 0.35); }
 .pu74j-badge.st-offline { background: rgb(69 26 3 / 0.5); color: rgb(252 211 77); border-color: rgb(245 158 11 / 0.4); }
 .pu74j-note {
   display: flex;

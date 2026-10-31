@@ -68,6 +68,7 @@ export default function useJournalStore(brigade, month) {
   const verRef = useRef(0);
 
   const refreshMonths = useCallback(async () => {
+    if (!brigade || brigade.startsWith('/')) return null; // bo'linma hali aniqlanmagan
     try {
       const r = await api.get(`${API}/${brigade}`);
       const server = r.months || [];
@@ -127,6 +128,7 @@ export default function useJournalStore(brigade, month) {
   // Oyni yuklash
   const load = useCallback(async () => {
     clearTimeout(timer.current);
+    if (!brigade || brigade.startsWith('/')) return;
     setPhase('loading');
     setConflict(null);
     setSync({ state: 'idle', text: '' });

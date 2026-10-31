@@ -4,7 +4,6 @@ import api from '../../utils/api';
 import { cellKey, editKey, formatValue, sheetLabel, toNumber } from './journalModel.js';
 import { PROVIDERS, fetchNeeds } from './integrations.js';
 
-const BOLINMALAR = Array.from({ length: 10 }, (_, i) => `${i + 1}-bo'linma`);
 
 const show = (v) => {
   const s = formatValue(v, { blankZero: false });
@@ -15,24 +14,11 @@ const show = (v) => {
  * "Bo'limlardan to'ldirish" oynasi: tanlangan manbadan ma'lumot olib,
  * jurnalga nima yozilishini oldindan ko'rsatadi, foydalanuvchi tasdiqlasa qo'llaydi.
  */
-export default function IntegrationPanel({ brigadeId, month, user, views, model, sheetsTpl, styles, currentSheet, canEdit, onApply, onClose }) {
-  const isAdmin = user && user.role === 'admin';
-  const own = useMemo(() => {
-    const b = user && user.bolinmalar;
-    if (Array.isArray(b)) return b;
-    try { return JSON.parse(b || '[]'); } catch { return []; }
-  }, [user]);
-  const options = isAdmin || !own.length ? [...new Set([...own, ...BOLINMALAR])] : own;
-  const storeKey = `pu74_bolinma_${brigadeId}`;
-  const [bolinma, setBolinma] = useState(() => {
-    try { const s = localStorage.getItem(storeKey); if (s && options.includes(s)) return s; } catch { /* yo'q */ }
-    return options[0] || '';
-  });
+export default function IntegrationPanel({ brigadeId, bolinma, month, user, views, model, sheetsTpl, styles, currentSheet, canEdit, onApply, onClose }) {
   const [busy, setBusy] = useState('');
   const [result, setResult] = useState(null); // {provider, changes, notes, errors}
   const [picked, setPicked] = useState(new Set());
 
-  useEffect(() => { try { localStorage.setItem(storeKey, bolinma); } catch { /* ahamiyatsiz */ } }, [storeKey, bolinma]);
   useEffect(() => { setResult(null); }, [month, brigadeId, bolinma]);
 
   const ordered = useMemo(() => {
@@ -89,10 +75,7 @@ export default function IntegrationPanel({ brigadeId, month, user, views, model,
         <button type="button" className="pu74j-btn" aria-label="Yopish" onClick={onClose}><X size={16} /></button>
       </div>
       <div className="pu74j-row" style={{ alignItems: 'center' }}>
-        <label htmlFor="pu74-bolinma">Bo‘linma:</label>
-        <select id="pu74-bolinma" className="pu74j-select" value={bolinma} onChange={(e) => setBolinma(e.target.value)}>
-          {options.map((b) => <option key={b} value={b}>{b}</option>)}
-        </select>
+        <span>Bo‘linma: <b>{bolinma}</b></span>
         <span className="pu74j-muted">Ma’lumotlar shu bo‘linma bo‘yicha olinadi. Hech narsa avtomatik yozilmaydi — avval ko‘rib chiqasiz.</span>
       </div>
 

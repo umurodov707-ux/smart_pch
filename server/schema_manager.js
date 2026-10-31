@@ -359,6 +359,7 @@ const schema = [
         name: 'pu74_journals',
         sql: (isPg) => `CREATE TABLE IF NOT EXISTS pu74_journals (
             id ${isPg ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
+            bolinma_id TEXT NOT NULL,
             brigade TEXT NOT NULL,
             month TEXT NOT NULL,
             edits TEXT,
@@ -372,7 +373,7 @@ const schema = [
             approved_by TEXT,
             approved_at TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(brigade, month)
+            UNIQUE(bolinma_id, brigade, month)
         )`
     },
     // Audit Logs
