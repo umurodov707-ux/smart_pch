@@ -48,6 +48,7 @@ const oknoRoutes = require('./routes/okno');
 const sandRoutes = require('./routes/sand');
 const pu74Routes = require('./routes/pu74');
 const pu74MonthlyRoutes = require('./routes/pu74_monthly');
+const pu74JournalRoutes = require('./routes/pu74_journal');
 const searchRoutes = require('./routes/search');
 const pu29Routes = require('./routes/pu29');
 const marketplaceRoutes = require('./routes/marketplace');
@@ -282,6 +283,7 @@ app.use('/api/sand', authMiddleware, auditLog('sand', 'sand_inventory'), sandRou
 app.use('/api/pu29', authMiddleware, auditLog('pu29', 'pu29_records'), pu29Routes);
 app.use('/api/pu74', authMiddleware, auditLog('pu74', 'pu74_data'), pu74Routes);
 app.use('/api/pu74_monthly', authMiddleware, auditLog('pu74_monthly', 'pu74_monthly_documents'), pu74MonthlyRoutes);
+app.use('/api/pu74-journal', authMiddleware, auditLog('pu74_journal', 'pu74_journals'), pu74JournalRoutes);
 app.use('/api/search', authMiddleware, searchRoutes);
 app.use('/api/marketplace', authMiddleware, auditLog('marketplace', 'marketplace_items'), marketplaceRoutes);
 app.use('/api/imzo', authMiddleware, imzoRoutes);

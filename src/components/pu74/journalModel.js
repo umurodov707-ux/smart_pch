@@ -443,3 +443,56 @@ export function sheetLabel(name) {
   if (!nums.length) return name;
   return nums.length > 1 ? `${nums[0]}–${nums[1]}` : nums[0];
 }
+
+// ---------------------------------------------------------------------------
+// Oylar
+// ---------------------------------------------------------------------------
+export const MONTH_NAMES = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'];
+
+export function currentMonth(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function shiftMonth(month, delta) {
+  const [y, m] = month.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return currentMonth(d);
+}
+
+export function monthLabel(month) {
+  const [y, m] = month.split('-').map(Number);
+  return `${MONTH_NAMES[m - 1]} ${y}`;
+}
+
+/**
+ * Yangi oy uchun boshlang'ich tahrirlar: o'tgan oyning reja qismi (ish nomlari,
+ * joylari, normalar, xodimlar) saqlanadi, kunlik qiymatlar tozalanadi.
+ * Formulali kataklarga tegilmaydi — ular o'zi qayta hisoblanadi.
+ */
+export function carryOverEdits(model, templateSheets, prevEdits = {}) {
+  const { sheets } = computeWorkbook(model, prevEdits);
+  const next = { ...prevEdits };
+  templateSheets.forEach((tpl, si) => {
+    const cells = sheets[si] ? sheets[si].cells : {};
+    const a = analyzeSheet(tpl, cells);
+    if (!a.dayCols.size) return;
+    for (const g of a.groups) {
+      for (let r = g.start; r <= g.end; r++) {
+        for (const c of a.dayCols.keys()) {
+          const cell = cells[cellKey(r, c)];
+          if (!cell || (cell.f && !cell.edited)) continue;
+          if (cell.v === null || cell.v === undefined || cell.v === '') continue;
+          next[editKey(si, r, c)] = '';
+        }
+      }
+    }
+  });
+  // asl faylda ham bo'sh bo'lgan kataklar uchun "bo'sh" tahriri kerak emas
+  for (const [k, v] of Object.entries(next)) {
+    if (v !== '') continue;
+    const [si, r, c] = k.split('_').map(Number);
+    const orig = model.sheets[si] && model.sheets[si].cells[cellKey(r, c)];
+    if (!orig || orig.v === null || orig.v === '' ) delete next[k];
+  }
+  return next;
+}
