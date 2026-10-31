@@ -280,7 +280,7 @@ app.use('/api/workflow', authMiddleware, auditLog('workflow', 'workflow'), workf
 app.use('/api/infrastructure', authMiddleware, auditLog('infrastructure', 'assets'), infrastructureRoutes);
 app.use('/api/okno', authMiddleware, auditLog('okno', 'work_windows'), oknoRoutes);
 app.use('/api/sand', authMiddleware, auditLog('sand', 'sand_inventory'), sandRoutes);
-app.use('/api/pu29', authMiddleware, auditLog('pu29', 'pu29_records'), pu29Routes);
+app.use('/api/pu29', authMiddleware, auditLog('pu29', 'pu29_entries'), pu29Routes);
 app.use('/api/pu74', authMiddleware, auditLog('pu74', 'pu74_data'), pu74Routes);
 app.use('/api/pu74_monthly', authMiddleware, auditLog('pu74_monthly', 'pu74_monthly_documents'), pu74MonthlyRoutes);
 app.use('/api/pu74-journal', authMiddleware, auditLog('pu74_journal', 'pu74_journals'), pu74JournalRoutes);

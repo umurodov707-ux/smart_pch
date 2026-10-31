@@ -17,6 +17,7 @@ const IzostiklarPage = lazy(() => import('./pages/IzostiklarPage'));
 const MetrologyPage = lazy(() => import('./pages/MetrologyPage'));
 const AppealCenterPage = lazy(() => import('./pages/AppealCenterPage'));
 const Pu74Page = lazy(() => import('./pages/Pu74Page'));
+const Pu29Page = lazy(() => import('./pages/Pu29Page'));
 const MechanicsPage = lazy(() => import('./pages/MechanicsPage'));
 
 function PageFallback() {
@@ -103,19 +104,11 @@ function AppContent() {
                   shu sababli tugma bosilganda pastdagi "*" qoidasi
                   foydalanuvchini jimgina /dashboard ga qaytarib yuborardi. */}
               <Route path="/pu74" element={<Pu74Page />} />
+              <Route path="/pu29" element={<Pu29Page />} />
               <Route path="/mechanics" element={<MechanicsPage />} />
 
               {/* Menyudagi qolgan bo'limlar: React versiyasi hali yo'q,
                   lekin endi hech bo'lmasa aniq xabar ko'rsatiladi. */}
-              <Route
-                path="/pu29"
-                element={
-                  <ComingSoonPage
-                    title="PU-29 Jurnal"
-                    description="Strelkali o'tkazgichlar ko'rigi jurnalining yangi interfeysi tayyorlanmoqda."
-                  />
-                }
-              />
               <Route
                 path="/dispatcher"
                 element={

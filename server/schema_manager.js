@@ -175,6 +175,22 @@ const schema = [
             UNIQUE(bolinma_id, switch_number)
         )`
     },
+    // PU-29: tekshiruvlar va ordinata o'lchovlari (har bir strelka uchun)
+    {
+        name: 'pu29_entries',
+        sql: (isPg) => `CREATE TABLE IF NOT EXISTS pu29_entries (
+            id ${isPg ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
+            bolinma_id TEXT NOT NULL,
+            switch_number TEXT NOT NULL,
+            kind TEXT NOT NULL DEFAULT 'check',
+            date TEXT,
+            data TEXT,
+            created_by TEXT,
+            created_at TEXT,
+            updated_by TEXT,
+            updated_at TEXT
+        )`
+    },
     // PU-28 Records (Section 1)
     {
         name: 'pu28_records',
@@ -829,6 +845,9 @@ async function initSchema(db) {
     await addColumn('murojaat', 'attachment_data', 'TEXT');
     await addColumn('murojaat', 'code', 'TEXT');
     await addColumn('izostiklar', 'history', 'TEXT');
+    // PU-29: strelka ma'lumotlari (stansiya, marka, rels turi ...)
+    await addColumn('pu29_pages', 'meta', 'TEXT');
+    await addColumn('pu29_pages', 'updated_at', 'TEXT');
 
     // Auto-seed infrastructure_assets if empty
     try {
