@@ -1,0 +1,233 @@
+/* PU-74 jurnali — qog'oz daftar ko'rinishi */
+
+.pu74j {
+  --paper: #fbf7ec;
+  --paper-edge: #e8dfc8;
+  --ink: #1d2a3a;
+  --ink-soft: #4a5566;
+  --ink-dim: #a39a84;
+  --calc: #1f4fa3;
+  --head-bg: #f2ebd8;
+  --off-a: #efe7d2;
+  --off-b: #f7f1e2;
+  --bad-bg: #f8d9d4;
+  --bad: #b02a1d;
+  --edit-ring: #d98a12;
+  --spine: #8a7d63;
+}
+
+/* ---------- asboblar paneli ---------- */
+.pu74j-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.pu74j-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgb(15 23 42);
+  border: 1px solid rgb(30 41 59);
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.pu74j-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(148 163 184);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.pu74j-btn:hover { background: rgb(30 41 59); color: rgb(226 232 240); }
+.pu74j-btn[aria-pressed='true'] { background: rgb(245 158 11); color: rgb(2 6 23); }
+.pu74j-btn:disabled { opacity: 0.45; cursor: default; }
+.pu74j-pages {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 100%;
+}
+.pu74j-pages::-webkit-scrollbar { display: none; }
+.pu74j-status { font-size: 12px; color: rgb(100 116 139); display: inline-flex; align-items: center; gap: 6px; }
+.pu74j-status.warn { color: rgb(251 191 36); }
+.pu74j-status.err { color: rgb(248 113 113); }
+
+.pu74j-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 10px 2px 0;
+  font-size: 12px;
+  color: rgb(148 163 184);
+}
+.pu74j-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.pu74j-legend i {
+  display: inline-block;
+  width: 14px;
+  height: 11px;
+  border: 1px solid rgb(100 116 139);
+  border-radius: 2px;
+}
+.pu74j-legend .lg-calc { background: var(--paper); border-color: var(--calc); box-shadow: inset 0 -3px 0 var(--calc); }
+.pu74j-legend .lg-edit { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--edit-ring); }
+.pu74j-legend .lg-off { background: repeating-linear-gradient(135deg, var(--off-a) 0 3px, var(--off-b) 3px 6px); }
+.pu74j-legend .lg-bad { background: var(--bad-bg); border-color: var(--bad); }
+
+/* ---------- stol (daftar ostidagi fon) ---------- */
+.pu74j-desk {
+  background: #3b3128;
+  border-radius: 16px;
+  padding: 28px 24px 34px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.pu74j-message {
+  color: rgb(203 213 225);
+  font-size: 14px;
+  padding: 40px 12px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .pu74j-desk { padding: 14px 10px 18px; border-radius: 12px; }
+  .pu74j-btn { min-height: 32px; padding: 0 8px; font-size: 12px; }
+}
+
+/* ---------- daftar ---------- */
+.pu74j-book {
+  position: relative;
+  margin: 0 auto;
+  font-family: 'Times New Roman', 'Liberation Serif', 'DejaVu Serif', serif;
+  color: var(--ink);
+}
+.pu74j-sheet-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--paper);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.pu74j-sheet-bg.single { border-radius: 4px; }
+.pu74j-sheet-bg.left {
+  border-radius: 6px 0 0 6px;
+  background: linear-gradient(90deg, var(--paper) 0, var(--paper) calc(100% - 60px), var(--paper-edge) 100%);
+}
+.pu74j-sheet-bg.right {
+  border-radius: 0 6px 6px 0;
+  background: linear-gradient(270deg, var(--paper) 0, var(--paper) calc(100% - 60px), var(--paper-edge) 100%);
+}
+.pu74j-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(90deg, #b8ab8e, var(--spine), #b8ab8e);
+}
+.pu74j-bookmarks {
+  position: absolute;
+  top: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pu74j-bookmarks button {
+  width: 46px;
+  padding: 9px 0;
+  border: 0;
+  border-radius: 0 8px 8px 0;
+  background: #e2d7bb;
+  color: #5a5040;
+  font: 600 14px system-ui, sans-serif;
+  cursor: pointer;
+}
+.pu74j-bookmarks button:hover { background: #d6c9a8; }
+.pu74j-bookmarks button[aria-current='page'] { background: #1f4fa3; color: #fff; }
+
+.pu74j-table {
+  position: relative;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.pu74j-table td {
+  padding: 0 4px;
+  line-height: 1.15;
+  overflow: visible;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.pu74j-table td.bd { overflow: hidden; }
+.pu74j-table td.wrap { white-space: normal; overflow-wrap: anywhere; }
+.pu74j-table td.gap { padding: 0; border: 0 !important; background: transparent !important; }
+.pu74j-table td.head { background: var(--head-bg); }
+.pu74j-table td.calc { color: var(--calc); }
+.pu74j-table tr.idle td:not(.head) { color: var(--ink-dim); }
+.pu74j-table td.off:not(.head) { background: repeating-linear-gradient(135deg, var(--off-a) 0 5px, var(--off-b) 5px 10px); }
+.pu74j-table tr.total td { font-weight: 700; }
+.pu74j-table td.bad {
+  background: var(--bad-bg) !important;
+  color: var(--bad) !important;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px var(--bad);
+}
+.pu74j-table td.pairtop { border-bottom-style: dashed !important; border-bottom-color: #b9ae94 !important; }
+.pu74j-table td.edited { box-shadow: inset 0 0 0 1.5px var(--edit-ring); }
+.pu74j-table td .rot { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+
+.pu74j.editing .pu74j-table td.editable { cursor: text; }
+.pu74j.editing .pu74j-table td.editable:hover { box-shadow: inset 0 0 0 1.5px #6b8fd6; }
+.pu74j.editing .pu74j-table td.locked { cursor: not-allowed; }
+.pu74j-table td.active { padding: 0; box-shadow: inset 0 0 0 2px #1f4fa3 !important; }
+.pu74j-table td input {
+  width: 100%;
+  height: 100%;
+  min-height: 18px;
+  border: 0;
+  outline: 0;
+  padding: 0 4px;
+  background: #fffdf5;
+  color: var(--ink);
+  font: inherit;
+  text-align: inherit;
+}
+
+/* ---------- chop etish ---------- */
+.pu74j-print { display: none; }
+
+@media print {
+  @page { size: A4 landscape; margin: 8mm; }
+  body * { visibility: hidden !important; }
+  .pu74j-print, .pu74j-print * { visibility: visible !important; }
+  .pu74j-print {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .pu74j-print-page {
+    break-after: page;
+    page-break-after: always;
+    display: flex;
+    justify-content: center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pu74j-print-page:last-child { break-after: auto; page-break-after: auto; }
+  .pu74j-print .pu74j-sheet-bg { box-shadow: none; background: #fff !important; }
+  .pu74j-print .pu74j-spine { background: #999; width: 1px; }
+  .pu74j-print .pu74j-table td.head { background: #f3f3f3; }
+}
