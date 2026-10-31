@@ -223,6 +223,46 @@
                     </div>
                 </div>
             `;
+        } else if (moduleKey === 'temp') {
+            // Ilgari bu forma yo'q edi: "Harorat kiritish" tugmasi hech narsa ochmasdi
+            const nowT = new Date().toTimeString().slice(0, 5);
+            formHTML = `
+                <div style="padding: 0; background: transparent;">
+                    <div class="modal-header" style="background: linear-gradient(90deg, #0f172a 0%, #431407 100%); border-bottom: 2px solid #f59e0b; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0; color: #f8fafc; font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-thermometer-half" style="color: #f59e0b;"></i>
+                            RELS HARORATINI KIRITISH
+                        </h2>
+                        <button onclick="window.closeDispatcherModal()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; border-radius: 10px; width: 35px; height: 35px; cursor: pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div style="padding: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">PDB / BO'LIM</label>
+                            <input id="m-temp-area" placeholder="PDB-1" style="width:100%; padding:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; font-weight:700;">
+                        </div>
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">VAQT</label>
+                            <input id="m-temp-time" type="time" value="${nowT}" style="width:100%; padding:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px;">
+                        </div>
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">RELS HARORATI, °C</label>
+                            <input id="m-temp-rail" type="number" inputmode="decimal" step="0.5" min="-50" max="80" placeholder="+42" style="width:100%; padding:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; font-size:1.3rem; font-weight:900; color:#fca5a5; background:rgba(239,68,68,0.06); border-color:rgba(239,68,68,0.3);">
+                        </div>
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">HAVO HARORATI, °C</label>
+                            <input id="m-temp-air" type="number" inputmode="decimal" step="0.5" min="-50" max="60" placeholder="+30" style="width:100%; padding:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px; font-size:1.3rem; font-weight:900; color:#93c5fd;">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label style="display:block; color:#94a3b8; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase;">MANZIL (KM PK) / IZOH</label>
+                            <input id="m-temp-info" placeholder="4040 km 3 pk, egri uchastka" style="width:100%; padding:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:12px;">
+                        </div>
+                    </div>
+                    <div style="padding: 20px 30px; background: rgba(15, 23, 42, 0.5); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: flex-end; gap: 15px;">
+                        <button onclick="window.closeDispatcherModal()" style="padding: 12px 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; border-radius: 12px;">Bekor qilish</button>
+                        <button onclick="window.saveModuleData('${moduleKey}')" style="padding: 12px 35px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; border: none; border-radius: 12px; font-weight: 900; letter-spacing: 1px;">SAQLASH</button>
+                    </div>
+                </div>
+            `;
         } else if (moduleKey === 'obxod') {
              formHTML = `
                 <div style="padding: 0; background: transparent;">
@@ -614,8 +654,13 @@
                 data.area = document.getElementById('m-temp-area')?.value || '-';
                 data.time = document.getElementById('m-temp-time')?.value || '-';
                 data.info = document.getElementById('m-temp-info')?.value || '-';
-                data.rail = document.getElementById('m-temp-rail')?.value || '0';
-                data.air = document.getElementById('m-temp-air')?.value || '0';
+                data.rail = document.getElementById('m-temp-rail')?.value || '';
+                data.air = document.getElementById('m-temp-air')?.value || '';
+                // bo'sh qoldirilsa ilgari "0°" yozilardi — bu xato o'lchov bo'lib ko'rinardi
+                if (data.rail === '' || !Number.isFinite(parseFloat(data.rail))) {
+                    SmartUtils.showToast('Rels haroratini kiriting', 'error');
+                    return;
+                }
                 window.dispatcherState.tempData.push(data);
             } else if (moduleKey === 'defect') {
                 data.area = document.getElementById('m-def-area').value;

@@ -257,8 +257,11 @@ img, video, canvas, iframe {
     .fullscreen-excel-modal:not(.active),
     .train-map-modal:not(.active),
     .admin-panel-modal:not(.active),
-    [class*="-modal"]:not(.active),
-    [id*="-modal"]:not(.active) {
+    /* Ilgari [class*="-modal"] / [id*="-modal"] har qanday "-modal" so'zli elementni (oynaning ichki
+       qismlarini ham: -modal-content, -modal-header) va JS ochgan oynalarni (style.display='flex',
+       masalan dispetcher hisobotidagi barcha kiritish oynalari, foydalanuvchini tahrirlash) yashirardi. */
+    [class$="-modal"]:not(.active):not([style*="display: flex"]):not([style*="display:flex"]):not([style*="display: block"]):not([style*="display:block"]),
+    [id$="-modal"]:not(.active):not([style*="display: flex"]):not([style*="display:flex"]):not([style*="display: block"]):not([style*="display:block"]) {
         display: none !important;
     }
 
@@ -715,4 +718,4 @@ img, video, canvas, iframe {
 .template-badge-btn:hover {
     background: rgba(56, 189, 248, 0.25);
     transform: translateY(-1px);
-}
+}
