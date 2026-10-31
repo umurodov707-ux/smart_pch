@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { bolinmaFilter } = require('../middleware/bolinmaScope');
+const { isAdmin, inDepartment, isDispatcher } = require('../middleware/roles');
 
 const defaultAppeals = [
     { code: '#RM-2026-001', employee_name: 'Alisher Usmonov', employee_position: 'Yo\'l ustasi', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Navbatdagi mehnat ta\'tili berishingizni so\'rayman.', created_at: '2026-07-21 10:00:00', status: 'pending' },
@@ -102,9 +104,13 @@ router.get('/:id', (req, res) => {
 
 // Murojaatni tasdiqlash (VIZA qo'yish)
 router.patch('/:id/approve', (req, res) => {
+    // Viza faqat rahbariyat (admin) yoki xodimlar bo'limi tomonidan qo'yiladi
+    if (!inDepartment(req.user, 'xodimlar')) {
+        return res.status(403).json({ message: 'Viza qo‘yish huquqi yo‘q' });
+    }
     const { manager_name, manager_comment } = req.body;
     db.run(
-        `UPDATE murojaat SET status = 'approved', manager_name = ?, manager_comment = ?, approved_date = datetime('now','localtime') WHERE id = ?`,
+        `UPDATE murojaat SET status = 'approved', manager_name = ?, manager_comment = ?, approved_date = CURRENT_TIMESTAMP WHERE id = ?`,
         [manager_name || 'Rahbar', manager_comment || '', req.params.id],
         function (err) {
             if (err) return res.status(500).json({ message: err.message });
@@ -116,9 +122,13 @@ router.patch('/:id/approve', (req, res) => {
 
 // Murojaatni rad etish
 router.patch('/:id/reject', (req, res) => {
+    // Viza faqat rahbariyat (admin) yoki xodimlar bo'limi tomonidan qo'yiladi
+    if (!inDepartment(req.user, 'xodimlar')) {
+        return res.status(403).json({ message: 'Viza qo‘yish huquqi yo‘q' });
+    }
     const { manager_name, manager_comment } = req.body;
     db.run(
-        `UPDATE murojaat SET status = 'rejected', manager_name = ?, manager_comment = ?, approved_date = datetime('now','localtime') WHERE id = ?`,
+        `UPDATE murojaat SET status = 'rejected', manager_name = ?, manager_comment = ?, approved_date = CURRENT_TIMESTAMP WHERE id = ?`,
         [manager_name || 'Rahbar', manager_comment || '', req.params.id],
         function (err) {
             if (err) return res.status(500).json({ message: err.message });
@@ -139,6 +149,8 @@ router.delete('/:id', (req, res) => {
 
 // Statistika
 router.get('/stats/summary', (req, res) => {
+    // Bo'linma faqat o'z murojaatlari sonini ko'radi
+    const bf = bolinmaFilter(req.user, req.query.bolinma_id);
     db.get(`
         SELECT
             COUNT(*) as total,
@@ -146,7 +158,8 @@ router.get('/stats/summary', (req, res) => {
             SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
             SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
         FROM murojaat
-    `, [], (err, row) => {
+        ${bf ? 'WHERE ' + bf.sql : ''}
+    `, bf ? bf.params : [], (err, row) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json(row);
     });

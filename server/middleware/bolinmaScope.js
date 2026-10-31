@@ -197,4 +197,43 @@ function bolinmaGuard(prefix, opts = {}) {
     };
 }
 
-module.exports = { bolinmaGuard, scopeOf, canSee, canon, filterPayload, RECORD_ROUTES };
+/** Bazada uchraydigan barcha yozilishlar: "3-bo'linma" → ["3-bo'linma", "3-bo‘linma", "bolinma3"] */
+function variants(id) {
+    const c = canon(id);
+    if (!c) return id === null || id === undefined ? [] : [String(id)];
+    const n = parseInt(c, 10);
+    return c.endsWith('-sex') ? [c, `sex${n}`] : [c, `${n}-bo‘linma`, `${n}-bo'linma`.replace("'", 'ʻ'), `bolinma${n}`];
+}
+
+const NONE = '__hech_qaysi__';
+
+/**
+ * Foydalanuvchi so'ragan bo'linmani ruxsat doirasida aniqlash (yozish uchun — bitta qiymat).
+ * Admin/cheklovsiz bo'lim: so'raganini (yoki null — "hammasi").
+ * Cheklangan: so'ragani ruxsat etilgan bo'lsa o'shani, aks holda o'zining birinchisini.
+ */
+function resolveBolinma(user, requested) {
+    const scope = scopeOf(user);
+    const want = requested && requested !== 'all' ? (canon(requested) || String(requested)) : null;
+    if (scope === null) return want;
+    if (want && canon(want) && scope.includes(canon(want))) return canon(want);
+    return scope[0] || NONE;
+}
+
+/**
+ * O'qish uchun SQL sharti: { sql: "col IN (?,?,..)", params } yoki null (cheklovsiz).
+ * Cheklangan foydalanuvchi hech qachon o'z doirasidan tashqariga chiqmaydi.
+ */
+function bolinmaFilter(user, requested, column = 'bolinma_id') {
+    const scope = scopeOf(user);
+    const want = requested && requested !== 'all' ? requested : null;
+    let ids;
+    if (scope === null) ids = want ? [want] : null;
+    else if (want && canon(want) && scope.includes(canon(want))) ids = [want];
+    else ids = scope.length ? scope : [NONE];
+    if (!ids) return null;
+    const all = [...new Set(ids.flatMap(variants))];
+    return { sql: `${column} IN (${all.map(() => '?').join(', ')})`, params: all };
+}
+
+module.exports = { bolinmaGuard, scopeOf, canSee, canon, filterPayload, RECORD_ROUTES, variants, resolveBolinma, bolinmaFilter, NONE };

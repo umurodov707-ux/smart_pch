@@ -86,7 +86,7 @@ function rowToJournal(row, role) {
     };
 }
 
-function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '..', 'public'), now = () => new Date() } = {}) {
+function createPu74JournalService(db, { templateDir = path.join(__dirname, '..', 'templates', 'pu74'), now = () => new Date() } = {}) {
     const q = {
         get: (sql, params) => new Promise((resolve, reject) => db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)))),
         all: (sql, params) => new Promise((resolve, reject) => db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows || [])))),
@@ -95,7 +95,7 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
 
     function brigadeExists(brigade) {
         if (!BRIGADE_RE.test(brigade)) return false;
-        return fs.existsSync(path.join(publicDir, `${brigade}.xlsx`));
+        return fs.existsSync(path.join(templateDir, `${brigade}.xlsx`));
     }
 
     const userName = (req) => (req.user && (req.user.username || String(req.user.id))) || 'nomaʼlum';

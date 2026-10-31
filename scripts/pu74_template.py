@@ -2,7 +2,7 @@
 """
 PU-74 jurnali uchun "qolip" (template) generatori.
 
-Brigada Excel fayllari (public/1-brigada.xlsx, 2-..., 3-...) bir xil tuzilishga
+Brigada Excel fayllari (server/templates/pu74/1-brigada.xlsx, 2-..., 3-...) bir xil tuzilishga
 ega. Brauzerdagi SheetJS (bepul versiya) katak chegaralari, shrift va
 tekislashni o'qimaydi, shuning uchun jurnalni qog'ozdagidek chizish uchun
 kerakli ko'rinish ma'lumotlari shu skript orqali bir marta olinadi va
@@ -12,10 +12,10 @@ Qiymatlar va formulalar esa ish vaqtida brigada faylining o'zidan o'qiladi.
 
 Ishga tushirish (Excel shakli o'zgarganda):
     pip install openpyxl
-    python3 scripts/pu74_template.py public/1-brigada.xlsx
+    python3 scripts/pu74_template.py server/templates/pu74/1-brigada.xlsx
 
 Test uchun qiymatlar bilan birga chiqarish:
-    python3 scripts/pu74_template.py public/1-brigada.xlsx --with-values out.json
+    python3 scripts/pu74_template.py server/templates/pu74/1-brigada.xlsx --with-values out.json
 """
 import json
 import os

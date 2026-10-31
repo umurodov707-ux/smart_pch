@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { isAdmin, inDepartment, isDispatcher } = require('../middleware/roles');
 
 // Get M-29 acts for a department
 router.get('/acts', (req, res) => {
@@ -106,7 +107,7 @@ router.post('/storage/bulk', (req, res) => {
 // Get pending acts count or list
 router.get('/acts/pending', (req, res) => {
     const { dept_id } = req.query;
-    let query = 'SELECT * FROM material_acts WHERE status = "pending"';
+    let query = "SELECT * FROM material_acts WHERE status = 'pending'";
     let params = [];
 
     if (dept_id) {
@@ -124,6 +125,15 @@ router.get('/acts/pending', (req, res) => {
 router.post('/acts/:id/approve', (req, res) => {
     const { id } = req.params;
     const { approved_by } = req.body;
+    if (!inDepartment(req.user, 'bugalteriya')) {
+        return res.status(403).json({ message: 'Faqat buxgalteriya tasdiqlaydi' });
+    }
+
+    // Bir akt ikki marta tasdiqlansa ombordan ikki marta ayirilardi
+    db.get('SELECT status FROM material_acts WHERE id = ?', [id], (e0, act) => {
+    if (e0) return res.status(500).json({ message: 'Ma’lumotlar bazasida xatolik' });
+    if (!act) return res.status(404).json({ message: 'Akt topilmadi' });
+    if (act.status === 'approved') return res.status(409).json({ message: 'Akt allaqachon tasdiqlangan' });
 
     db.serialize(() => {
         db.run('BEGIN TRANSACTION');
@@ -144,7 +154,7 @@ router.post('/acts/:id/approve', (req, res) => {
 
             // 3. Update act status
             const approvedDate = new Date().toISOString();
-            db.run('UPDATE material_acts SET status = "approved", approved_date = ?, approved_by = ? WHERE id = ?', 
+            db.run("UPDATE material_acts SET status = 'approved', approved_date = ?, approved_by = ? WHERE id = ?", 
                 [approvedDate, approved_by || 'Accounting', id], (err) => {
                 if (err) {
                     db.run('ROLLBACK');
@@ -158,12 +168,16 @@ router.post('/acts/:id/approve', (req, res) => {
             });
         });
     });
+    });
 });
 
 // Reject M-29 act
 router.post('/acts/:id/reject', (req, res) => {
     const { id } = req.params;
-    db.run('UPDATE material_acts SET status = "rejected" WHERE id = ?', [id], (err) => {
+    if (!inDepartment(req.user, 'bugalteriya')) {
+        return res.status(403).json({ message: 'Faqat buxgalteriya rad eta oladi' });
+    }
+    db.run("UPDATE material_acts SET status = 'rejected' WHERE id = ?", [id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ success: true });
     });

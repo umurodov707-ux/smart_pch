@@ -224,6 +224,8 @@ const LARGE_BODY_ROUTES = ['/api/files', '/api/imzo', '/api/hr/import', '/api/ai
 app.use(LARGE_BODY_ROUTES, express.json({ limit: LARGE_BODY_LIMIT }));
 
 app.use(express.json({ limit: DEFAULT_BODY_LIMIT }));
+// 5xx javoblarda SQL/ichki xato matni foydalanuvchiga ko'rsatilmaydi (serverga yoziladi)
+app.use('/api', require('./middleware/safeErrors').safeErrors);
 app.use(express.urlencoded({ extended: true, limit: DEFAULT_BODY_LIMIT }));
 
 // Buzuq JSON kelganda express standart HTML xato sahifasi o'rniga toza JSON qaytaramiz
@@ -264,7 +266,8 @@ app.use('/api/broadcast', authMiddleware, bolinmaGuard('/api/broadcast'), broadc
 app.use('/api/reports', authMiddleware, bolinmaGuard('/api/reports'), auditLog('report', 'reports'), reportRoutes);
 app.use('/api/tasks', authMiddleware, bolinmaGuard('/api/tasks'), auditLog('task', 'tasks'), taskRoutes);
 app.use('/api/defects', authMiddleware, bolinmaGuard('/api/defects'), auditLog('defect', 'defects'), defectRoutes);
-app.use('/api/storage', authMiddleware, bolinmaGuard('/api/storage'), auditLog('storage', 'kv_storage'), storageRoutes);
+// storage o'zi bo'linma bo'yicha ajratadi va birlashtiradi (routes/storage.js)
+app.use('/api/storage', authMiddleware, auditLog('storage', 'kv_storage'), storageRoutes);
 app.use('/api/hr', authMiddleware, bolinmaGuard('/api/hr'), auditLog('hr', 'employees'), hrRoutes);
 app.use('/api/safety', authMiddleware, bolinmaGuard('/api/safety'), auditLog('safety', 'safety'), safetyRoutes);
 app.use('/api/mechanics', authMiddleware, bolinmaGuard('/api/mechanics'), auditLog('mechanics', 'vehicles'), mechanicsRoutes);
@@ -398,6 +401,7 @@ io.use((socket, next) => {
                 id: user.id,
                 username: user.username,
                 role: user.role,
+                departments: safeArray(user.departments),
                 bolinmalar: safeArray(user.bolinmalar)
             };
             next();
@@ -415,7 +419,10 @@ io.on('connection', (socket) => {
     // Foydalanuvchi shu xonaga qo'shila oladimi?
     const canJoin = (roomName) => {
         if (u.role === 'admin') return true;
-        if (roomName === 'dispetcher') return ['dispetcher', 'director', 'rahbar'].includes(u.role);
+        if (roomName === 'dispetcher') return require('./middleware/roles').isDispatcher(u);
+        // bo'linma xonasi: nomlar turlicha yozilishi mumkin ("bolinma3" / "3-bo'linma")
+        const { canon, scopeOf, canSee } = require('./middleware/bolinmaScope');
+        if (canon(roomName)) return canSee(scopeOf(u), roomName);
         return u.bolinmalar.includes(roomName);
     };
 

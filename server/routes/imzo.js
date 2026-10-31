@@ -37,15 +37,23 @@ router.post('/verify', async (req, res) => {
         if (!result.isValid) throw new Error("CERTIFICATE IS INVALID");
         */
 
-        // Agar muvaffaqiyatli o'tsa:
+        // PKCS#7 base64 ko'rinishida bo'lishi kerak
+        if (!/^[A-Za-z0-9+/=\s]+$/.test(pkcs7)) {
+            return res.status(400).json({ success: false, message: "Imzo formati noto'g'ri (base64 emas)." });
+        }
+
+        // DIQQAT: sertifikat haqiqiyligi hali serverda tekshirilmaydi (DSQ API ulanmagan).
+        // Ilgari javob "Verified" deb yozardi — bu foydalanuvchini chalg'itardi.
         res.json({
             success: true,
-            message: "Imzo muvaffaqiyatli tekshirildi (Verified)",
-            verification_id: "VER-" + Date.now().toString(36).toUpperCase()
+            verified: false,
+            simulated: true,
+            message: "Imzo qabul qilindi (sertifikat server tomonida hali tekshirilmaydi)",
+            verification_id: "SIM-" + Date.now().toString(36).toUpperCase()
         });
     } catch (error) {
         console.error("E-Imzo tekshirishda xatolik:", error);
-        res.status(500).json({ success: false, message: "Imzo tekshirish imkoni bo'lmadi: " + error.message });
+        res.status(500).json({ success: false, message: "Imzo tekshirish imkoni bo'lmadi" });
     }
 });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useConfirm } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { ownBolinma } from '../utils/bolinma';
 
 export default function LeaveManagement() {
   const confirm = useConfirm();
@@ -14,65 +15,8 @@ export default function LeaveManagement() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  // Check if the user is a subdivision user
-  const role = user?.role?.toLowerCase();
-  const username = user?.username?.toLowerCase();
-  
-  let isSubdivisionUser = false;
-  let userBolinma = 'all';
-  
-  if (user && role !== 'admin') {
-    let rawBolinma = null;
-    
-    // 1. Username pattern
-    if (username?.includes('bolinma') || username?.includes("bo'linma") || username?.includes('sex') || username?.includes("bo'lim") || username?.includes('bolim')) {
-      const numMatch = username.match(/\d+/);
-      if (numMatch) {
-        rawBolinma = username.includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
-        isSubdivisionUser = true;
-      }
-    }
-    // 2. Explicit bolinmalar
-    if (!isSubdivisionUser && user.bolinmalar && user.bolinmalar.length > 0) {
-      rawBolinma = user.bolinmalar[0];
-      isSubdivisionUser = true;
-    }
-    // 3. bolinma_id
-    if (!isSubdivisionUser && user.bolinma_id && user.bolinma_id !== 'all') {
-      rawBolinma = user.bolinma_id;
-      isSubdivisionUser = true;
-    }
-    // 4. departments containing a bo'linma/bo'lim
-    if (!isSubdivisionUser && user.departments && user.departments.length > 0) {
-      const d0 = user.departments[0];
-      const d0Low = String(d0).toLowerCase();
-      if (d0Low.includes('bo\'linma') || d0Low.includes('bolinma') || d0Low.includes('bo\'lim') || d0Low.includes('bolim') || d0Low.includes('sex')) {
-        const numMatch = String(d0).match(/\d+/);
-        if (numMatch) {
-          rawBolinma = d0Low.includes('sex') ? `${numMatch[0]}-sex` : `${numMatch[0]}-bo'linma`;
-        } else {
-          rawBolinma = d0;
-        }
-        isSubdivisionUser = true;
-      }
-    }
-    // 5. inherently subdivision roles
-    if (!isSubdivisionUser && (role === 'bolinma' || role === 'subdivision')) {
-      isSubdivisionUser = true;
-      const numMatch = username?.match(/\d+/);
-      rawBolinma = numMatch ? `${numMatch[0]}-bo'linma` : '1-bo\'linma';
-    }
-    
-    if (isSubdivisionUser && rawBolinma) {
-      const numMatch = String(rawBolinma).match(/\d+/);
-      if (numMatch) {
-        const num = numMatch[0];
-        userBolinma = String(rawBolinma).toLowerCase().includes('sex') ? `${num}-sex` : `${num}-bo'linma`;
-      } else {
-        userBolinma = String(rawBolinma);
-      }
-    }
-  }
+  // Bo'linma foydalanuvchisi faqat o'z bo'linmasini ko'radi (qoida: utils/bolinma.js)
+  const { isSubdivisionUser, userBolinma } = ownBolinma(user);
 
   useEffect(() => {
     fetchEmployees();

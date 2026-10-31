@@ -8,7 +8,7 @@ import {
 
 export default function MechanicsPage() {
   const { user } = useAuth();
-  const isAdminOrDept = user?.role === 'admin' || user?.role === 'department' || user?.role === 'subdivision';
+  const isAdminOrDept = user?.role === 'admin' || user?.role === 'department';
 
   const [vehicles, setVehicles] = useState([]);
   const [orders, setOrders] = useState([]);

@@ -55,7 +55,7 @@ async function setup() {
     const origLog = console.log; const origErr = console.error;
     await initSchema(db);
     console.log = origLog; console.error = origErr;
-    return createPu74JournalService(db, { publicDir: path.join(__dirname, '..', '..', 'public') });
+    return createPu74JournalService(db, { templateDir: path.join(__dirname, '..', 'templates', 'pu74') });
 }
 
 test('tahrirlarni tekshirish', () => {

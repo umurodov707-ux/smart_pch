@@ -52,7 +52,9 @@ function loadSheetJS() {
 
 /** Brigada faylini o'qiydi. raw — Excel'ga qaytarib yozish uchun asl baytlar. */
 async function defaultModelLoader(file) {
-  const [XLSX, res] = await Promise.all([loadSheetJS(), fetch(`/${encodeURIComponent(file)}`)]);
+  const [XLSX, res] = await Promise.all([loadSheetJS(), fetch(`/api/pu74-journal/template/${encodeURIComponent(file)}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}` },
+  })]);
   if (!res.ok) throw new Error(`Jurnal fayli topilmadi: ${file}`);
   const raw = await res.arrayBuffer();
   const wb = XLSX.read(raw, { type: 'array', cellFormula: true });

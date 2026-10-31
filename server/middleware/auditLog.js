@@ -122,10 +122,10 @@ router.get('/stats', authMiddleware, (req, res) => {
             COUNT(*) as count,
             MAX(created_at) as last_activity
         FROM audit_logs
-        WHERE created_at > datetime('now', '-7 days')
+        WHERE created_at > ?
         GROUP BY username, action
         ORDER BY count DESC
-    `, [], (err, rows) => {
+    `, [new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 19).replace('T', ' ')], (err, rows) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json(rows);
     });

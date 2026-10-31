@@ -1231,9 +1231,10 @@ function initSubdivisionFeatures(idArg) {
                 // Weather
                 const weatherRes = await fetch('/api/weather?lat=39.7681&lon=64.4556');
                 if (weatherRes.ok) {
-                    const wData = await weatherRes.json();
-                    if (document.getElementById('dash-weather-temp')) document.getElementById('dash-weather-temp').innerText = '+' + Math.round(wData.main.temp) + '°C';
-                    if (document.getElementById('dash-weather-city')) document.getElementById('dash-weather-city').innerText = 'Buxoro (' + wData.weather[0].description + ')';
+                    const wData = await weatherRes.json().catch(() => null);
+                    // ob-havo javobi kutilgan ko'rinishda bo'lmasa (kalit yo'q va h.k.) qolgan bloklar to'xtab qolmasin
+                    if (wData && wData.main && document.getElementById('dash-weather-temp')) document.getElementById('dash-weather-temp').innerText = '+' + Math.round(wData.main.temp) + '°C';
+                    if (wData && Array.isArray(wData.weather) && wData.weather[0] && document.getElementById('dash-weather-city')) document.getElementById('dash-weather-city').innerText = 'Buxoro (' + wData.weather[0].description + ')';
                 }
 
                 // Inline Tasks for Dashboard
@@ -3485,8 +3486,13 @@ function showMainSystem() {
     }
 
     // Foydalanuvchi ma'lumotlarini yangilash
-    document.getElementById('userName').textContent = currentUser.name;
-    document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+    // full_name bo'sh hisoblarda ilgari shu yerda yiqilib, tizim ishga tushmasdi
+    const displayName = String((currentUser && (currentUser.name || currentUser.full_name || currentUser.username)) || 'Foydalanuvchi');
+    if (currentUser && !currentUser.name) currentUser.name = displayName;
+    const nameEl = document.getElementById('userName');
+    if (nameEl) nameEl.textContent = displayName;
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
 
     // Tizimni ishga tushirish
     initializeSystem();
@@ -5840,10 +5846,9 @@ function renderEmployeeManagement(window, bolinmaId) {
                                         `;
 
             // Edit Button Permission Check
-            const canEdit = currentUser.role === 'admin' ||
-                currentUser.role === 'xodimlar' ||
-                (currentUser.role === 'department' && currentUser.departments.includes('xodimlar')) ||
-                (currentUser.role === 'bolinma' && currentUser.departments.includes('xodimlar'));
+            // Rollar: admin | department (bo'limi departments ichida) | bolinma
+            const depts = Array.isArray(currentUser.departments) ? currentUser.departments : [];
+            const canEdit = currentUser.role === 'admin' || depts.includes('xodimlar');
 
             const editBtn = canEdit ? `
                                             <button class="action-btn edit" onclick="editEmployeeStats('${bolinmaId}', ${worker.id})">

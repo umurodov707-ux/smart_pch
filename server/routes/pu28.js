@@ -93,14 +93,14 @@ router.put('/:id/resolve', (req, res) => {
         // If photos provided, try to save them too
         if (workPhoto || facePhoto) {
             db.run(
-                'UPDATE pu28_records SET resolved_status = "resolved", date_resolved = ?, work_photo = ?, face_photo = ? WHERE id = ?',
+                "UPDATE pu28_records SET resolved_status = 'resolved', date_resolved = ?, work_photo = ?, face_photo = ? WHERE id = ?",
                 [dateResolved, workPhoto || null, facePhoto || null, id],
                 function (err) {
                     if (err) {
                         // If columns don't exist yet, fall back to basic resolve
                         console.warn('Photo columns may not exist, falling back:', err.message);
                         db.run(
-                            'UPDATE pu28_records SET resolved_status = "resolved", date_resolved = ? WHERE id = ?',
+                            "UPDATE pu28_records SET resolved_status = 'resolved', date_resolved = ? WHERE id = ?",
                             [dateResolved, id],
                             function (err2) {
                                 if (err2) return res.status(500).json({ message: 'Update failed' });
@@ -114,7 +114,7 @@ router.put('/:id/resolve', (req, res) => {
             );
         } else {
             db.run(
-                'UPDATE pu28_records SET resolved_status = "resolved", date_resolved = ? WHERE id = ?',
+                "UPDATE pu28_records SET resolved_status = 'resolved', date_resolved = ? WHERE id = ?",
                 [dateResolved, id],
                 function (err) {
                     if (err) return res.status(500).json({ message: 'Update failed' });

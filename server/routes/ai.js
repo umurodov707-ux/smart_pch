@@ -78,7 +78,7 @@ function getTechnicalBasics() {
 async function getSystemContext() {
     try {
         const empCount    = await dbGet('SELECT COUNT(*) as count FROM employees').catch(() => ({ count: '?' }));
-        const defectCount = await dbGet('SELECT COUNT(*) as count FROM defects WHERE status = "active"').catch(() => ({ count: '?' }));
+        const defectCount = await dbGet("SELECT COUNT(*) as count FROM defects WHERE status = 'active'").catch(() => ({ count: '?' }));
         
         let ctx = `\n\n--- JORIY TIZIM HOLATI (${new Date().toLocaleString('uz-UZ')}) ---\n`;
         ctx += `- Jami xodimlar: ${empCount?.count || 0}\n`;
