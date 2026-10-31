@@ -43,21 +43,16 @@ export default function AppealCenterPage() {
         const data = await resAppeals.json();
         setAppeals(data || []);
       } else {
-        // Fallback sample data if API server returns empty/error
-        setAppeals([
-          { id: 1, code: '#RM-2026-001', employee_name: 'Alisher Usmonov', employee_position: 'Yo\'l ustasi', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Navbatdagi mehnat ta\'tili berishingizni so\'rayman.', created_at: '2026-07-21T10:00:00Z', status: 'pending', step: 3 },
-          { id: 2, code: '#RM-2026-002', employee_name: 'Malika Karimova', employee_position: 'Muhandis', bolinma_id: '2-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Oila sharoitim sababli 3 kun haq to\'lanmaydigan ta\'til ajratishingizni so\'rayman.', created_at: '2026-07-20T14:30:00Z', status: 'approved', manager_name: 'Salimov Sh.B.', manager_comment: 'Viza qo\'yildi, kadrlar buyruq chiqarsin.', step: 5 },
-          { id: 3, code: '#RM-2026-003', employee_name: 'Botir Qodirov', employee_position: 'Mexanik', bolinma_id: '3-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Moddiy yordam puli ajratish to\'g\'risidagi murojaat.', created_at: '2026-07-19T09:15:00Z', status: 'pending', step: 1 },
-          { id: 4, code: '#RM-2026-004', employee_name: 'Gulnora Tursunova', employee_position: 'Dispetcher', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Yillik mehnat ta\'tili jadvalini tasdiqlash bo\'yicha.', created_at: '2026-07-18T16:00:00Z', status: 'approved', manager_name: 'Salimov Sh.B.', step: 5 },
-          { id: 5, code: '#RM-2026-005', employee_name: 'Rustam Jalilov', employee_position: 'Monter', bolinma_id: '4-bo\'linma', murojaat_type: 'Shikoyat', murojaat_text: 'Xavfsizlik texnikasi vositalari yetishmasligi bo\'yicha bildirishnoma.', created_at: '2026-07-18T11:20:00Z', status: 'rejected', manager_comment: 'Tushuntirish berildi, muammo joyida hal etildi.', step: 2 }
-        ]);
+        // Ilgari bu yerda 5 ta soxta murojaat ko'rsatilardi — foydalanuvchi ularni haqiqiy deb o'ylardi
+        setAppeals([]);
+        toast.error('Murojaatlarni serverdan yuklab bo‘lmadi');
       }
 
       if (resStats && resStats.ok) {
         const stats = await resStats.json();
         setStatsData(stats);
       } else {
-        setStatsData({ total: 1284, pending: 342, approved: 892, rejected: 50 });
+        setStatsData({ total: 0, pending: 0, approved: 0, rejected: 0 }); // ilgari soxta 1284/342/892/50
       }
     } catch (err) {
       console.error('Error fetching appeals:', err);
@@ -225,7 +220,7 @@ export default function AppealCenterPage() {
       // Offline fallback creation
       const created = {
         id: Date.now(),
-        code: `#RM-2026-${Math.floor(100 + Math.random() * 900)}`,
+        code: '(saqlanmagan)',
         employee_name: newAppealForm.employee_name,
         employee_position: newAppealForm.employee_position || 'Xodim',
         bolinma_id: newAppealForm.bolinma_id,
@@ -244,7 +239,8 @@ export default function AppealCenterPage() {
   // Generate Buyruq (Official Decree/Order PDF Printable Window)
   const handleGenerateBuyruq = (appeal) => {
     const todayStr = new Date().toLocaleDateString('uz-UZ', { day: '2-digit', month: 'long', year: 'numeric' });
-    const orderNo = Math.floor(100 + Math.random() * 900);
+    // Buyruq raqami murojaatga bog'liq (ilgari har ochilganda tasodifiy raqam chiqardi)
+    const orderNo = String(appeal.code || appeal.id || '').replace(/^#/, '');
 
     const htmlContent = `
       <!DOCTYPE html>

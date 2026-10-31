@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { emitScoped } = require('../utils/emit');
 const { isAdmin, inDepartment, isDispatcher } = require('../middleware/roles');
 const { resolveBolinma } = require('../middleware/bolinmaScope');
 const OKNO_STATUSES = ['requested', 'planned', 'pending', 'approved', 'rejected', 'completed', 'cancelled', 'in_progress'];
@@ -40,7 +41,7 @@ router.post('/', (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
             
             const io = req.app.get('io');
-            if (io) io.emit('new_okno_plan', { id: this.lastID, title, type, start_time });
+            emitScoped(io, finalBolinmaId, 'new_okno_plan', { id: this.lastID, title, type, start_time });
             
             res.json({ success: true, id: this.lastID });
         }

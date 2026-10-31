@@ -501,35 +501,15 @@ window.openSafetyWorkerList = function (bolinmaId) {
 
         if (cancelled || hardwareSuccess) return;
 
-        // Fallback simulation
-        document.getElementById('sf-zk-status').innerText = "BARMOG'INGIZNI BOSING...";
-        setTimeout(() => {
-            if (cancelled) return;
-            document.getElementById('sf-zk-status').innerText = "SKANERLANMOQDA...";
-            const icon = document.getElementById('sf-zk-icon');
-            const line = document.getElementById('sf-zk-line');
-            icon.style.color = "#ffd700";
-            line.style.display = "block";
-            
-            let p = 30; let d = 1;
-            const anim = setInterval(() => {
-                p += (4 * d);
-                if (p >= 230 || p <= 30) d *= -1;
-                line.style.top = p + "px";
-            }, 10);
-
-            setTimeout(() => {
-                if (cancelled) { clearInterval(anim); return; }
-                clearInterval(anim);
-                
-                document.getElementById('sf-zk-status').innerText = "TASDIQLANDI!";
-                document.getElementById('sf-zk-status').style.color = "#238636";
-                icon.style.color = "#238636";
-                line.style.display = "none";
-                
-                setTimeout(() => processSuccess(), 800);
-            }, 2000);
-        }, 1500);
+        // Ilgari skaner topilmasa animatsiyadan keyin baribir "TASDIQLANDI / ZKTECO FINGERPRINT
+        // VERIFIED" yozilib, yo'riqnoma jurnaliga soxta biometrik tasdiq tushardi.
+        // Endi: skaner yo'q bo'lsa tasdiqlanmaydi — qo'lda imzo tanlanadi.
+        const zkStatus = document.getElementById('sf-zk-status');
+        if (zkStatus) {
+            zkStatus.innerText = "SKANER TOPILMADI — QO'LDA IMZO QO'YING";
+            zkStatus.style.color = "#ef4444";
+        }
+        if (typeof showToast === 'function') showToast("Barmoq izi skaneri ulanmagan. Qo'lda imzo usulini tanlang.", "error");
 
         function processSuccess() {
             if (typeof showToast === 'function') showToast("Barmoq izi tasdiqlandi!", "success");

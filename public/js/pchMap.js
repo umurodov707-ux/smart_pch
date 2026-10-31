@@ -222,8 +222,8 @@ window.updateLiveWorkers = function (map) {
     
     window.INITIAL_DATA.workers.forEach(worker => {
         // Simulated movement for PCH Map
-        worker.lat += (Math.random() - 0.5) * 0.001;
-        worker.lng += (Math.random() - 0.5) * 0.001;
+        /* worker.lat: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
+        /* worker.lng: ilgari tasodifiy siljitilardi (soxta \"jonli\" harakat) — haqiqiy GPS bo'lmaguncha joyida */
 
         // Path tracking
         if (!window._workerRoutes[worker.id]) window._workerRoutes[worker.id] = [];
@@ -861,14 +861,16 @@ function showStationInfo(st, color, masofa) {
     const bolinmaName = `${st.bolinma}-bo'linma`;
     const isStation = st.type === 'станция';
 
-    // Random live data for demo
-    const temp = Math.floor(20 + Math.random() * 25);
-    const wind = Math.floor(2 + Math.random() * 12);
-    const humidity = Math.floor(30 + Math.random() * 50);
-    const defects = Math.floor(Math.random() * 5);
-    const lastCheck = Math.floor(1 + Math.random() * 10);
-    const trackCond = defects === 0 ? 'SOZ' : (defects < 3 ? 'NAZORATDA' : 'XAVFLI');
-    const condColor = defects === 0 ? '#10b981' : (defects < 3 ? '#f59e0b' : '#ef4444');
+    // Ilgari bu yerda tasodifiy "jonli" ma'lumot (harorat, nuqsonlar soni, yo'l holati
+    // SOZ/XAVFLI) ko'rsatilardi. Haqiqiy manba ulanmaguncha "ma'lumot yo'q" ko'rsatiladi.
+    const w = (window.weatherData && window.weatherData.current && window.weatherData.current.main) ? window.weatherData.current : null;
+    const temp = w ? Math.round(w.main.temp) : '—';
+    const wind = w && w.wind ? Math.round(w.wind.speed) : '—';
+    const humidity = w ? w.main.humidity : '—';
+    const defects = '—';
+    const lastCheck = '—';
+    const trackCond = 'MA’LUMOT YO‘Q';
+    const condColor = '#94a3b8';
 
     const panel = document.createElement('div');
     panel.id = 'station-dashboard-panel';
@@ -935,7 +937,7 @@ function showStationInfo(st, color, masofa) {
             </div>
             <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; text-align: center;">
                 <div style="color: rgba(255,255,255,0.4); font-size: 0.65rem;">OXIRGI TEKSHIRUV</div>
-                <div style="color: #10b981; font-weight: 700; font-size: 0.85rem; margin-top: 4px;">${lastCheck} kun oldin</div>
+                <div style="color: #10b981; font-weight: 700; font-size: 0.85rem; margin-top: 4px;">${lastCheck}</div>
             </div>
             <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; text-align: center;">
                 <div style="color: rgba(255,255,255,0.4); font-size: 0.65rem;">MAS'UL</div>

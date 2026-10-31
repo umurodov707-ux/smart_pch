@@ -1,11 +1,8 @@
 /**
  * SMART PCH — Texnik xizmat ko'rsatish moduli
  */
-let maintenanceLogs = JSON.parse(localStorage.getItem('maintenance_logs') || 'null') || [
-    { id: 1, object: 'Lokomotiv #2024', task: 'Dvigatel moyini almashtirish', status: 'repair', person: 'Azimov B.', date: '2026-01-20' },
-    { id: 2, object: 'Stansiya A-1 transformator', task: 'Kuchlanishni barqarorlashtirish', status: 'check', person: 'Karimov S.', date: '2026-01-25' },
-    { id: 3, object: 'Videokuzatuv tizimi', task: "Kamera #4 signal yo'qolishi", status: 'ok', person: "IT Bo'lim", date: '2026-01-24' }
-];
+// Ilgari bo'sh bo'lsa 3 ta to'qima yozuv ko'rsatilardi
+let maintenanceLogs = (() => { try { return JSON.parse(localStorage.getItem('maintenance_logs') || 'null') || []; } catch (e) { return []; } })();
 
 function saveMaintenanceData() {
     localStorage.setItem('maintenance_logs', JSON.stringify(maintenanceLogs));

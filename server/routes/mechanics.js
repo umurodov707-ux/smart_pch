@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { requireDept } = require('../middleware/roles');
+// Mexanika bo'limining umumiy jadvallari (ehtiyot qismlar, ta'mir, buyurtma holati)
+// faqat mexanika/admin tomonidan o'zgartiriladi. Ilgari istalgan bo'linma o'chira olardi.
+const MEX = requireDept('mexanika');
 
 // --- Vehicles ---
 
@@ -42,7 +46,7 @@ router.put('/vehicles/:id/status', (req, res) => {
 });
 
 // Delete vehicle
-router.delete('/vehicles/:id', (req, res) => {
+router.delete('/vehicles/:id', MEX, (req, res) => {
     db.run('DELETE FROM vehicles WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ message: 'Vehicle deleted' });
@@ -116,7 +120,7 @@ router.post('/repairs', (req, res) => {
 });
 
 // Delete repair log
-router.delete('/repairs/:id', (req, res) => {
+router.delete('/repairs/:id', MEX, (req, res) => {
     db.run('DELETE FROM repair_logs WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ message: 'Repair log deleted' });
@@ -134,7 +138,7 @@ router.get('/parts', (req, res) => {
 });
 
 // Update part quantity
-router.patch('/parts/:id', (req, res) => {
+router.patch('/parts/:id', MEX, (req, res) => {
     const { quantity } = req.body;
     db.run('UPDATE mechanic_parts SET quantity = ? WHERE id = ?', [quantity, req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
@@ -143,7 +147,7 @@ router.patch('/parts/:id', (req, res) => {
 });
 
 // Add new part
-router.post('/parts', (req, res) => {
+router.post('/parts', MEX, (req, res) => {
     const { name, part_number, quantity, unit, min_limit, price } = req.body;
     db.run(
         'INSERT INTO mechanic_parts (name, part_number, quantity, unit, min_limit, price) VALUES (?, ?, ?, ?, ?, ?)',
@@ -156,7 +160,7 @@ router.post('/parts', (req, res) => {
 });
 
 // Delete part
-router.delete('/parts/:id', (req, res) => {
+router.delete('/parts/:id', MEX, (req, res) => {
     db.run('DELETE FROM mechanic_parts WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ message: 'Part deleted' });
@@ -204,7 +208,7 @@ router.patch('/maintenance/:id', (req, res) => {
 });
 
 // Delete maintenance record
-router.delete('/maintenance/:id', (req, res) => {
+router.delete('/maintenance/:id', MEX, (req, res) => {
     db.run('DELETE FROM technical_maintenance WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ message: 'Record deleted' });
@@ -235,8 +239,11 @@ router.post('/orders', (req, res) => {
 });
 
 // Update order status
-router.patch('/orders/:id', (req, res) => {
+router.patch('/orders/:id', MEX, (req, res) => {
     const { status } = req.body;
+    if (!['pending', 'approved', 'in_progress', 'completed', 'done', 'rejected', 'cancelled', 'new'].includes(status)) {
+        return res.status(400).json({ message: 'Noto‘g‘ri holat' });
+    }
     db.run('UPDATE vehicle_orders SET status = ? WHERE id = ?', [status, req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ message: 'Order status updated' });
@@ -244,7 +251,7 @@ router.patch('/orders/:id', (req, res) => {
 });
 
 // Delete order
-router.delete('/orders/:id', (req, res) => {
+router.delete('/orders/:id', MEX, (req, res) => {
     db.run('DELETE FROM vehicle_orders WHERE id = ?', [req.params.id], (err) => {
         if (err) return res.status(500).json({ message: err.message });
         res.json({ message: 'Order deleted' });

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { bolinmaFilter } = require('../middleware/bolinmaScope');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
@@ -75,10 +76,14 @@ function getTechnicalBasics() {
 /**
  * Gets general system context for chat
  */
-async function getSystemContext() {
+async function getSystemContext(user) {
     try {
-        const empCount    = await dbGet('SELECT COUNT(*) as count FROM employees').catch(() => ({ count: '?' }));
-        const defectCount = await dbGet("SELECT COUNT(*) as count FROM defects WHERE status = 'active'").catch(() => ({ count: '?' }));
+        // Bo'linma faqat o'z ko'rsatkichlarini ko'radi (AI orqali ham)
+        const bf = bolinmaFilter(user, null);
+        const w = bf ? ' AND ' + bf.sql : '';
+        const p = bf ? bf.params : [];
+        const empCount    = await dbGet('SELECT COUNT(*) as count FROM employees WHERE 1=1' + w, p).catch(() => ({ count: '?' }));
+        const defectCount = await dbGet("SELECT COUNT(*) as count FROM defects WHERE status = 'active'" + w, p).catch(() => ({ count: '?' }));
         
         let ctx = `\n\n--- JORIY TIZIM HOLATI (${new Date().toLocaleString('uz-UZ')}) ---\n`;
         ctx += `- Jami xodimlar: ${empCount?.count || 0}\n`;
@@ -126,6 +131,7 @@ router.post('/chat', async (req, res) => {
 
         // TASK: DEFECT FORECAST (Bo'linmalar bo'yicha nuqson xavfini bashoratlash)
         else if (task === 'predict_defects') {
+            const defBf = bolinmaFilter(req.user, null);
             const stats = await dbAll(`
                 SELECT bolinma_id,
                        COUNT(*) as total,
@@ -133,9 +139,10 @@ router.post('/chat', async (req, res) => {
                        SUM(CASE WHEN is_repeated=1 THEN 1 ELSE 0 END) as repeated_count,
                        AVG(degree) as avg_degree
                 FROM defects
+                ${defBf ? 'WHERE ' + defBf.sql : ''}
                 GROUP BY bolinma_id
                 ORDER BY active_count DESC
-            `).catch(() => []);
+            `, defBf ? defBf.params : []).catch(() => []);
 
             systemPrompt = `Siz temir yo'l infratuzilmasi bo'yicha bashoratchi tahlilchisiz.
 Sizga bo'linmalar (PCH uchastkalari) bo'yicha joriy nuqsonlar statistikasi beriladi:
@@ -160,7 +167,7 @@ Javobni albatta quyidagi JSON formatida qaytaring:
 
         // AGENT MODE (DEFAULT)
         else {
-            const systemContext = await getSystemContext();
+            const systemContext = await getSystemContext(req.user);
             systemPrompt = `Siz "PCH-Agent" — O'zbekiston Temir Yo'llari Smart PCH tizimi uchun AQLLI AGENT hisoblanasiz.
 Siz faqat savolga javob bermaysiz, balki foydalanuvchi so'raganda AMALLAR ham bajarasiz.
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { emitScoped } = require('../utils/emit');
 const { safeParse } = require('../utils/safeJson');
 const { isAdmin } = require('../middleware/roles');
 const { scopeOf, canSee } = require('../middleware/bolinmaScope');
@@ -122,7 +123,7 @@ router.post('/sign', (req, res) => {
             
             const io = req.app.get('io');
             if (io) {
-                io.emit('workflow_update', {
+                emitScoped(io, String(doc_id || '').split('_')[0], 'workflow_update', {
                     doc_type,
                     doc_id,
                     status: newStatus,
@@ -188,7 +189,7 @@ router.post('/reject', (req, res) => {
             
             const io = req.app.get('io');
             if (io) {
-                io.emit('workflow_update', {
+                emitScoped(io, String(doc_id || '').split('_')[0], 'workflow_update', {
                     doc_type,
                     doc_id,
                     status: 'rejected',

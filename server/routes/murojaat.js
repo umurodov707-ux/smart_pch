@@ -1,16 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { emitScoped } = require('../utils/emit');
+const { resolveBolinma, NONE } = require('../middleware/bolinmaScope');
 const { bolinmaFilter } = require('../middleware/bolinmaScope');
 const { isAdmin, inDepartment, isDispatcher } = require('../middleware/roles');
 
-const defaultAppeals = [
-    { code: '#RM-2026-001', employee_name: 'Alisher Usmonov', employee_position: 'Yo\'l ustasi', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Navbatdagi mehnat ta\'tili berishingizni so\'rayman.', created_at: '2026-07-21 10:00:00', status: 'pending' },
-    { code: '#RM-2026-002', employee_name: 'Malika Karimova', employee_position: 'Muhandis', bolinma_id: '2-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Oila sharoitim sababli 3 kun haq to\'lanmaydigan ta\'til ajratishingizni so\'rayman.', created_at: '2026-07-20 14:30:00', status: 'approved', manager_name: 'Salimov Sh.B.', manager_comment: 'Viza qo\'yildi, kadrlar buyruq chiqarsin.' },
-    { code: '#RM-2026-003', employee_name: 'Botir Qodirov', employee_position: 'Mexanik', bolinma_id: '3-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Moddiy yordam puli ajratish to\'g\'risidagi murojaat.', created_at: '2026-07-19 09:15:00', status: 'pending' },
-    { code: '#RM-2026-004', employee_name: 'Gulnora Tursunova', employee_position: 'Dispetcher', bolinma_id: '1-bo\'linma', murojaat_type: 'Ariza', murojaat_text: 'Yillik mehnat ta\'tili jadvalini tasdiqlash bo\'yicha.', created_at: '2026-07-18 16:00:00', status: 'approved', manager_name: 'Salimov Sh.B.' },
-    { code: '#RM-2026-005', employee_name: 'Rustam Jalilov', employee_position: 'Monter', bolinma_id: '4-bo\'linma', murojaat_type: 'Shikoyat', murojaat_text: 'Xavfsizlik texnikasi vositalari yetishmasligi bo\'yicha bildirishnoma.', created_at: '2026-07-18 11:20:00', status: 'rejected', manager_comment: 'Tushuntirish berildi, muammo joyida hal etildi.' }
-];
+// Ilgari jadval bo'sh bo'lsa bu yerga 5 ta to'qima murojaat (soxta ismlar, "tasdiqlangan"
+// holatlar) bazaga yozilardi va haqiqiy yozuvlar qatorida qolib ketardi. Olib tashlandi.
 
 // Yangi murojaat yuborish
 router.post('/', (req, res) => {
@@ -20,19 +17,22 @@ router.post('/', (req, res) => {
         return res.status(400).json({ message: 'Xodim va murojaat matni kiritilishi shart' });
     }
 
-    const appCode = code || `#RM-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const bId = resolveBolinma(req.user, bolinma_id) || bolinma_id || null;
+    if (bId === NONE) return res.status(403).json({ message: 'Profilingizga bo‘linma biriktirilmagan' });
+    // Kod: joriy yil + vaqtga asoslangan (ilgari 2026 qotirilgan va faqat 900 ta variant — takrorlanardi)
+    const appCode = code || `#RM-${new Date().getFullYear()}-${Date.now().toString(36).slice(-6).toUpperCase()}`;
 
     db.run(
         `INSERT INTO murojaat (code, employee_id, employee_name, employee_position, bolinma_id, murojaat_type, murojaat_text, signature_data, face_verified, attachment_data)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [appCode, employee_id || null, employee_name, employee_position || 'Xodim', bolinma_id || '1-bo\'linma', murojaat_type || 'Ariza', murojaat_text, signature_data || null, face_verified ? 1 : 0, attachment_data || null],
+        [appCode, employee_id || null, employee_name, employee_position || 'Xodim', bId, murojaat_type || 'Ariza', murojaat_text, signature_data || null, face_verified ? 1 : 0, attachment_data || null],
         function (err) {
             if (err) return res.status(500).json({ message: err.message });
 
             // Emit notification
             const io = req.app.get('io');
             if (io) {
-                io.emit('system_alert', {
+                emitScoped(io, bId, 'system_alert', {
                     message: `Yangi murojaat: ${employee_name} (${murojaat_type})`,
                     type: 'murojaat'
                 });
@@ -54,9 +54,10 @@ router.get('/', (req, res) => {
         conditions.push('status = ?');
         params.push(status);
     }
-    if (bolinma_id) {
-        conditions.push('bolinma_id = ?');
-        params.push(bolinma_id);
+    const bf = bolinmaFilter(req.user, bolinma_id);
+    if (bf) {
+        conditions.push(bf.sql);
+        params.push(...bf.params);
     }
 
     if (conditions.length > 0) {
@@ -68,28 +69,7 @@ router.get('/', (req, res) => {
     db.all(query, params, (err, rows) => {
         if (err) return res.status(500).json({ message: err.message });
 
-        // Auto seed initial data if empty
-        if (rows.length === 0 && !status && !bolinma_id) {
-            let inserted = 0;
-            for (const item of defaultAppeals) {
-                db.run(
-                    `INSERT INTO murojaat (code, employee_name, employee_position, bolinma_id, murojaat_type, murojaat_text, created_at, status, manager_name, manager_comment)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [item.code, item.employee_name, item.employee_position, item.bolinma_id, item.murojaat_type, item.murojaat_text, item.created_at, item.status, item.manager_name || null, item.manager_comment || null],
-                    () => {
-                        inserted++;
-                        if (inserted === defaultAppeals.length) {
-                            db.all('SELECT * FROM murojaat ORDER BY created_at DESC', [], (err2, newRows) => {
-                                if (err2) return res.status(500).json({ message: err2.message });
-                                res.json(newRows);
-                            });
-                        }
-                    }
-                );
-            }
-        } else {
-            res.json(rows);
-        }
+        res.json(rows);
     });
 });
 

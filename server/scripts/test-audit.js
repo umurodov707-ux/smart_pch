@@ -130,3 +130,16 @@ test('marshrut fayllari yuklanadi (sintaksis va importlar)', () => {
         assert.doesNotThrow(() => require(`../routes/${f}`), f);
     }
 });
+
+test('real vaqt xabarlari faqat tegishli bo‘linmaga', () => {
+    const { roomsFor, emitScoped } = require('../utils/emit');
+    assert.deepStrictEqual(roomsFor(U.admin), ['scope:all']);
+    assert.deepStrictEqual(roomsFor(U.b1), ["scope:1-bo'linma"]);
+    assert.deepStrictEqual(roomsFor(U.noNum), [], 'bo‘linmasiz — hech qaysi xona');
+    const sent = [];
+    const io = { to(r) { const rooms = [r]; const chain = { to(x) { rooms.push(x); return chain; }, emit(ev, p) { sent.push({ rooms, ev, p }); } }; return chain; } };
+    emitScoped(io, 'bolinma3', 'x', 1);
+    assert.deepStrictEqual(sent[0].rooms, ['scope:all', "scope:3-bo'linma"]);
+    emitScoped(io, null, 'y', 2);
+    assert.deepStrictEqual(sent[1].rooms, ['scope:all']);
+});

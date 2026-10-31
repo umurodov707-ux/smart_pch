@@ -78,11 +78,18 @@
         `;
         document.body.appendChild(overlay);
         
-        // Simulating GPS coordinates
-        setTimeout(() => {
+        // Haqiqiy joylashuv (ilgari doim Toshkent koordinatasi qotirib ko'rsatilardi)
+        const setCoord = (txt) => {
             const el = document.querySelector('.sm-header span:nth-child(2)');
-            if (el) el.innerHTML = `<i class="fas fa-map-marker-alt" style="margin-right: 5px; color:#ef4444;"></i> Koordinata: 41.3110° N, 69.2405° E`;
-        }, 1500);
+            if (el) el.innerHTML = `<i class="fas fa-map-marker-alt" style="margin-right: 5px; color:#ef4444;"></i> ${txt}`;
+        };
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => setCoord(`Koordinata: ${pos.coords.latitude.toFixed(4)}° N, ${pos.coords.longitude.toFixed(4)}° E`),
+                () => setCoord('Koordinata aniqlanmadi'),
+                { timeout: 10000 }
+            );
+        } else setCoord('Koordinata aniqlanmadi');
 
         // Check offline/online
         window.addEventListener('offline', updateSmStatus);
@@ -190,9 +197,10 @@
             display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif;
         `;
         
-        // Generate pseudo-crypto hash
-        const cryptoHash = Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
-        const userName = window.Auth?.currentUser?.fullname || "Alimov B.T.";
+        // Ilgari tasodifiy "SHA-256" ko'rsatilardi va begona ism ("Alimov B.T.") qo'yilardi
+        const cryptoHash = 'E-IMZO hali ulanmagan — hujjat imzolanmaydi';
+        const u = window.Auth?.currentUser || {};
+        const userName = u.full_name || u.name || u.username || 'Foydalanuvchi';
 
         modal.innerHTML = `
             <style>
@@ -249,21 +257,21 @@
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 3px solid #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; font-size: 2.5rem; color: #10b981;">
                     <i class="fas fa-check"></i>
                 </div>
-                <h2 style="color: #fff; margin: 0 0 10px 0; font-weight: 900;">MUVAFFAQIYATLI!</h2>
-                <p style="color: #64748b; font-size: 0.9rem;">Hujjat raqamli imzolandi va bazaga qulflab qo'yildi.</p>
+                <h2 style="color: #fff; margin: 0 0 10px 0; font-weight: 900;">TANISHILDI</h2>
+                <p style="color: #64748b; font-size: 0.9rem;">Belgilandi. Diqqat: bu E-IMZO raqamli imzosi emas va hujjat bazada qulflanmaydi.</p>
             </div>
         `;
         
         setTimeout(() => {
             const m = document.getElementById('eimzo-audit-modal');
             if (m) m.remove();
-            SmartUtils.showToast("Imzolandi: " + docName, "success");
+            SmartUtils.showToast("Belgilandi (E-IMZO emas): " + docName, "info");
             
             // If linked to a specific UI element, update its status
             if (targetId) {
                 const el = document.getElementById(targetId);
                 if (el) {
-                    el.innerHTML = `<span style="background: rgba(16,185,129,0.1); color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; border: 1px solid rgba(16,185,129,0.3);"><i class="fas fa-lock"></i> IMZOLANDI</span>`;
+                    el.innerHTML = `<span style="background: rgba(16,185,129,0.1); color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; border: 1px solid rgba(16,185,129,0.3);"><i class="fas fa-check"></i> BELGILANDI</span>`;
                 }
             }
         }, 2000);

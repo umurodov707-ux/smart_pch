@@ -16,6 +16,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { emitScoped } = require('../utils/emit');
 const { safeObject } = require('../utils/safe');
 const { canonBolinma } = require('./pu29');
 const { scopeOf, canSee } = require('../middleware/bolinmaScope');
@@ -208,7 +209,7 @@ function createPu74JournalService(db, { templateDir = path.join(__dirname, '..',
                 }
                 const saved = await q.get('SELECT * FROM pu74_journals WHERE bolinma_id = ? AND brigade = ? AND month = ?', [p.bolinma, p.brigade, p.month]);
                 const io = req.app && req.app.get && req.app.get('io');
-                if (io) io.emit('pu74_journal_updated', { bolinma: p.bolinma, brigade: p.brigade, month: p.month, version: Number(saved.version) });
+                if (io) emitScoped(io, p.bolinma, 'pu74_journal_updated', { bolinma: p.bolinma, brigade: p.brigade, month: p.month, version: Number(saved.version) });
                 res.json(rowToJournal(saved, role(req)));
             } catch (e) { fail(res, e); }
         },

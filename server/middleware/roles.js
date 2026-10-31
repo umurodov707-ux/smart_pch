@@ -54,3 +54,12 @@ function inDepartment(user, ...depts) {
 const isDispatcher = (user) => inDepartment(user, 'dispetcher');
 
 module.exports = { ROLES, DEPARTMENTS, normDept, roleOf, isAdmin, isBolinma, isDepartment, departmentsOf, inDepartment, isDispatcher };
+
+/** Express middleware: faqat admin yoki ko'rsatilgan bo'lim(lar) xodimi */
+function requireDept(...depts) {
+    return (req, res, next) => {
+        if (inDepartment(req.user, ...depts)) return next();
+        return res.status(403).json({ message: 'Bu amal uchun ruxsat yo‘q (faqat ' + depts.join(', ') + ' bo‘limi)' });
+    };
+}
+module.exports.requireDept = requireDept;

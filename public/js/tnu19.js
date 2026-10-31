@@ -766,7 +766,7 @@ async function startTNU19FaceID() {
 
         // Artificial delay for "finding face"
         setTimeout(() => {
-            status.innerText = "Yuz topildi! Skanerlash boshlanmoqda...";
+            status.innerText = "Kamera tayyor. Surat olinmoqda...";
             status.style.color = "#238636";
             line.style.display = "block";
 
@@ -789,9 +789,9 @@ async function startTNU19FaceID() {
             let p = 0;
             const pInterval = setInterval(() => {
                 p += 1.5;
-                if (p > 30 && p < 40) status.innerText = "Biometrik nuqtalar tahlil qilinmoqda...";
-                if (p > 60 && p < 70) status.innerText = "Ma'lumotlar bazasi bilan solishtirilmoqda...";
-                if (p > 85 && p < 95) status.innerText = "Muvaffaqiyatli!";
+                
+                
+                if (p > 85 && p < 95) status.innerText = "Surat olindi (yuz tekshiruvi yo‘q)";
 
                 progress.style.width = p + "%";
                 if (p >= 100) {
@@ -828,21 +828,10 @@ function finishFaceID() {
     video.style.filter = "grayscale(0%) brightness(1.0)";
     video.style.transition = "all 0.5s";
 
-    // --- AUTOMATIC FACE TEMPLATE CAPTURE ---
-    if (tnu19SignatureStep === 'worker' && tnu19CurrentRecord.workerId) {
-        const faceCanvas = document.createElement('canvas');
-        faceCanvas.width = video.videoWidth;
-        faceCanvas.height = video.videoHeight;
-        faceCanvas.getContext('2d').drawImage(video, 0, 0);
-        const faceBase64 = faceCanvas.toDataURL('image/jpeg', 0.8);
-
-        SmartUtils.fetchAPI(`/hr/employees/${tnu19CurrentRecord.workerId}/face`, {
-            method: 'PATCH',
-            body: JSON.stringify({ face_template: faceBase64 })
-        }).then(() => console.log('Face template captured/updated'))
-            .catch(e => console.error('Face capture error:', e));
-    }
-    // ----------------------------------------
+    // Ilgari bu yerda kameradagi xom surat xodimning yuz shabloni USTIGA yozilardi:
+    // istalgan odam shablonni almashtira olardi va safety.js dagi haqiqiy Face ID
+    // (descriptor JSON kutadi) o'sha xodim uchun buzilardi. Olib tashlandi —
+    // shablon faqat HR bo'limida ro'yxatdan o'tkazishda yoziladi.
 
     setTimeout(() => {
         // Generate a stylized signature instead of a robotic box
@@ -885,27 +874,15 @@ function finishFaceID() {
         ctx.fillStyle = "rgba(0,100,0,0.5)";
         ctx.textAlign = "right";
         const dateStr = new Date().toLocaleString();
-        ctx.fillText("FACIAL BIOMETRIC VERIFIED: " + dateStr, 390, 140);
+        ctx.fillText("SURAT BILAN QAYD ETILDI (YUZ TEKSHIRILMAGAN): " + dateStr, 390, 140);
 
         const sigData = canvas.toDataURL();
 
         if (tnu19SignatureStep === 'worker') {
             tnu19CurrentRecord.workerSignature = sigData;
 
-            // --- AUTOMATIC TIMESHEET UPDATE ---
-            if (tnu19CurrentRecord.workerId) {
-                SmartUtils.fetchAPI('/timesheet/attendance', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        employee_id: tnu19CurrentRecord.workerId,
-                        hours: 8 // Standard 8 hours for passing Face ID
-                    })
-                }).then(() => {
-                    console.log('Attendance recorded for', tnu19CurrentRecord.workerName);
-                    showToast(`${tnu19CurrentRecord.workerName} uchun davomat qayd etildi (8 soat)`, 'success');
-                }).catch(e => console.error('Attendance error:', e));
-            }
-            // ----------------------------------
+            // Ilgari shu yerda tabelga avtomatik 8 soat yozilardi — yuz tekshirilmagani uchun
+            // istalgan xodimga davomat qo'yish mumkin edi. Davomat tabel bo'limida kiritiladi.
 
             tnu19SignatureStep = 'instructor';
             stopTNU19FaceID();
