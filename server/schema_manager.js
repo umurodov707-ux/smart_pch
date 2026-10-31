@@ -850,6 +850,23 @@ async function initSchema(db) {
     await addColumn('pu29_pages', 'meta', 'TEXT');
     await addColumn('pu29_pages', 'updated_at', 'TEXT');
 
+    // Eski ilova kalit-qiymat omboriga yozib qo'ygan shaxsiy ma'lumotlarni tozalash.
+    // Bular (boshqa foydalanuvchining profili, foydalanuvchilar ro'yxati, token) endi
+    // hech kimga berilmaydi, lekin bazada ham qolmasligi kerak. Har ishga tushishda
+    // xavfsiz takrorlanadi.
+    await new Promise((resolve) => {
+        db.run(
+            `DELETE FROM kv_storage WHERE key IN ('currentUser', 'jwtToken', 'smart_pch_users', 'smartpch_view_mode',
+                'smart_offline_reqs', 'pu74_view', 'pu74_bolinma', 'pu29_bolinma', 'active_masofa_id')
+             OR LOWER(key) LIKE '%token%' OR LOWER(key) LIKE '%password%' OR LOWER(key) LIKE '%parol%'`,
+            [],
+            (err) => {
+                if (err && !/no such table|does not exist/i.test(err.message)) console.error('kv_storage tozalash:', err.message);
+                resolve();
+            }
+        );
+    });
+
     // Auto-seed infrastructure_assets if empty
     try {
         db.get("SELECT COUNT(*) as count FROM infrastructure_assets", [], async (err, row) => {
