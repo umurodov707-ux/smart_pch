@@ -115,3 +115,13 @@ test('tarix, ko‘rib chiqish va real vaqt xabarlari', async () => {
     assert.deepStrictEqual(v.data.map((x) => x.username), ['brigadir1', 'dispetcher', 'brigadir1', 'dispetcher']);
     assert.ok(t.emitted.some((e) => e.ev === 'report_reviewed' && e.p.status === 'accepted'));
 });
+
+test('eslatma faqat dispetcherdan va faqat tanlangan bo‘linmalarga', async () => {
+    const t = await setup('2026-10-31T13:40:00Z');
+    assert.strictEqual((await t.call(t.s.remind, { user: U.b1, body: { bolinmalar: ['bolinma2'] } })).status, 403);
+    assert.strictEqual((await t.call(t.s.remind, { user: U.disp, body: { bolinmalar: [] } })).status, 400);
+    const r = await t.call(t.s.remind, { user: U.disp, body: { bolinmalar: ['bolinma6', "8-bo'linma", 'x'] } });
+    assert.strictEqual(r.data.sent, 2);
+    assert.deepStrictEqual(t.emitted.map((e) => e.rooms[1]), ["scope:6-bo'linma", "scope:8-bo'linma"]);
+    assert.strictEqual(t.emitted[0].p.at, '18:40');
+});

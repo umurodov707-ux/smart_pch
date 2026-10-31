@@ -207,6 +207,20 @@ function createDailyReportsService(db, { now = () => Date.now() } = {}) {
             } catch (e) { fail(res, e); }
         },
 
+        /** POST /remind { bolinmalar: [...], date } — yubormaganlarga eslatma (faqat dispetcher) */
+        async remind(req, res) {
+            const user = req.user || {};
+            if (!isDispatcher(user)) return res.status(403).json({ message: 'Eslatmani dispetcher yuboradi' });
+            const list = Array.isArray(req.body && req.body.bolinmalar) ? req.body.bolinmalar : [];
+            const targets = [...new Set(list.map(canon).filter(Boolean))].slice(0, 50);
+            if (!targets.length) return res.status(400).json({ message: 'Bo‘linma tanlanmagan' });
+            const date = DATE_RE.test((req.body && req.body.date) || '') ? req.body.date : localParts(now()).date;
+            const io = req.app && req.app.get ? req.app.get('io') : null;
+            const at = localParts(now()).time;
+            targets.forEach((b) => emitScoped(io, b, 'report_reminder', { bolinma_id: b, bolinma_key: legacyKey(b), date, by: user.username, at }));
+            res.json({ message: `${targets.length} ta bo‘linmaga eslatma yuborildi`, sent: targets.length });
+        },
+
         /** GET /:id/versions — kim, qachon, nima qildi */
         async versions(req, res) {
             try {

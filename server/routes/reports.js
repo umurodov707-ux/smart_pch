@@ -7,6 +7,7 @@
  *   POST /api/reports                     — yuborish/yangilash { bolinma_id?, date?, structuredData }
  *   POST /api/reports/:id/review          — dispetcher: { action: accept|return, comment }
  *   GET  /api/reports/:id/versions        — tarix
+ *   POST /api/reports/remind              — dispetcher: yubormaganlarga eslatma { bolinmalar, date }
  *
  * Bo'linma bo'yicha ajratish umumiy bolinmaGuard orqali (index.js).
  */
@@ -21,6 +22,7 @@ router.get('/', service.list);
 router.get('/today', (req, res) => { req.query.date = service.today(); return service.list(req, res); });
 router.get('/history', service.history);
 router.post('/', service.submit);
+router.post('/remind', service.remind);
 router.post('/:id(\\d+)/review', service.review);
 router.get('/:id(\\d+)/versions', service.versions);
 

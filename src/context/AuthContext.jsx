@@ -12,8 +12,16 @@ export const AuthProvider = ({ children }) => {
     const savedUser = localStorage.getItem('currentUser');
     const savedToken = localStorage.getItem('jwtToken');
     if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
-      setToken(savedToken);
+      // buzilgan yozuv butun ilovani oq ekranga tushirmasin — qayta kirish so'raladi
+      let parsed = null;
+      try { parsed = JSON.parse(savedUser); } catch { parsed = null; }
+      if (parsed && typeof parsed === 'object') {
+        setUser(parsed);
+        setToken(savedToken);
+      } else {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('jwtToken');
+      }
     }
     setLoading(false);
   }, []);

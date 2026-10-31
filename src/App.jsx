@@ -8,7 +8,6 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import MainDashboard from './pages/MainDashboard';
-import ComingSoonPage from './pages/ComingSoonPage';
 
 // Katta bo'limlar faqat ochilganda yuklanadi (birinchi yuklanish tezroq)
 const HrPortal = lazy(() => import('./pages/HrPortal'));
@@ -18,6 +17,7 @@ const MetrologyPage = lazy(() => import('./pages/MetrologyPage'));
 const AppealCenterPage = lazy(() => import('./pages/AppealCenterPage'));
 const Pu74Page = lazy(() => import('./pages/Pu74Page'));
 const Pu29Page = lazy(() => import('./pages/Pu29Page'));
+const DispatcherPage = lazy(() => import('./pages/DispatcherPage'));
 const MechanicsPage = lazy(() => import('./pages/MechanicsPage'));
 
 function PageFallback() {
@@ -107,17 +107,8 @@ function AppContent() {
               <Route path="/pu29" element={<Pu29Page />} />
               <Route path="/mechanics" element={<MechanicsPage />} />
 
-              {/* Menyudagi qolgan bo'limlar: React versiyasi hali yo'q,
-                  lekin endi hech bo'lmasa aniq xabar ko'rsatiladi. */}
-              <Route
-                path="/dispatcher"
-                element={
-                  <ComingSoonPage
-                    title="AI Dispetcher"
-                    description="Dispetcherlik markazining yangi interfeysi tayyorlanmoqda."
-                  />
-                }
-              />
+              {/* Dispetcherlik: kunlik hisobotlar (bo'linma yuboradi, dispetcher qabul qiladi) */}
+              <Route path="/dispatcher" element={<DispatcherPage />} />
 
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
