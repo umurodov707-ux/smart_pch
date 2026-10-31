@@ -4,7 +4,7 @@ const db = require('../db');
 
 // Get all active defects for map visualization
 router.get('/', (req, res) => {
-    db.all('SELECT * FROM defects WHERE status = 'active'', [], (err, rows) => {
+    db.all("SELECT * FROM defects WHERE status = 'active'", [], (err, rows) => {
         if (err) return res.status(500).json({ message: 'Database error' });
         res.json(rows);
     });
@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 // Get defects for bolinma
 router.get('/:bolinma_id', (req, res) => {
     const { bolinma_id } = req.params;
-    db.all('SELECT * FROM defects WHERE bolinma_id = ? AND status = 'active'', [bolinma_id], (err, rows) => {
+    db.all("SELECT * FROM defects WHERE bolinma_id = ? AND status = 'active'", [bolinma_id], (err, rows) => {
         if (err) return res.status(500).json({ message: 'Database error' });
         res.json(rows);
     });
