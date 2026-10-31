@@ -5,7 +5,7 @@ import {
   CircleCheckBig, Undo2, LockOpen, Lock, CalendarPlus, CloudOff, DatabaseZap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { allowedBolinmalar, pu74Wide } from '../../utils/bolinma';
+import { allowedBolinmalar } from '../../utils/bolinma';
 import TEMPLATE from './pu74Template.json';
 import {
   analyzeSheet, carryOverEdits, cellKey, computeWorkbook, currentMonth, editKey, fromSheetJS, monthLabel,
@@ -70,7 +70,7 @@ const fmtTime = (iso) => {
 export default function Pu74Journal({ modelLoader = defaultModelLoader, initialBrigade = 0, initialSheet = 2, initialMonth }) {
   const { user } = useAuth();
   const role = (user && user.role) || '';
-  const bolinmaOptions = useMemo(() => allowedBolinmalar(user, pu74Wide), [user]);
+  const bolinmaOptions = useMemo(() => allowedBolinmalar(user), [user]);
   const [bolinma, setBolinma] = useState(() => {
     try { const s = localStorage.getItem('pu74_bolinma'); if (s && bolinmaOptions.includes(s)) return s; } catch { /* yo'q */ }
     return bolinmaOptions[0] || '';

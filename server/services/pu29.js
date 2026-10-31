@@ -7,12 +7,12 @@
  * Qoidalar (eski interfeys bilan bir xil):
  *  - yozuv yaratilgandan keyin 3 soat davomida tahrirlanadi, keyin qulflanadi
  *    (faqat admin o'zgartira oladi) — jurnal yozuvini keyinroq "to'g'rilab" bo'lmaydi
- *  - bo'linma foydalanuvchisi faqat o'z bo'linmasini ko'radi; admin va
- *    "ishlab-chiqarish" bo'limi hammasini
+ *  - bo'linma foydalanuvchisi faqat o'z bo'linmasini ko'radi (umumiy qoida — middleware/bolinmaScope.js)
  *
  * Express'ga bog'liq emas: handlerlar (req, res) oladi va alohida test qilinadi.
  */
 const { safeObject } = require('../utils/safe');
+const { scopeOf, canSee } = require('../middleware/bolinmaScope');
 
 const LOCK_MS = 3 * 60 * 60 * 1000;
 const KINDS = ['check', 'ordinat'];
@@ -80,12 +80,8 @@ function createPu29Service(db, { now = () => Date.now() } = {}) {
     };
     const who = (req) => (req.user && (req.user.username || String(req.user.id))) || 'nomaʼlum';
     const isAdmin = (req) => req.user && req.user.role === 'admin';
-    const canAccess = (req, bolinma) => {
-        const u = req.user || {};
-        if (u.role === 'admin') return true;
-        if ((u.departments || []).includes('ishlab-chiqarish')) return true;
-        return (u.bolinmalar || []).some((b) => canonBolinma(b) === bolinma);
-    };
+    // umumiy qoida: middleware/bolinmaScope.js
+    const canAccess = (req, bolinma) => canSee(scopeOf(req.user), bolinma);
     const fail = (res, e) => { console.error('[pu29]', e && e.message); res.status(500).json({ message: 'Serverda ichki xatolik' }); };
 
     function guard(req, res) {

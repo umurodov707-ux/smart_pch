@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { GitFork, Plus, RefreshCw, Search, Trash2, ChevronRight, LayoutGrid } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { allowedBolinmalar, pu29Wide } from '../utils/bolinma';
+import { allowedBolinmalar } from '../utils/bolinma';
 import SwitchJournal, { fmtDate } from '../components/pu29/SwitchJournal';
 import { LINE_CATEGORIES, RAIL_TYPES, liveStats, normalizeCategory, recordIssues, recordStatus } from '../components/pu29/norms.js';
 import '../components/pu29/pu29.css';
@@ -18,7 +18,7 @@ const fmtNum = (v) => (v === null || v === undefined ? '—' : String(Math.round
 export default function Pu29Page() {
   const { user } = useAuth();
   // Har bir bo'linma faqat o'z strelkalarini ko'radi (server ham shuni tekshiradi)
-  const options = useMemo(() => allowedBolinmalar(user, pu29Wide), [user]);
+  const options = useMemo(() => allowedBolinmalar(user), [user]);
   const [bolinma, setBolinma] = useState(() => {
     try { const s = localStorage.getItem('pu29_bolinma'); if (s && options.includes(s)) return s; } catch { /* yo'q */ }
     return options[0] || '';

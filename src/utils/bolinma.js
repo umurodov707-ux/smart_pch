@@ -18,23 +18,19 @@ export function userBolinmalar(user) {
 }
 
 /**
- * @param {object} user
- * @param {(user) => boolean} isWide kim hamma bo'linmalarni ko'radi
+ * Server bilan bir xil qoida (server/middleware/bolinmaScope.js):
+ *   admin — hammasi; bo'linma — faqat o'zi; bo'lim — biriktirilganlari (biriktirilmagan bo'lsa hammasi).
  * @returns {string[]} ruxsat etilgan bo'linmalar (bo'sh bo'lsa — hech biri)
  */
-export function allowedBolinmalar(user, isWide) {
+export function allowedBolinmalar(user) {
   if (!user) return [];
-  if (user.role === 'admin' || (isWide && isWide(user))) return ALL_BOLINMALAR;
-  return userBolinmalar(user);
+  const role = String(user.role || '').toLowerCase();
+  if (role === 'admin') return ALL_BOLINMALAR;
+  const own = userBolinmalar(user);
+  if (role === 'bolinma') {
+    if (own.length) return own;
+    const u = canonBolinma(String(user.username || '').replace(/[^a-z0-9'-]/gi, ''));
+    return u ? [u] : [];
+  }
+  return own.length ? own : ALL_BOLINMALAR;
 }
-
-const departments = (user) => {
-  let d = user && user.departments;
-  if (typeof d === 'string') { try { d = JSON.parse(d); } catch { d = [d]; } }
-  return Array.isArray(d) ? d : [];
-};
-
-/** PU-29: admin va "ishlab-chiqarish" bo'limi */
-export const pu29Wide = (user) => departments(user).includes('ishlab-chiqarish');
-/** PU-74: admin va bo'limlar (jurnalni tekshiradi va tasdiqlaydi) */
-export const pu74Wide = (user) => user && user.role === 'department';

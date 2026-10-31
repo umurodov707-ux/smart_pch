@@ -18,6 +18,7 @@ const fs = require('fs');
 const path = require('path');
 const { safeObject } = require('../utils/safe');
 const { canonBolinma } = require('./pu29');
+const { scopeOf, canSee } = require('../middleware/bolinmaScope');
 
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const BRIGADE_RE = /^\d{1,2}-brigada$/;
@@ -100,11 +101,10 @@ function createPu74JournalService(db, { publicDir = path.join(__dirname, '..', '
     const userName = (req) => (req.user && (req.user.username || String(req.user.id))) || 'nomaʼlum';
     const role = (req) => (req.user && req.user.role) || '';
 
-    /** Bo'linma o'z jurnalini ko'radi; admin va bo'limlar (tekshiruvchilar) hammasini */
+    /** Umumiy qoida (middleware/bolinmaScope.js): bo'linma — o'zinikini, admin — hammasini,
+     *  bo'lim — biriktirilgan bo'linmalarni (biriktirilmagan bo'lsa hammasini) */
     function canAccess(req, bolinma) {
-        const u = req.user || {};
-        if (u.role === 'admin' || u.role === 'department') return true;
-        return (u.bolinmalar || []).some((b) => canonBolinma(b) === bolinma);
+        return canSee(scopeOf(req.user), bolinma);
     }
 
     function validate(req, res) {
