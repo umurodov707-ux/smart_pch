@@ -320,3 +320,25 @@
   pointer-events: none;
 }
 .pu74j-stamp small { font-weight: 500; font-size: 11px; letter-spacing: 0; margin-top: 2px; }
+
+/* ---------- bo'limlardan to'ldirish ---------- */
+.pu74j-muted { color: rgb(100 116 139); font-size: 12px; }
+.pu74j-integr-head { display: flex; justify-content: space-between; align-items: center; }
+.pu74j-integr-head strong { display: inline-flex; align-items: center; gap: 8px; color: rgb(226 232 240); font-size: 14px; }
+.pu74j-integr-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+.pu74j-integr-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 10px; border: 1px solid rgb(30 41 59); background: rgb(2 6 23);
+}
+.pu74j-integr-item .t, .pu74j-integr-result .t { color: rgb(226 232 240); font-weight: 700; font-size: 13px; }
+.pu74j-integr-item.here { border-color: rgb(245 158 11 / 0.5); }
+.pu74j-integr-item.open { background: rgb(30 41 59 / 0.6); }
+.pu74j-integr-result { display: flex; flex-direction: column; gap: 8px; }
+.pu74j-integr-result .pu74j-note { margin: 0; }
+.pu74j-integr-table { max-height: 320px; overflow: auto; border: 1px solid rgb(30 41 59); border-radius: 10px; }
+.pu74j-integr-table table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.pu74j-integr-table th { position: sticky; top: 0; background: rgb(15 23 42); text-align: left; padding: 6px 8px; color: rgb(148 163 184); font-weight: 600; }
+.pu74j-integr-table td { padding: 5px 8px; border-top: 1px solid rgb(30 41 59); vertical-align: top; }
+.pu74j-integr-table td.old { color: rgb(148 163 184); text-decoration: line-through; max-width: 260px; }
+.pu74j-integr-table td.new { color: rgb(110 231 183); font-weight: 600; max-width: 320px; }
+.pu74j-integr-table tr.off td { opacity: 0.45; }
