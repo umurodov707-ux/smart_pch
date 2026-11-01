@@ -19,7 +19,8 @@
     "test:pu74": "node --test server/scripts/test-pu74-journal.js tests/pu74/journal.test.mjs",
     "test:pu29": "node --test server/scripts/test-pu29.js tests/pu29/norms.test.mjs",
     "test:bolinma": "node --test server/scripts/test-bolinma-scope.js",
-    "test:audit": "node --test server/scripts/test-audit.js"
+    "test:audit": "node --test server/scripts/test-audit.js",
+    "test:reports": "node --test server/scripts/test-daily-reports.js tests/dispatcher/summary.test.mjs"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

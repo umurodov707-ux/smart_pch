@@ -7685,7 +7685,10 @@ button,
 #murojaatlar-modal:not(.active),
 #obs-modal:not(.active),
 #exodim-modal:not(.active),
-[class*="-modal"]:not(.active),
-[id*="-modal"]:not(.active) {
+/* Ilgari [class*="-modal"] / [id*="-modal"] har qanday "-modal" so'zli elementni (oynaning ichki
+   qismlarini ham: -modal-content, -modal-header) va JS ochgan oynalarni (style.display='flex',
+   masalan dispetcher hisobotidagi barcha kiritish oynalari, foydalanuvchini tahrirlash) yashirardi. */
+[class$="-modal"]:not(.active):not([style*="display: flex"]):not([style*="display:flex"]):not([style*="display: block"]):not([style*="display:block"]),
+[id$="-modal"]:not(.active):not([style*="display: flex"]):not([style*="display:flex"]):not([style*="display: block"]):not([style*="display:block"]) {
     display: none !important;
 }
