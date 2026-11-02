@@ -7,7 +7,7 @@
     if (typeof original !== 'function') return;
     window.openDepartmentWindow = function (departmentId) {
         if (departmentId === 'dispetcher') {
-            window.location.assign('/dashboard/dispatcher');
+            (window.SmartEmbed ? window.SmartEmbed.go('/dashboard/dispatcher') : window.location.assign('/dashboard/dispatcher'));
             return;
         }
         return original.apply(this, arguments);

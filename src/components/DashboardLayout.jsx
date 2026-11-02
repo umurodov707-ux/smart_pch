@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { NAV_GROUPS, findNavItem } from './layout/navigation';
+import { navGroupsFor, findNavItem } from './layout/navigation';
 import CommandPalette from './layout/CommandPalette';
 import { Badge, cn } from './ui';
 
@@ -54,9 +54,10 @@ function UserAvatar({ user, className }) {
 }
 
 function SidebarNav({ collapsed, onNavigate }) {
+  const { user } = useAuth();
   return (
     <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-      {NAV_GROUPS.map((group) => (
+      {navGroupsFor(user).map((group) => (
         <div key={group.label}>
           {collapsed ? (
             <div className="mx-auto mb-2 w-6 border-t border-slate-800" />

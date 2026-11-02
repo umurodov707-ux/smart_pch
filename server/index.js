@@ -353,31 +353,23 @@ const distPath = path.join(__dirname, '..', 'dist');
 // Yuklab olish faqat GET /api/files/download/:id orqali (token va ruxsat tekshiriladi).
 app.use('/uploads', (req, res) => res.status(404).end());
 
-app.use(express.static(publicPath));
-app.use(express.static(distPath));
+// BITTA SAYT: kirish nuqtasi — yangi sayt (React, dist/). Eski sahifa (public/index.html)
+// endi alohida sayt sifatida ochilmaydi: uning bo'lim oynalari yangi saytning ichida
+// /index.html?embed=<bo'lim> orqali ko'rsatiladi (public/js/embed.js).
+// Zaxira: /klassik — eski to'liq interfeys (o'tish davri uchun).
+app.use(express.static(publicPath, { index: false }));
+app.use(express.static(distPath, { index: false }));
 
-// Handle SPAs / Routes — Odatiy holatda asosiy public/index.html ni uzatish
+app.get(['/klassik', '/klassik/'], (req, res) => res.sendFile(path.join(publicPath, 'index.html')));
+
 app.use((req, res, next) => {
     if (req.method !== 'GET' || req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.includes('.')) {
         return next();
     }
-
-
-
-    // React dashboard marshrutlari uchun dist/index.html ga yo'naltirish
-    if (req.path.startsWith('/react') || req.path.startsWith('/dashboard')) {
-        const reactIndex = path.join(distPath, 'index.html');
-        if (fs.existsSync(reactIndex)) {
-            return res.sendFile(reactIndex);
-        }
-    }
-    // Asosiy to'liq ilova: public/index.html
-    const publicIndex = path.join(publicPath, 'index.html');
-    if (fs.existsSync(publicIndex)) {
-        res.sendFile(publicIndex);
-    } else {
-        res.sendFile(path.join(distPath, 'index.html'));
-    }
+    const reactIndex = path.join(distPath, 'index.html');
+    if (fs.existsSync(reactIndex)) return res.sendFile(reactIndex);
+    // yangi sayt hali yig'ilmagan bo'lsa (npm run frontend:build) — eski sahifa
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // === SOCKET.IO AUTENTIFIKATSIYASI ===
