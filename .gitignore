@@ -73,3 +73,8 @@ test_click.js
 
 # Hech qachon ochiq papkaga chiqmasin
 public/users_debug.json
+
+# Shaxsiy ma'lumotli fayllar (JShShIR, telefon, ism-familiya) — public/ login'siz uzatiladi
+private_data/
+public/*tabel*.xlsx
+public/[0-9a-f][0-9a-f][0-9a-f][0-9a-f]*.xlsx
