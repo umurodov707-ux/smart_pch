@@ -682,6 +682,9 @@ function getDispatcherDashboardHTML() {
 // --- SMART SUBDIVISION DASHBOARD START ---
 function getSmartSubdivisionDashboardHTML(user) {
     const bolinmaId = user.bolinmalar && user.bolinmalar[0] ? user.bolinmalar[0] : 'Bo\'linma';
+    // onclick="...('${...}')" ichiga yoziladi: "3-bo'linma" dagi apostrof ilgari qatorni buzib,
+    // profildagi to'rtala tugma (Dispetcher jurnali, Tabel, Ishlab chiqarish, PU-80) ishlamasdi
+    const bolinmaIdJs = String(bolinmaId).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const bolinmaName = typeof window.getBolinmaName === 'function' ? window.getBolinmaName(bolinmaId) : bolinmaId;
 
     return `
@@ -854,19 +857,19 @@ function getSmartSubdivisionDashboardHTML(user) {
                     <h1 class="hero-title">${bolinmaName} Profili</h1>
                     
                     <div class="hero-actions" style="margin-top: 20px; margin-bottom: 25px; display: flex; gap: 15px; flex-wrap: wrap;">
-                        <button onclick="window.renderReportingSystem && window.renderReportingSystem('mainContent', '${bolinmaId}')" class="gold-btn" 
+                        <button onclick="window.renderReportingSystem && window.renderReportingSystem('mainContent', '${bolinmaIdJs}')" class="gold-btn" 
                             style="padding: 12px 24px; border-radius: 14px; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); background: var(--gold-gradient); color: #000; border: none; cursor: pointer;">
                             <i class="fas fa-book-open"></i> DISPETCHER JURNALI
                         </button>
-                        <button onclick="window.openTimesheet && window.openTimesheet('${bolinmaId}')" class="glass-btn" 
+                        <button onclick="window.openTimesheet && window.openTimesheet('${bolinmaIdJs}')" class="glass-btn" 
                             style="padding: 12px 24px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; display: flex; align-items: center; gap: 10px; cursor: pointer;">
                             <i class="fas fa-calendar-alt"></i> ELEKTRON TABEL
                         </button>
-                        <button onclick="window.openProductionDashboard && window.openProductionDashboard('${bolinmaId}')" class="glass-btn" 
+                        <button onclick="window.openProductionDashboard && window.openProductionDashboard('${bolinmaIdJs}')" class="glass-btn" 
                             style="padding: 12px 24px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); color: #38bdf8; display: flex; align-items: center; gap: 10px; cursor: pointer;">
                             <i class="fas fa-industry"></i> ISHLAB CHIQARISH
                         </button>
-                        <button onclick="window.openPU80Window && window.openPU80Window('${bolinmaId}')" class="glass-btn" 
+                        <button onclick="window.openPU80Window && window.openPU80Window('${bolinmaIdJs}')" class="glass-btn" 
                             style="padding: 12px 24px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.2); color: #60a5fa; display: flex; align-items: center; gap: 10px; cursor: pointer;">
                             <i class="fas fa-tools"></i> PU-80
                         </button>
@@ -5113,65 +5116,8 @@ function renderAccountingSection(winEl, bolinmaId) {
     `;
 }
 
-function renderSubdivisionReportSection(winEl, bolinmaId) {
-    const contentDiv = winEl.querySelector('.window-content');
-    if (!contentDiv) return;
+// renderSubdivisionReportSection — public/js/dispatcher_redirect.js da (yangi Dispetcher sahifasiga havola)
 
-    // 1. Standart elementlarni butunlay yashiramiz
-    const fileMgmt = contentDiv.querySelector('.file-management');
-    const folderSelector = contentDiv.querySelector('.folder-selector');
-    const sectionTitle = contentDiv.querySelector('.section-title');
-    const filesTable = contentDiv.querySelector('.files-table');
-    const sidebar = contentDiv.querySelector('.road-management-sidebar');
-
-    if (fileMgmt) fileMgmt.style.display = 'none';
-    if (folderSelector) folderSelector.style.display = 'none';
-    if (sectionTitle) sectionTitle.style.display = 'none';
-    if (filesTable) filesTable.style.display = 'none';
-    if (sidebar) sidebar.style.display = 'none';
-
-    // 2. Hisobot konteynerini yaratish yoki tozalash
-    let reportView = contentDiv.querySelector('#dispatcher-assignment-view');
-    if (!reportView) {
-        reportView = document.createElement('div');
-        reportView.id = 'dispatcher-assignment-view';
-        reportView.style.width = '100%';
-        reportView.style.minHeight = '400px';
-        contentDiv.insertBefore(reportView, contentDiv.firstChild);
-    }
-
-    reportView.style.display = 'block';
-    reportView.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; color: #00c6ff;">
-            <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; margin-bottom: 20px;"></i>
-            <div style="font-size: 1.2rem; font-weight: 500;">Dispetcher moduli yuklanmoqda...</div>
-        </div>
-    `;
-
-    // 3. Ma'lumotlarni yuklab yangi PU-74 formasini chiqarish
-    const initFunc = window.initDispatcherData || (typeof initDispatcherData === 'function' ? initDispatcherData : null);
-    const renderFunc = window.renderSubdivisionReportSendView || (typeof renderSubdivisionReportSendView === 'function' ? renderSubdivisionReportSendView : null);
-
-    if (initFunc) {
-        initFunc().then(() => {
-            if (renderFunc) {
-                reportView.innerHTML = renderFunc(bolinmaId);
-            } else {
-                reportView.innerHTML = '<div style="padding:20px; color:#ef4444; text-align:center;">Xatolik: renderSubdivisionReportSendView topilmadi.</div>';
-            }
-        }).catch(err => {
-            console.error("Dispetcher yuklashda xato:", err);
-            reportView.innerHTML = `<div style="padding:20px; color:#ef4444; text-align:center;">Ma'lumotlarni yuklab bo'lmadi: ${escapeHtml(err.message)}</div>`;
-        });
-    } else {
-        reportView.innerHTML = `
-            <div style="padding:40px; text-align:center; background: rgba(239, 68, 68, 0.1); border: 2px dashed #ef4444; border-radius: 20px; color:#ef4444;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
-                <div style="font-size: 1.1rem; font-weight: bold;">Xatolik: Dispetcher tizimi (dispatcher.js) orqali yuklanmagan.</div>
-                <p style="margin-top:10px; opacity:0.8; font-size:0.9rem;">Iltimos, sahifani yangilang yoki keshni tozalab ko'ring.</p>
-            </div>`;
-    }
-}
 
 // --- PRODUCTION SECTION RENDERER ---
 function renderProductionSection(winEl, bolinmaId) {
@@ -6017,14 +5963,7 @@ function openDepartmentWindow(departmentId) {
     if (isXodimlar && typeof renderHRMainPortal === 'function') {
         content.id = 'hr-dept-content';
         content.innerHTML = renderHRMainPortal(departmentId);
-    } else if (departmentId === 'dispetcher') {
-        content.innerHTML = '<div class="dispatcher-dashboard-container" style="padding:40px; text-align:center; color:white;"><i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...</div>';
-        if (typeof initDispatcherData === 'function') {
-            initDispatcherData().then(() => {
-                const dash = content.querySelector('.dispatcher-dashboard-container');
-                if (dash) dash.innerHTML = typeof getDispatcherDashboardHTML === 'function' ? getDispatcherDashboardHTML() : 'Dispetcher Error';
-            });
-        }
+    // 'dispetcher' — yangi sahifa (/dashboard/dispatcher), dispatcher_redirect.js yo'naltiradi
     } else if (departmentId === 'metrologiya') {
         content.innerHTML = typeof getMetrologyDashboardHTML === 'function' ? getMetrologyDashboardHTML() : 'Metrologiya Error';
     } else if (departmentId === 'mehnat-muhofazasi' || departmentId === 'mehnat') {
