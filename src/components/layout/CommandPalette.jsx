@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Search, CornerDownLeft, Sun, Moon, LogOut } from 'lucide-react';
-import { NAV_ITEMS } from './navigation';
+import { navGroupsFor } from './navigation';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../ui';
@@ -15,14 +15,14 @@ function normalize(s) {
 export default function CommandPalette({ open, onClose }) {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
 
   const commands = useMemo(
     () => [
-      ...NAV_ITEMS.map((item) => ({
+      ...navGroupsFor(user).flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))).map((item) => ({
         id: item.path,
         label: item.label,
         group: item.group,
@@ -40,7 +40,7 @@ export default function CommandPalette({ open, onClose }) {
       },
       { id: 'logout', label: 'Tizimdan chiqish', group: 'Amallar', icon: LogOut, keywords: 'logout chiqish', run: logout },
     ],
-    [navigate, theme, toggleTheme, logout]
+    [navigate, theme, toggleTheme, logout, user]
   );
 
   const results = useMemo(() => {

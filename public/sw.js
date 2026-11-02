@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-pch-v20261030.network.first.v8';
+const CACHE_NAME = 'smart-pch-v20261102.bitta-sayt.v9';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -38,7 +38,6 @@ const ASSETS_TO_CACHE = [
     '/js/admin-panel.js',
     '/js/timesheet.js',
     '/js/attendance.js',
-    '/js/dispatcher.js',
     '/js/map-logic.js',
     '/js/weather.js',
     '/js/hr.js',

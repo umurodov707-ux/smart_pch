@@ -3,7 +3,7 @@
 // Eski oynadagi tugmalar va havolalar shu yerga yo'naltiriladi.
 (function () {
     function openNewJournal() {
-        window.location.assign('/dashboard/pu74');
+        (window.SmartEmbed ? window.SmartEmbed.go('/dashboard/pu74') : window.location.assign('/dashboard/pu74'));
     }
     window.openPU74Window = openNewJournal;
     window.PU74Dashboard = { open: openNewJournal };

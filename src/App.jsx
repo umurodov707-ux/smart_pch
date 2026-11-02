@@ -18,6 +18,7 @@ const AppealCenterPage = lazy(() => import('./pages/AppealCenterPage'));
 const Pu74Page = lazy(() => import('./pages/Pu74Page'));
 const Pu29Page = lazy(() => import('./pages/Pu29Page'));
 const DispatcherPage = lazy(() => import('./pages/DispatcherPage'));
+const ClassicModulePage = lazy(() => import('./pages/ClassicModulePage'));
 const MechanicsPage = lazy(() => import('./pages/MechanicsPage'));
 
 function PageFallback() {
@@ -109,6 +110,9 @@ function AppContent() {
 
               {/* Dispetcherlik: kunlik hisobotlar (bo'linma yuboradi, dispetcher qabul qiladi) */}
               <Route path="/dispatcher" element={<DispatcherPage />} />
+
+              {/* Hali ko'chirilmagan bo'lim va bo'linma oynalari — shu saytning ichida */}
+              <Route path="/bolim/:id" element={<ClassicModulePage />} />
 
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

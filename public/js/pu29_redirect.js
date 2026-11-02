@@ -4,7 +4,7 @@
 // script.js'dan keyin yuklanadi, shuning uchun undagi eski funksiyalar ustidan yoziladi.
 (function () {
     function openNewPU29() {
-        window.location.assign('/dashboard/pu29');
+        (window.SmartEmbed ? window.SmartEmbed.go('/dashboard/pu29') : window.location.assign('/dashboard/pu29'));
     }
     window.openPU29Menu = openNewPU29;
     window.openPU29Window = openNewPU29;
